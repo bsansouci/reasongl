@@ -1,42 +1,42 @@
 {
-  "name": "reglweb",
-  "version": "0.1.19",
+  "name": "reasongl-web",
+  "version": "0.2.0",
   "description": "Reason bindings to WebGL",
   "scripts": {
     "start": "_build/src/app.out",
-    "buildexample": "esy rebel && esy webpack -d _build/web/src/example.js _build/web/src/app.js",
-    "editor": "esy $EDITOR .",
-    "whereisocamlmerlin": "esy which ocamlmerlin-reason",
-    "mlre": "pbpaste | esy refmt -parse ml -print re -use-stdin true -is-interface-pp false",
-    "reml": "pbpaste | esy refmt -parse re -print ml -use-stdin true -is-interface-pp false"
+    "build": "eval $(dependencyEnv) && nopam && rebel -verbose",
+    "buildexample": "npm run build && webpack _build/web/src/web_Tar__ExampleEntrypoint.js _build/web/src/app.js",
+    "top": "eval $(dependencyEnv) && rtop",
+    "env": "eval $(dependencyEnv) && env",
+    "ocamldep": "eval $(dependencyEnv) && ocamldep",
+    "editor": "eval $(dependencyEnv) && $EDITOR .",
+    "whereisocamlmerlin": "eval $(dependencyEnv)a && which ocamlmerlin-reason",
+    "mlre": "pbpaste | ./node_modules/reason/refmt_impl.native -parse ml -print re -use-stdin true -is-interface-pp false",
+    "reml": "pbpaste | ./node_modules/reason/refmt_impl.native -parse re -print ml -use-stdin true -is-interface-pp false"
   },
-  "esy": {},
   "dependencies": {
-    "reason": "facebook/reason#esy",
-    "bs-platform": "esy-ocaml/bucklescript#esy",
-    "rebel": "bsansouci/rebel#esy",
-    "reglinterface": "^0.1.19"
+    "@opam-alpha/topkg": "*",
+    "@opam-alpha/merlin": "^ 2.5.0",
+    "dependency-env": "npm-ml/dependency-env",
+    "nopam": "yunxing/nopam",
+    "realpath": "*",
+    "reason": "facebook/reason",
+    "bs-platform": "bloomberg/bucklescript",
+    "rebel": "bsansouci/rebel#add-env-vars",
+    "webpack": "*",
+    "reasongl-interface": "bsansouci/reasongl-interface"
   },
   "rebel": {
     "targets": [
       {
         "target": "web",
         "engine": "bucklescript",
-        "entry": "src/example.re",
-        "unstable_flags": {
-          "link": "-I _build/web/reglinterface",
-          "compile": "-I _build/web/reglinterface"
-        }
+        "entry": "src/example.re"
       }
     ]
   },
   "author": "bsansouci & schmavery",
   "devDependencies": {
-    "lerna": "2.0.0-beta.30",
-    "ocaml": "esy-ocaml/ocaml#esy",
-    "webpack": "*",
-    "@opam-alpha/merlin": "*",
-    "@opam-alpha/utop": "*",
-    "@opam-alpha/topkg": "*"
+    "lerna": "2.0.0-beta.30"
   }
 }
