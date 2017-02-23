@@ -1,8 +1,8 @@
 var fs = require('fs');
 var path = require('path');
 
-var cur__install = path.join(__dirname, "_build/SOIL/");
-var cur__lib     = path.join(__dirname, "_build/SOIL/");
+var cur__install = path.join(__dirname, "_build/");
+var cur__lib     = path.join(__dirname, "_build/");
 var includedir   = path.join(cur__install, 'include');
 var libdirsoil   = path.join(cur__install, 'lib');
 
