@@ -1,0 +1,42 @@
+{
+  "name": "reglweb",
+  "version": "0.1.19",
+  "description": "Reason bindings to WebGL",
+  "scripts": {
+    "start": "_build/src/app.out",
+    "buildexample": "esy rebel && esy webpack -d _build/web/src/example.js _build/web/src/app.js",
+    "editor": "esy $EDITOR .",
+    "whereisocamlmerlin": "esy which ocamlmerlin-reason",
+    "mlre": "pbpaste | esy refmt -parse ml -print re -use-stdin true -is-interface-pp false",
+    "reml": "pbpaste | esy refmt -parse re -print ml -use-stdin true -is-interface-pp false"
+  },
+  "esy": {},
+  "dependencies": {
+    "reason": "facebook/reason#esy",
+    "bs-platform": "esy-ocaml/bucklescript#esy",
+    "rebel": "bsansouci/rebel#esy",
+    "reglinterface": "^0.1.19"
+  },
+  "rebel": {
+    "targets": [
+      {
+        "target": "web",
+        "engine": "bucklescript",
+        "entry": "src/example.re",
+        "unstable_flags": {
+          "link": "-I _build/web/reglinterface",
+          "compile": "-I _build/web/reglinterface"
+        }
+      }
+    ]
+  },
+  "author": "bsansouci & schmavery",
+  "devDependencies": {
+    "lerna": "2.0.0-beta.30",
+    "ocaml": "esy-ocaml/ocaml#esy",
+    "webpack": "*",
+    "@opam-alpha/merlin": "*",
+    "@opam-alpha/utop": "*",
+    "@opam-alpha/topkg": "*"
+  }
+}
