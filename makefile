@@ -8,9 +8,9 @@ LIB = libSOIL.a
 INC = SOIL.h
 
 SRCDIR = SOIL/src
-LIBDIR = _build/SOIL/lib/
+LIBDIR = _build/lib/
 INCDIR = SOIL/src
-OBJDIR = _build
+OBJDIR = _build/
 
 CXX = gcc
 CXXFLAGS = -O2 -s -Wall
