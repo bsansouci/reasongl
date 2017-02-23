@@ -1,5 +1,5 @@
 {
-  "name": "reglnative",
+  "name": "reasongl-native",
   "version": "0.1.14",
   "description": "Reason bindings to OpenGL",
   "scripts": {
