@@ -32,7 +32,7 @@ let create_window gl::(maj, min) => {
   )
 };
 
-module Gl: Reglinterface.Gl.t = {
+module Gl: ReasonglInterface.Gl.t = {
   let target = "native";
   type contextT = Sdl.gl_context;
   module type FileT = {type t; let readFile: filename::string => cb::(string => unit) => unit;};
@@ -279,8 +279,8 @@ module Gl: Reglinterface.Gl.t = {
       0
       width
       height
-      Reglinterface.Constants.rgba
-      Reglinterface.Constants.unsigned_byte
+      ReasonglInterface.Constants.rgba
+      ReasonglInterface.Constants.unsigned_byte
       (`Data data);
     let size = Bigarray.Array1.dim data;
     let ocam_array = Array.make size 0;
@@ -339,8 +339,8 @@ module Gl: Reglinterface.Gl.t = {
     /* We only support rgb and rgba for now. */
     let format =
       switch image.channels {
-      | 3 => Reglinterface.Constants.rgb
-      | 4 => Reglinterface.Constants.rgba
+      | 3 => ReasonglInterface.Constants.rgb
+      | 4 => ReasonglInterface.Constants.rgba
       | _ => assert false
       };
     texImage2D
@@ -351,7 +351,7 @@ module Gl: Reglinterface.Gl.t = {
       image.width
       image.height
       format
-      Reglinterface.Constants.unsigned_byte
+      ReasonglInterface.Constants.unsigned_byte
       image.data
   };
   let uniform1i ::context ::location v0 => Gl.uniform1i location v0;
