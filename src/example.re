@@ -2,7 +2,7 @@
  * vim: set ft=rust:
  * vim: set ft=reason:
  */
-module Constants = Reglinterface.Constants;
+module Constants = ReasonglInterface.Constants;
 module Gl = Webgl.Gl;
 
 /**

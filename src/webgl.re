@@ -72,7 +72,7 @@ external getResponseText : httpRequestT => string = "responseText" [@@bs.get];
 
 external sendRequest : httpRequestT => Js.null 'a => unit = "send" [@@bs.send];
 
-module Gl: Reglinterface.Gl.t = {
+module Gl: ReasonglInterface.Gl.t = {
   let target = "web";
   type contextT;
   module type FileT = {type t; let readFile: filename::string => cb::(string => unit) => unit;};
@@ -308,8 +308,8 @@ module Gl: Reglinterface.Gl.t = {
       ::y
       ::width
       ::height
-      format::Reglinterface.Constants.rgba
-      type_::Reglinterface.Constants.unsigned_byte
+      format::ReasonglInterface.Constants.rgba
+      type_::ReasonglInterface.Constants.unsigned_byte
       pixels::data;
     data
   };
@@ -362,9 +362,9 @@ module Gl: Reglinterface.Gl.t = {
       context
       target
       level
-      Reglinterface.Constants.rgba
-      Reglinterface.Constants.rgba
-      Reglinterface.Constants.unsigned_byte
+      ReasonglInterface.Constants.rgba
+      ReasonglInterface.Constants.rgba
+      ReasonglInterface.Constants.unsigned_byte
       image;
   external _texImage2D : context::contextT =>
                          target::int =>

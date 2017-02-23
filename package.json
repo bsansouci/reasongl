@@ -4,7 +4,7 @@
   "description": "Reason bindings to WebGL",
   "scripts": {
     "start": "_build/src/app.out",
-    "build": "eval $(dependencyEnv) && nopam && rebel -verbose",
+    "build": "eval $(dependencyEnv) && nopam && rebel -verbose && webpack _build/web/src/example.js _build/web/src/app.js",
     "buildexample": "npm run build && webpack _build/web/src/web_Tar__ExampleEntrypoint.js _build/web/src/app.js",
     "top": "eval $(dependencyEnv) && rtop",
     "env": "eval $(dependencyEnv) && env",
