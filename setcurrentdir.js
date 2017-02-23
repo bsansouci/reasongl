@@ -14,4 +14,4 @@ Cflags: -I${includedir}
 Libs: -L${libdirsoil} -lSOIL -lsoil_wrapper -framework CoreFoundation
 `;
 
-fs.writeFileSync(path.join(cur__lib, 'reglnative.pc'), pcfileforpkgconfig);
+fs.writeFileSync(path.join(cur__lib, 'reasongl-native.pc'), pcfileforpkgconfig);
