@@ -24,7 +24,7 @@
     "bs-platform": "bloomberg/bucklescript",
     "rebel": "bsansouci/rebel#add-env-vars",
     "webpack": "*",
-    "reasongl-interface": "bsansouci/reasongl-interface"
+    "reasongl-interface": "bsansouci/reasongl-interface#bsb-support"
   },
   "rebel": {
     "targets": [

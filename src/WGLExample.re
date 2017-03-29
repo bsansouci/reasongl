@@ -2,8 +2,8 @@
  * vim: set ft=rust:
  * vim: set ft=reason:
  */
-module Constants = ReasonglInterface.Constants;
-module Gl = Webgl.Gl;
+module Constants = RGLConstants;
+module Gl = WGLWebgl.Gl;
 
 /**
  * This program is an example of how to draw a square.

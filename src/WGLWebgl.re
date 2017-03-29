@@ -72,7 +72,7 @@ external getResponseText : httpRequestT => string = "responseText" [@@bs.get];
 
 external sendRequest : httpRequestT => Js.null 'a => unit = "send" [@@bs.send];
 
-module Gl: ReasonglInterface.Gl.t = {
+module Gl: RGLInterface.t = {
   let target = "web";
   type contextT;
   module type FileT = {type t; let readFile: filename::string => cb::(string => unit) => unit;};
@@ -122,7 +122,7 @@ module Gl: ReasonglInterface.Gl.t = {
       getContext window "webgl" {"preserveDrawingBuffer": true, "antialias": false};
   };
 
-  module Events = Events;
+  module Events = WGLEvents;
 
   type mouseButtonEventT =
     button::Events.buttonStateT => state::Events.stateT => x::int => y::int => unit;
@@ -308,8 +308,8 @@ module Gl: ReasonglInterface.Gl.t = {
       ::y
       ::width
       ::height
-      format::ReasonglInterface.Constants.rgba
-      type_::ReasonglInterface.Constants.unsigned_byte
+      format::RGLConstants.rgba
+      type_::RGLConstants.unsigned_byte
       pixels::data;
     data
   };
@@ -362,9 +362,9 @@ module Gl: ReasonglInterface.Gl.t = {
       context
       target
       level
-      ReasonglInterface.Constants.rgba
-      ReasonglInterface.Constants.rgba
-      ReasonglInterface.Constants.unsigned_byte
+      RGLConstants.rgba
+      RGLConstants.rgba
+      RGLConstants.unsigned_byte
       image;
   external _texImage2D : context::contextT =>
                          target::int =>
