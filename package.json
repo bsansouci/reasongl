@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "description": "Reason bindings to WebGL",
   "dependencies": {
-    "bs-platform": "bloomberg/bucklescript",
+    "bs-platform": "bsansouci/bucklescript#simple-native-compilation",
     "reasongl-interface": "bsansouci/reasongl-interface#bsb-support"
   },
   "author": "bsansouci & schmavery",
