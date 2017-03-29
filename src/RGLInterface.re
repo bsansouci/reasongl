@@ -17,7 +17,7 @@ module type t = {
     let getContext: t => contextT;
   };
   module Window: WindowT;
-  module Events : Events.t;
+  module Events : RGLEvents.t;
 
   /** We're currently mimicking the JS asynchronous event handling allowing the user to register callbacks.
    * Instead of mutating global state in the Events module, we simply force the user to register all events
