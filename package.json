@@ -2,9 +2,6 @@
   "name": "reasongl-interface",
   "version": "0.1.14",
   "description": "Reason interface to GL.",
-  "dependencies": {
-    "@opam-alpha/merlin": "^ 2.5.0"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bsansouci/reasongl-interface.git"

@@ -42,3 +42,12 @@ FLG -ppx /Users/benjamin/Desktop/thewitness-reason/node_modules/bs-platform/bin/
 
 # User Custom config here
 
+
+####{BSB GENERATED: NO EDIT
+FLG -ppx /Users/benjamin/Desktop/bucklescript/jscomp/bin/bsppx.exe
+S /Users/benjamin/Desktop/reprocessing/node_modules/bs-platform/lib/ocaml
+B /Users/benjamin/Desktop/reprocessing/node_modules/bs-platform/lib/ocaml
+FLG -nostdlib -no-alias-deps -color always -w -40+6+7+27+32..39+44+45
+S src
+B lib/bs/src
+####BSB GENERATED: NO EDIT}
