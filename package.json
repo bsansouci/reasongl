@@ -2,38 +2,10 @@
   "name": "reasongl-web",
   "version": "0.2.0",
   "description": "Reason bindings to WebGL",
-  "scripts": {
-    "start": "_build/src/app.out",
-    "build": "eval $(dependencyEnv) && nopam && rebel -verbose && webpack _build/web/src/example.js _build/web/src/app.js",
-    "buildexample": "npm run build && webpack _build/web/src/web_Tar__ExampleEntrypoint.js _build/web/src/app.js",
-    "top": "eval $(dependencyEnv) && rtop",
-    "env": "eval $(dependencyEnv) && env",
-    "ocamldep": "eval $(dependencyEnv) && ocamldep",
-    "editor": "eval $(dependencyEnv) && $EDITOR .",
-    "whereisocamlmerlin": "eval $(dependencyEnv)a && which ocamlmerlin-reason",
-    "mlre": "pbpaste | ./node_modules/reason/refmt_impl.native -parse ml -print re -use-stdin true -is-interface-pp false",
-    "reml": "pbpaste | ./node_modules/reason/refmt_impl.native -parse re -print ml -use-stdin true -is-interface-pp false"
-  },
   "dependencies": {
-    "@opam-alpha/topkg": "*",
     "@opam-alpha/merlin": "^ 2.5.0",
-    "dependency-env": "npm-ml/dependency-env",
-    "nopam": "yunxing/nopam",
-    "realpath": "*",
-    "reason": "facebook/reason",
     "bs-platform": "bloomberg/bucklescript",
-    "rebel": "bsansouci/rebel#add-env-vars",
-    "webpack": "*",
     "reasongl-interface": "bsansouci/reasongl-interface#bsb-support"
-  },
-  "rebel": {
-    "targets": [
-      {
-        "target": "web",
-        "engine": "bucklescript",
-        "entry": "src/example.re"
-      }
-    ]
   },
   "author": "bsansouci & schmavery",
   "devDependencies": {
