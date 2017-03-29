@@ -3,7 +3,6 @@
   "version": "0.2.0",
   "description": "Reason bindings to WebGL",
   "dependencies": {
-    "@opam-alpha/merlin": "^ 2.5.0",
     "bs-platform": "bloomberg/bucklescript",
     "reasongl-interface": "bsansouci/reasongl-interface#bsb-support"
   },
