@@ -1,0 +1,5 @@
+{
+  "name": "reasongl-web",
+  "sources": "src",
+  "bs-dependencies": ["reasongl-interface"],
+}
