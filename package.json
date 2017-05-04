@@ -9,6 +9,6 @@
   "rebel": { },
   "author": "bsansouci & schmavery",
   "devDependencies": {
-    "lerna": "2.0.0-beta.30"
+    "reason": "1.13.0"
   }
 }
