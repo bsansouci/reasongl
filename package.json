@@ -1,5 +1,5 @@
 {
-  "name": "reasongl-interface",
+  "name": "ReasonglInterface",
   "version": "0.1.14",
   "description": "Reason interface to GL.",
   "repository": {
