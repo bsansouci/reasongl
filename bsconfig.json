@@ -1,10 +1,10 @@
 {
-  "name": "reasongl-web",
+  "name": "ReasonglWeb",
   "sources": [{
     "dir": "src"
   }, {
     "dir": "example",
     "type": "dev"
   }],
-  "bs-dependencies": ["reasongl-interface"],
+  "bs-dependencies": ["ReasonglInterface"],
 }
