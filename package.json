@@ -4,16 +4,6 @@
   "description": "Reason bindings to OpenGL",
   "scripts": {
     "postinstall": "mkdir -p _build/lib/ && gcc -I`ocamlc -where` -c src/soil_wrapper.c -o _build/lib/libsoil_wrapper.a && mkdir -p _build/include && cp SOIL/src/SOIL.h _build/include/SOIL.h && make && node setcurrentdir.js",
-    "start": "_build/src/app.out",
-    "build": "eval $(dependencyEnv) && nopam && rebel -verbose",
-    "buildexample": "npm run build && webpack _build/web/src/web_Tar__ExampleEntrypoint.js _build/web/src/app.js",
-    "top": "eval $(dependencyEnv) && rtop",
-    "env": "eval $(dependencyEnv) && env",
-    "ocamldep": "eval $(dependencyEnv) && ocamldep",
-    "editor": "eval $(dependencyEnv) && $EDITOR .",
-    "whereisocamlmerlin": "eval $(dependencyEnv)a && which ocamlmerlin-reason",
-    "mlre": "pbpaste | ./node_modules/reason/refmt_impl.native -parse ml -print re -use-stdin true -is-interface-pp false",
-    "reml": "pbpaste | ./node_modules/reason/refmt_impl.native -parse re -print ml -use-stdin true -is-interface-pp false"
   },
   "dependencies": {
     "tgls": "bsansouci/tgls#bsb-support",
@@ -26,6 +16,7 @@
   },
   "author": "bsansouci & schmavery",
   "devDependencies": {
-    "reason": "1.13.0"
+    "reason": "1.13.0",
+    "bs-platform": "bsansouci/bucklescript#simple-native-compilation"
   }
 }
