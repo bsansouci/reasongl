@@ -16,33 +16,9 @@
     "reml": "pbpaste | ./node_modules/reason/refmt_impl.native -parse re -print ml -use-stdin true -is-interface-pp false"
   },
   "dependencies": {
-    "tgls-actual": "bsansouci/tgls#packagejson",
-    "@opam-alpha/topkg": "*",
-    "@opam-alpha/merlin": "^ 2.5.0",
-    "dependency-env": "npm-ml/dependency-env",
-    "tsdl-actual": "bsansouci/tsdl#packagejson",
-    "nopam": "yunxing/nopam",
-    "realpath": "*",
-    "reason": "facebook/reason",
-    "rebel": "bsansouci/rebel#add-env-vars",
-    "reasongl-interface": "bsansouci/reasongl-interface"
-  },
-  "exportedEnvVars": {
-    "PKG_CONFIG_PATH": {
-      "global": true,
-      "resolveAsRelativePath": true,
-      "globalCollisionBehavior": "joinPath",
-      "val": "./_build"
-    }
-  },
-  "rebel": {
-    "targets": [
-      {
-        "target": "native",
-        "engine": "native",
-        "entry": "src/example.re"
-      }
-    ]
+    "tgls": "bsansouci/tgls#bsb-support",
+    "tsdl": "bsansouci/tsdl#bsb-support",
+    "reasongl-interface": "bsansouci/reasongl-interface#bsb-support"
   },
   "repository": {
     "type": "git",
@@ -50,6 +26,6 @@
   },
   "author": "bsansouci & schmavery",
   "devDependencies": {
-    "lerna": "2.0.0-beta.30"
+    "reason": "1.13.0",
   }
 }

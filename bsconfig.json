@@ -1,0 +1,13 @@
+{
+  "name": "ReasonglNative",
+  "sources": "src",
+  "bs-dependencies": ["Tsdl", "Tgls", "ReasonglInterface"],
+  "entries": [{
+    "kind": "native",
+    "main": "Opengl"
+  }],
+  "static_libraries": [
+    "_build/lib/libsoil.a",
+    "_build/lib/libsoil_wrapper.a",
+  ]
+}
