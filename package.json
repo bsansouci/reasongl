@@ -8,7 +8,7 @@
   "dependencies": {
     "tgls": "bsansouci/tgls#bsb-support",
     "tsdl": "bsansouci/tsdl#bsb-support",
-    "reasongl-interface": "bsansouci/reasongl-interface#bsb-support",
+    "ReasonglInterface": "bsansouci/reasongl-interface#bsb-support",
     "dependency-env": "npm-ml/dependency-env"
   },
   "repository": {
