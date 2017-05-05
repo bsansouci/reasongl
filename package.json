@@ -3,12 +3,13 @@
   "version": "0.1.14",
   "description": "Reason bindings to OpenGL",
   "scripts": {
-    "postinstall": "mkdir -p _build/lib/ && gcc -I`ocamlc -where` -c src/soil_wrapper.c -o _build/lib/libsoil_wrapper.a && mkdir -p _build/include && cp SOIL/src/SOIL.h _build/include/SOIL.h && make && node setcurrentdir.js"
+    "postinstall": "eval $(dependencyEnv) && mkdir -p _build/lib/ && gcc -I`ocamlc -where` -c src/soil_wrapper.c -o _build/lib/libsoil_wrapper.a && mkdir -p _build/include && cp SOIL/src/SOIL.h _build/include/SOIL.h && make && node setcurrentdir.js"
   },
   "dependencies": {
     "tgls": "bsansouci/tgls#bsb-support",
     "tsdl": "bsansouci/tsdl#bsb-support",
-    "reasongl-interface": "bsansouci/reasongl-interface#bsb-support"
+    "reasongl-interface": "bsansouci/reasongl-interface#bsb-support",
+    "dependency-env": "npm-ml/dependency-env"
   },
   "repository": {
     "type": "git",
@@ -17,6 +18,9 @@
   "author": "bsansouci & schmavery",
   "devDependencies": {
     "reason": "1.13.0",
-    "bs-platform": "bsansouci/bucklescript#simple-native-compilation"
+    "bs-platform": "bsansouci/bucklescript#simple-native-compilation",
+  },
+  "peerDependencies": {
+    "@opam-alpha/ocaml": ">= 4.01.0"
   }
 }
