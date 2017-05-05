@@ -18,7 +18,7 @@
   "author": "bsansouci & schmavery",
   "devDependencies": {
     "reason": "1.13.0",
-    "bs-platform": "bsansouci/bucklescript#simple-native-compilation",
+    "bs-platform": "bsansouci/bucklescript#simple-native-compilation"
   },
   "peerDependencies": {
     "@opam-alpha/ocaml": ">= 4.01.0"
