@@ -4,7 +4,7 @@
   "description": "Reason bindings to WebGL",
   "dependencies": {
     "bs-platform": "bsansouci/bucklescript#simple-native-compilation",
-    "reasongl-interface": "bsansouci/reasongl-interface#bsb-support"
+    "ReasonglInterface": "bsansouci/reasongl-interface#bsb-support"
   },
   "author": "bsansouci & schmavery",
   "devDependencies": {
