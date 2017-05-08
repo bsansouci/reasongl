@@ -9,5 +9,6 @@
   "static_libraries": [
     "_build/lib/libsoil.a",
     "_build/lib/libsoil_wrapper.a",
-  ]
+  ],
+  "build_script": "mkdir -p _build/lib/ && gcc -I$OCAML_LIB -c src/soil_wrapper.c -o _build/lib/libsoil_wrapper.a && mkdir -p _build/include && cp SOIL/src/SOIL.h _build/include/SOIL.h && make && node setcurrentdir.js"
 }
