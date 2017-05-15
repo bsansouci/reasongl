@@ -121,9 +121,7 @@ module Gl: RGLInterface.t = {
     let getContext (window: t) :contextT =>
       getContext window "webgl" {"preserveDrawingBuffer": true, "antialias": false};
   };
-
   module Events = WGLEvents;
-
   type mouseButtonEventT =
     button::Events.buttonStateT => state::Events.stateT => x::int => y::int => unit;
 
@@ -208,7 +206,7 @@ module Gl: RGLInterface.t = {
         "keydown"
         (
           fun e => {
-            let keycode = (getWhich e);
+            let keycode = getWhich e;
             let repeat =
               switch !keyLastPressed {
               | None => false
@@ -227,7 +225,7 @@ module Gl: RGLInterface.t = {
         "keyup"
         (
           fun e => {
-            let keycode = (getWhich e);
+            let keycode = getWhich e;
             keyLastPressed := None;
             cb keycode::(Events.keycodeMap keycode)
           }
@@ -359,13 +357,7 @@ module Gl: RGLInterface.t = {
                                   unit = "texImage2D" [@@bs.send];
   let texImage2DWithImage ::context ::target ::level ::image =>
     _texImage2DWithImage
-      context
-      target
-      level
-      RGLConstants.rgba
-      RGLConstants.rgba
-      RGLConstants.unsigned_byte
-      image;
+      context target level RGLConstants.rgba RGLConstants.rgba RGLConstants.unsigned_byte image;
   external _texImage2D : context::contextT =>
                          target::int =>
                          level::int =>
@@ -536,11 +528,17 @@ module Gl: RGLInterface.t = {
   module Mat4: Mat4T = {
     type t = array float;
     let to_array a => a;
-    external create : unit => t = "mat4.create" [@@bs.val];
-    external identity : out::t => unit = "mat4.identity" [@@bs.val];
-    external translate : out::t => matrix::t => vec::array float => unit = "mat4.translate" [@@bs.val];
-    external scale : out::t => matrix::t => vec::array float => unit = "mat4.scale" [@@bs.val];
-    external rotate : out::t => matrix::t => rad::float => vec::array float => unit = "mat4.rotate" [@@bs.val];
+    external create : unit => t = "" [@@bs.scope "mat4"] [@@bs.module "gl-matrix"];
+    external identity : out::t => unit = "" [@@bs.scope "mat4"] [@@bs.module "gl-matrix"];
+    external translate : out::t => matrix::t => vec::array float => unit = "" [@@bs.scope "mat4"] [@@bs.module
+                                                                    "gl-matrix"
+                                                                    ];
+    external scale : out::t => matrix::t => vec::array float => unit = "" [@@bs.scope "mat4"] [@@bs.module
+                                                                    "gl-matrix"
+                                                                    ];
+    external rotate : out::t => matrix::t => rad::float => vec::array float => unit = "" [@@bs.scope
+                                                                    "mat4"
+                                                                    ] [@@bs.module "gl-matrix"];
     external ortho : out::t =>
                      left::float =>
                      right::float =>
@@ -548,7 +546,7 @@ module Gl: RGLInterface.t = {
                      top::float =>
                      near::float =>
                      far::float =>
-                     unit = "mat4.ortho" [@@bs.val];
+                     unit = "" [@@bs.scope "mat4"] [@@bs.module "gl-matrix"];
   };
   external uniform1i : context::contextT => location::uniformT => int => unit = "uniform1i" [@@bs.send];
   external uniform1f : context::contextT => location::uniformT => float => unit = "uniform1f" [@@bs.send];
@@ -661,4 +659,3 @@ module Gl: RGLInterface.t = {
                           offset::int =>
                           unit = "drawElements" [@@bs.send];
 };
-

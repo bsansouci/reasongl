@@ -5,6 +5,7 @@
   "dependencies": {
     "bs-platform": "bsansouci/bucklescript#simple-native-compilation",
     "ReasonglInterface": "bsansouci/reasongl-interface#bsb-support"
+    "gl-matrix": "*"
   },
   "author": "bsansouci & schmavery",
   "devDependencies": {
