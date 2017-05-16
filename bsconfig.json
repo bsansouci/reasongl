@@ -1,4 +1,5 @@
 {
   "name": "ReasonglInterface",
   "sources": "src",
+  "allowed-build-kinds": ["js", "bytecode", "native"],
 }
