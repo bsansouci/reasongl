@@ -13,7 +13,6 @@
   },
   "author": "bsansouci & schmavery",
   "devDependencies": {
-    "reason": "1.13.0",
     "bs-platform": "bsansouci/bucklescript#simple-native-compilation"
   }
 }

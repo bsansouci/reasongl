@@ -3,7 +3,7 @@
   "sources": "src",
   "bs-dependencies": ["Tsdl", "Tgls", "ReasonglInterface"],
   "entries": [{
-    "kind": "native",
+    "kind": "bytecode",
     "main": "Opengl"
   }],
   "static_libraries": [
