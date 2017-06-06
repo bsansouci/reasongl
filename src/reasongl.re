@@ -8,22 +8,20 @@ module Bigarray = Bigarray;
 
 module Unix = Unix;
 
-open Tsdl_packed.Tsdl;
-
-open Tsdl_packed.Result;
+module Sdl = Tsdl_new;
 
 open Tgl3_packed.Tgl3;
 
-let (>>=) x f =>
-  switch x {
-  | Ok v => f v
-  | Error _ as e => e
+let (>>=) t f =>
+  switch t {
+  | 0 => f ()
+  | _ => failwith @@ Sdl.error ()
   };
 
 let create_window gl::(maj, min) => {
   let w_atts = Sdl.Window.(opengl + resizable);
   let w_title = Printf.sprintf "OpenGL %d.%d (core profile)" maj min;
-  let set a v => Sdl.gl_set_attribute a v;
+  let set a v => Sdl.Gl.gl_set_attribute attr::a value::v;
   set Sdl.Gl.context_profile_mask Sdl.Gl.context_profile_compatibility >>= (
     fun () =>
       set Sdl.Gl.context_major_version maj >>= (
@@ -32,9 +30,13 @@ let create_window gl::(maj, min) => {
             fun () =>
               set Sdl.Gl.doublebuffer 1 >>= (
                 fun () =>
-                  Sdl.create_window w::640 h::480 w_title w_atts >>= (
-                    fun win => Ok win
-                  )
+                  Sdl.create_window
+                    title::w_title
+                    x::Sdl.Window.pos_centered
+                    y::Sdl.Window.pos_centered
+                    w::640
+                    h::480
+                    flags::w_atts
               )
           )
       )
@@ -43,11 +45,8 @@ let create_window gl::(maj, min) => {
 
 module Gl: ReasonglInterface.Gl.t = {
   let target = "native";
-  type contextT = Sdl.gl_context;
-  module type FileT = {
-    type t;
-    let readFile: filename::string => cb::(string => unit) => unit;
-  };
+  type contextT = Sdl.glContextT;
+  module type FileT = {type t; let readFile: filename::string => cb::(string => unit) => unit;};
   module File = {
     type t;
     let readFile ::filename ::cb => {
@@ -78,7 +77,7 @@ module Gl: ReasonglInterface.Gl.t = {
     let getContext: t => contextT;
   };
   module Window = {
-    type t = Sdl.window;
+    type t = Sdl.windowT;
     let getWidth (window: t) => {
       let (width, _) = Sdl.get_window_size window;
       width
@@ -92,35 +91,27 @@ module Gl: ReasonglInterface.Gl.t = {
      * We create an OpenGL context at 2.1 because... it seems to be the only one that we can request that
      * osx will give us and one that has an API comparable to OpenGL ES 2.0 which is what WebGL uses.
      */
-    let init argv::_ =>
-      switch (
-        Sdl.init Sdl.Init.video >>= (
-          fun () => create_window gl::(2, 1) >>= (fun win => Ok win)
-        )
-      ) {
-      | Ok win => win
-      | Error (`Msg e) => failwith e
+    let init argv::_ => {
+      if (Sdl.Init.init Sdl.Init.video != 0) {
+        failwith @@ Sdl.error ()
       };
+      create_window gl::(2, 1)
+    };
     let setWindowSize window::(window: t) ::width ::height =>
-      Sdl.set_window_size window width height;
+      Sdl.set_window_size window ::width ::height;
     let initDisplayMode ::window double_buffer::_ () => ();
-    let getContext (window: t) :contextT =>
-      switch (
-        Sdl.gl_create_context window >>= (
-          fun ctx => Sdl.gl_make_current window ctx >>= (fun () => Ok ctx)
-        )
-      ) {
-      | Ok ctx => ctx
-      | Error (`Msg e) => failwith e
+    let getContext (window: t) :contextT => {
+      let ctx = Sdl.gl_create_context window;
+      let e = Sdl.gl_make_current window ctx;
+      if (e != 0) {
+        failwith @@ Sdl.error ()
       };
+      ctx
+    };
   };
   module Events = Events;
   type mouseButtonEventT =
-    button::Events.buttonStateT =>
-    state::Events.stateT =>
-    x::int =>
-    y::int =>
-    unit;
+    button::Events.buttonStateT => state::Events.stateT => x::int => y::int => unit;
 
   /** See Gl.re for explanation. **/
   let render
@@ -128,86 +119,101 @@ module Gl: ReasonglInterface.Gl.t = {
       mouseDown::(mouseDown: option mouseButtonEventT)=?
       mouseUp::(mouseUp: option mouseButtonEventT)=?
       mouseMove::(mouseMove: option (x::int => y::int => unit))=?
-      keyDown::
-        (keyDown: option (keycode::Events.keycodeT => repeat::bool => unit))=?
+      keyDown::(keyDown: option (keycode::Events.keycodeT => repeat::bool => unit))=?
       keyUp::(keyUp: option (keycode::Events.keycodeT => unit))=?
       windowResize::(windowResize: option (unit => unit))=?
       displayFunc::(displayFunc: float => unit)
       () => {
-    let e = Sdl.Event.create ();
     let rec checkEvents () :bool => {
       let shouldQuit = ref false;
-      while (Sdl.poll_event (Some e)) {
-        switch Sdl.Event.(enum (get e typ)) {
-        | `Quit => shouldQuit := true
-        | `Mouse_button_down =>
-          switch mouseDown {
-          | None => ()
-          | Some cb =>
-            let x = Sdl.Event.(get e mouse_button_x);
-            let y = Sdl.Event.(get e mouse_button_y);
-            let button =
-              switch Sdl.Event.(get e mouse_button_button) {
-              | 1 => Events.LeftButton
-              | 2 => Events.MiddleButton
-              | 3 => Events.RightButton
-              | _ => failwith "Button not supported"
-              };
-            cb ::button state::Events.MouseDown ::x ::y;
-            ()
-          }
-        | `Mouse_button_up =>
-          switch mouseUp {
-          | None => ()
-          | Some cb =>
-            let x = Sdl.Event.(get e mouse_button_x);
-            let y = Sdl.Event.(get e mouse_button_y);
-            let button =
-              switch Sdl.Event.(get e mouse_button_button) {
-              | 1 => Events.LeftButton
-              | 2 => Events.MiddleButton
-              | 3 => Events.RightButton
-              | _ => failwith "Button not supported"
-              };
-            cb ::button state::Events.MouseUp ::x ::y;
-            ()
-          }
-        | `Mouse_motion =>
-          switch mouseMove {
-          | None => ()
-          | Some cb =>
-            let x = Sdl.Event.(get e mouse_motion_x);
-            let y = Sdl.Event.(get e mouse_motion_y);
-            cb ::x ::y;
-            ()
-          }
-        | `Window_event =>
-          switch windowResize {
-          | None => ()
-          | Some cb =>
-            switch Sdl.Event.(window_event_enum (get e window_event_id)) {
-            | `Resized
-            | `Maximized
-            | `Restored => cb ()
-            | _ => ()
+      let shouldPoll = ref true;
+      while !shouldPoll {
+        switch (Sdl.Event.poll_event ()) {
+        | None => shouldPoll := false
+        | Some e =>
+          let eventType = Sdl.Event.typ e;
+          if (eventType == Sdl.Event.quit) {
+            shouldQuit := true
+          } else if (
+            eventType == Sdl.Event.mousebuttondown
+          ) {
+            switch mouseDown {
+            | None => ()
+            | Some cb =>
+              let x = Sdl.Event.mouse_button_x e;
+              let y = Sdl.Event.mouse_button_y e;
+              let button =
+                switch (Sdl.Event.mouse_button_button e) {
+                | 1 => Events.LeftButton
+                | 2 => Events.MiddleButton
+                | 3 => Events.RightButton
+                | _ => failwith "Button not supported"
+                };
+              cb ::button state::Events.MouseDown ::x ::y;
+              ()
+            }
+          } else if (
+            eventType == Sdl.Event.mousebuttonup
+          ) {
+            switch mouseUp {
+            | None => ()
+            | Some cb =>
+              let x = Sdl.Event.mouse_button_x e;
+              let y = Sdl.Event.mouse_button_y e;
+              let button =
+                switch (Sdl.Event.mouse_button_button e) {
+                | 1 => Events.LeftButton
+                | 2 => Events.MiddleButton
+                | 3 => Events.RightButton
+                | _ => failwith "Button not supported"
+                };
+              cb ::button state::Events.MouseUp ::x ::y;
+              ()
+            }
+          } else if (
+            eventType == Sdl.Event.mousemotion
+          ) {
+            switch mouseMove {
+            | None => ()
+            | Some cb =>
+              let x = Sdl.Event.mouse_motion_x e;
+              let y = Sdl.Event.mouse_motion_y e;
+              cb ::x ::y;
+              ()
+            }
+          } else if (
+            eventType == Sdl.Event.windowevent
+          ) {
+            switch windowResize {
+            | None => ()
+            | Some cb =>
+              if (
+                Sdl.Event.window_event_enum e == Sdl.Event.window_resized ||
+                Sdl.Event.window_event_enum e == Sdl.Event.window_maximized ||
+                Sdl.Event.window_event_enum e == Sdl.Event.window_restored
+              ) {
+                cb ()
+              }
+            }
+          } else if (
+            eventType == Sdl.Event.keydown
+          ) {
+            switch keyDown {
+            | None => ()
+            | Some cb =>
+              let (keycode, repeat) = Sdl.Event.(keyboard_keycode e, keyboard_repeat e);
+              cb keycode::(Events.keycodeMap keycode) repeat::(repeat === 1)
+            }
+          } else if (
+            eventType == Sdl.Event.keyup
+          ) {
+            switch keyUp {
+            | None => ()
+            | Some cb =>
+              let keycode = Sdl.Event.keyboard_keycode e;
+              cb keycode::(Events.keycodeMap keycode)
             }
           }
-        | `Key_down =>
-          switch keyDown {
-          | None => ()
-          | Some cb =>
-            let (keycode, repeat) =
-              Sdl.Event.(get e keyboard_keycode, get e keyboard_repeat);
-            cb keycode::(Events.keycodeMap keycode) repeat::(repeat === 1)
-          }
-        | `Key_up =>
-          switch keyUp {
-          | None => ()
-          | Some cb =>
-            let keycode = Sdl.Event.(get e keyboard_keycode);
-            cb keycode::(Events.keycodeMap keycode)
-          }
-        | _ => ()
         }
       };
       !shouldQuit
@@ -234,12 +240,10 @@ module Gl: ReasonglInterface.Gl.t = {
   type programT = int;
   type shaderT = int;
   let clearColor ::context ::r ::g ::b ::a => Gl.clear_color r g b a;
-  let createProgram context::(context: contextT) :programT =>
-    Gl.create_program ();
+  let createProgram context::(context: contextT) :programT => Gl.create_program ();
   let createShader context::(context: contextT) ::shaderType :shaderT =>
     Gl.create_shader shaderType;
-  let attachShader ::context ::program ::shader =>
-    Gl.attach_shader program shader;
+  let attachShader ::context ::program ::shader => Gl.attach_shader program shader;
   let deleteShader ::context ::shader => Gl.delete_shader shader;
   let shaderSource ::context ::shader ::source =>
     Gl.shader_source shader ("#version 120 \n" ^ source);
@@ -256,8 +260,7 @@ module Gl: ReasonglInterface.Gl.t = {
       Int32.to_int a.{0}
     }
   };
-  let bindBuffer context::(context: contextT) ::target ::buffer =>
-    Gl.bind_buffer target buffer;
+  let bindBuffer context::(context: contextT) ::target ::buffer => Gl.bind_buffer target buffer;
   type textureT = Gl.enum;
   let createTexture = {
     let a = Bigarray.Array1.create Bigarray.int32 Bigarray.c_layout 1;
@@ -267,8 +270,7 @@ module Gl: ReasonglInterface.Gl.t = {
     }
   };
   let activeTexture ::context ::target => Gl.active_texture target;
-  let bindTexture ::context ::target ::texture =>
-    Gl.bind_texture target texture;
+  let bindTexture ::context ::target ::texture => Gl.bind_texture target texture;
   let texParameteri context::contextT ::target ::pname ::param =>
     Gl.tex_parameteri target pname param;
 
@@ -292,19 +294,12 @@ module Gl: ReasonglInterface.Gl.t = {
     | None => Gl.bind_framebuffer target 0
     | Some frameBuffer => Gl.bind_framebuffer target frameBuffer
     };
-  let framebufferTexture2d
-      ::context
-      ::target
-      ::attachment
-      ::texTarget
-      ::texture
-      ::level =>
+  let framebufferTexture2d ::context ::target ::attachment ::texTarget ::texture ::level =>
     Gl.framebuffer_texture2d target attachment texTarget texture level;
   let readPixelsRGBA ::context ::x ::y ::width ::height => {
     /* pixel format: RGBA with 1 byte per color */
     let data =
-      Bigarray.Array1.create
-        Bigarray.int8_unsigned Bigarray.c_layout (width * height * 4);
+      Bigarray.Array1.create Bigarray.int8_unsigned Bigarray.c_layout (width * height * 4);
     Gl.read_pixels
       0
       0
@@ -337,13 +332,8 @@ module Gl: ReasonglInterface.Gl.t = {
    * This is very unefficient as we end we 3 copies of the data (1 original and 2 copies). We should be able
    * to pass in the C `char*` directly to tgls if we can figure out how ctypes works.
    */
-  external soilLoadImage : filename::string => loadOption::int => option imageT =
-    "load_image";
-  let loadImage
-      ::filename
-      ::loadOption=LoadAuto
-      callback::(callback: option imageT => unit)
-      () =>
+  external soilLoadImage : filename::string => loadOption::int => option imageT = "load_image";
+  let loadImage ::filename ::loadOption=LoadAuto callback::(callback: option imageT => unit) () =>
     switch loadOption {
     | LoadAuto => callback (soilLoadImage ::filename loadOption::0)
     | LoadL => callback (soilLoadImage ::filename loadOption::1)
@@ -370,12 +360,7 @@ module Gl: ReasonglInterface.Gl.t = {
       0
       format
       type_
-      (
-        `Data (
-          Bigarray.Array1.of_array
-            Bigarray.int8_unsigned Bigarray.c_layout data
-        )
-      );
+      (`Data (Bigarray.Array1.of_array Bigarray.int8_unsigned Bigarray.c_layout data));
   let texImage2DWithImage ::context ::target ::level ::image => {
     /* We only support rgb and rgba for now. */
     let format =
@@ -454,18 +439,12 @@ module Gl: ReasonglInterface.Gl.t = {
       | Int32 :kind int32 int32_elt;
     let create (type a) (type b) (kind: kind a b) size :t a b =>
       switch kind {
-      | Float64 =>
-        Bigarray.Array1.create Bigarray.Float64 Bigarray.c_layout size
-      | Float32 =>
-        Bigarray.Array1.create Bigarray.Float32 Bigarray.c_layout size
-      | Int16 =>
-        Bigarray.Array1.create Bigarray.Int16_signed Bigarray.c_layout size
-      | Uint16 =>
-        Bigarray.Array1.create Bigarray.Int16_unsigned Bigarray.c_layout size
-      | Int8 =>
-        Bigarray.Array1.create Bigarray.Int8_signed Bigarray.c_layout size
-      | Uint8 =>
-        Bigarray.Array1.create Bigarray.Int8_unsigned Bigarray.c_layout size
+      | Float64 => Bigarray.Array1.create Bigarray.Float64 Bigarray.c_layout size
+      | Float32 => Bigarray.Array1.create Bigarray.Float32 Bigarray.c_layout size
+      | Int16 => Bigarray.Array1.create Bigarray.Int16_signed Bigarray.c_layout size
+      | Uint16 => Bigarray.Array1.create Bigarray.Int16_unsigned Bigarray.c_layout size
+      | Int8 => Bigarray.Array1.create Bigarray.Int8_signed Bigarray.c_layout size
+      | Uint8 => Bigarray.Array1.create Bigarray.Int8_unsigned Bigarray.c_layout size
       | Char => Bigarray.Array1.create Bigarray.Char Bigarray.c_layout size
       | Int => Bigarray.Array1.create Bigarray.Int Bigarray.c_layout size
       | Int64 => Bigarray.Array1.create Bigarray.Int64 Bigarray.c_layout size
@@ -473,18 +452,12 @@ module Gl: ReasonglInterface.Gl.t = {
       };
     let of_array (type a) (type b) (kind: kind a b) (arr: array a) :t a b =>
       switch kind {
-      | Float64 =>
-        Bigarray.Array1.of_array Bigarray.Float64 Bigarray.c_layout arr
-      | Float32 =>
-        Bigarray.Array1.of_array Bigarray.Float32 Bigarray.c_layout arr
-      | Int16 =>
-        Bigarray.Array1.of_array Bigarray.Int16_signed Bigarray.c_layout arr
-      | Uint16 =>
-        Bigarray.Array1.of_array Bigarray.Int16_unsigned Bigarray.c_layout arr
-      | Int8 =>
-        Bigarray.Array1.of_array Bigarray.Int8_signed Bigarray.c_layout arr
-      | Uint8 =>
-        Bigarray.Array1.of_array Bigarray.Int8_unsigned Bigarray.c_layout arr
+      | Float64 => Bigarray.Array1.of_array Bigarray.Float64 Bigarray.c_layout arr
+      | Float32 => Bigarray.Array1.of_array Bigarray.Float32 Bigarray.c_layout arr
+      | Int16 => Bigarray.Array1.of_array Bigarray.Int16_signed Bigarray.c_layout arr
+      | Uint16 => Bigarray.Array1.of_array Bigarray.Int16_unsigned Bigarray.c_layout arr
+      | Int8 => Bigarray.Array1.of_array Bigarray.Int8_signed Bigarray.c_layout arr
+      | Uint8 => Bigarray.Array1.of_array Bigarray.Int8_unsigned Bigarray.c_layout arr
       | Char => Bigarray.Array1.of_array Bigarray.Char Bigarray.c_layout arr
       | Int => Bigarray.Array1.of_array Bigarray.Int Bigarray.c_layout arr
       | Int64 => Bigarray.Array1.of_array Bigarray.Int64 Bigarray.c_layout arr
@@ -510,11 +483,7 @@ module Gl: ReasonglInterface.Gl.t = {
        Bigarray.Array1.create Bigarray.int8_unsigned Bigarray.c_layout size;
      let get arr i => arr.{i};
      let set arr i v => arr.{i} = v; */
-  let bufferData
-      context::(context: contextT)
-      ::target
-      data::(data: Bigarray.t 'a 'b)
-      ::usage =>
+  let bufferData context::(context: contextT) ::target data::(data: Bigarray.t 'a 'b) ::usage =>
     Gl.buffer_data target (Gl.bigarray_byte_size data) (Some data) usage;
   /* let bufferData context::(context: contextT) ::target data::(data: dataKind) ::usage =>
      switch data {
@@ -528,11 +497,7 @@ module Gl: ReasonglInterface.Gl.t = {
   let viewport context::(context: contextT) ::x ::y ::width ::height =>
     Gl.viewport x y width height;
   let clear context::(context: contextT) ::mask => Gl.clear mask;
-  let getUniformLocation
-      context::(context: contextT)
-      program::(program: programT)
-      ::name
-      :uniformT =>
+  let getUniformLocation context::(context: contextT) program::(program: programT) ::name :uniformT =>
     Gl.get_uniform_location program name;
   let getAttribLocation
       context::(context: contextT)
@@ -551,8 +516,7 @@ module Gl: ReasonglInterface.Gl.t = {
       ::stride
       ::offset =>
     /* For now `offset` is only going to be an offset (limited by the webgl API?). */
-    Gl.vertex_attrib_pointer
-      attribute size type_ normalize stride (`Offset offset);
+    Gl.vertex_attrib_pointer attribute size type_ normalize stride (`Offset offset);
   module type Mat4T = {
     type t;
     let to_array: t => array float;
@@ -616,14 +580,10 @@ module Gl: ReasonglInterface.Gl.t = {
       let y = vec.(1);
       let z = vec.(2);
       if (matrix === out) {
-        out.(12) =
-          matrix.(0) *. x +. matrix.(4) *. y +. matrix.(8) *. z +. matrix.(12);
-        out.(13) =
-          matrix.(1) *. x +. matrix.(5) *. y +. matrix.(9) *. z +. matrix.(13);
-        out.(14) =
-          matrix.(2) *. x +. matrix.(6) *. y +. matrix.(10) *. z +. matrix.(14);
-        out.(15) =
-          matrix.(3) *. x +. matrix.(7) *. y +. matrix.(11) *. z +. matrix.(15)
+        out.(12) = matrix.(0) *. x +. matrix.(4) *. y +. matrix.(8) *. z +. matrix.(12);
+        out.(13) = matrix.(1) *. x +. matrix.(5) *. y +. matrix.(9) *. z +. matrix.(13);
+        out.(14) = matrix.(2) *. x +. matrix.(6) *. y +. matrix.(10) *. z +. matrix.(14);
+        out.(15) = matrix.(3) *. x +. matrix.(7) *. y +. matrix.(11) *. z +. matrix.(15)
       } else {
         let a00 = matrix.(0);
         let a01 = matrix.(1);
@@ -676,11 +636,7 @@ module Gl: ReasonglInterface.Gl.t = {
       out.(14) = matrix.(14);
       out.(15) = matrix.(15)
     };
-    let rotate
-        out::(out: t)
-        matrix::(matrix: t)
-        rad::(rad: float)
-        vec::(vec: array float) => {
+    let rotate out::(out: t) matrix::(matrix: t) rad::(rad: float) vec::(vec: array float) => {
       let x = matrix.(0);
       let y = matrix.(1);
       let z = matrix.(2);
@@ -769,10 +725,7 @@ module Gl: ReasonglInterface.Gl.t = {
    */
   let uniformMatrix4fv context::(context: contextT) ::location ::value =>
     Gl.uniform_matrix4fv
-      location
-      1
-      false
-      (Bigarray.of_array Bigarray.Float32 (Mat4.to_array value));
+      location 1 false (Bigarray.of_array Bigarray.Float32 (Mat4.to_array value));
   type shaderParamsT =
     | Shader_delete_status
     | Compile_status
@@ -792,17 +745,11 @@ module Gl: ReasonglInterface.Gl.t = {
       Int32.to_int (Bigarray.get a 0)
     }
   };
-  let getProgramParameter
-      context::(context: contextT)
-      program::(program: programT)
-      ::paramName =>
+  let getProgramParameter context::(context: contextT) program::(program: programT) ::paramName =>
     switch paramName {
-    | Program_delete_status =>
-      _getProgramParameter ::context ::program paramName::Gl.delete_status
-    | Link_status =>
-      _getProgramParameter ::context ::program paramName::Gl.link_status
-    | Validate_status =>
-      _getProgramParameter ::context ::program paramName::Gl.validate_status
+    | Program_delete_status => _getProgramParameter ::context ::program paramName::Gl.delete_status
+    | Link_status => _getProgramParameter ::context ::program paramName::Gl.link_status
+    | Validate_status => _getProgramParameter ::context ::program paramName::Gl.validate_status
     };
   let _getShaderParameter = {
     let a = Bigarray.create Bigarray.Int32 1;
@@ -813,31 +760,24 @@ module Gl: ReasonglInterface.Gl.t = {
   };
   let getShaderParameter context::(context: contextT) ::shader ::paramName =>
     switch paramName {
-    | Shader_delete_status =>
-      _getShaderParameter ::context ::shader paramName::Gl.delete_status
-    | Compile_status =>
-      _getShaderParameter ::context ::shader paramName::Gl.compile_status
-    | Shader_type =>
-      _getShaderParameter ::context ::shader paramName::Gl.shader_type
+    | Shader_delete_status => _getShaderParameter ::context ::shader paramName::Gl.delete_status
+    | Compile_status => _getShaderParameter ::context ::shader paramName::Gl.compile_status
+    | Shader_type => _getShaderParameter ::context ::shader paramName::Gl.shader_type
     };
   let getShaderInfoLog context::(context: contextT) ::shader => {
-    let len =
-      _getShaderParameter ::context ::shader paramName::Gl.info_log_length;
+    let len = _getShaderParameter ::context ::shader paramName::Gl.info_log_length;
     let logData = Bigarray.create Bigarray.Char len;
     Gl.get_shader_info_log shader len None logData;
     Gl.string_of_bigarray logData
   };
   let getProgramInfoLog context::(context: contextT) ::program => {
-    let len =
-      _getProgramParameter ::context ::program paramName::Gl.info_log_length;
+    let len = _getProgramParameter ::context ::program paramName::Gl.info_log_length;
     let logData = Bigarray.create Bigarray.Char len;
     Gl.get_program_info_log program len None logData;
     Gl.string_of_bigarray logData
   };
   let getShaderSource context::(context: contextT) shader::(shader: shaderT) => {
-    let len =
-      _getShaderParameter
-        ::context ::shader paramName::Gl.shader_source_length;
+    let len = _getShaderParameter ::context ::shader paramName::Gl.shader_source_length;
     let logData = Bigarray.create Bigarray.Char len;
     Gl.get_shader_source shader len None logData;
     Gl.string_of_bigarray logData

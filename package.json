@@ -3,9 +3,11 @@
   "version": "0.1.14",
   "description": "Reason bindings to OpenGL",
   "dependencies": {
+    "ReasonglInterface": "bsansouci/reasongl-interface#bsb-support",
+    "ctypes": "github:bsansouci/ocaml-ctypes#bsb-support",
+    "sdl2": "github:bsansouci/SDL-mirror#bsb-support",
     "tgls": "bsansouci/tgls#bsb-support",
-    "tsdl": "bsansouci/tsdl#bsb-support",
-    "ReasonglInterface": "bsansouci/reasongl-interface#bsb-support"
+    "tsdl": "bsansouci/tsdl#bsb-support-new"
   },
   "repository": {
     "type": "git",
