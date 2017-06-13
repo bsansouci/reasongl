@@ -57,8 +57,8 @@ module type t = {
   let activeTexture: context::contextT => target::int => unit;
   let bindTexture: context::contextT => target::int => texture::textureT => unit;
   let texParameteri: context::contextT => target::int => pname::int => param::int => unit;
-  type rawTextureDataT;
-  let toTextureData: array int => rawTextureDataT;
+  /*type rawTextureDataT;
+  let toTextureData: array int => rawTextureDataT;*/
   let enable: context::contextT => int => unit;
   let disable: context::contextT => int => unit;
   let blendFunc: context::contextT => int => int => unit;
@@ -74,38 +74,6 @@ module type t = {
     texture::textureT =>
     level::int =>
     unit;*/
-  let readPixelsRGBA:
-    context::contextT => x::int => y::int => width::int => height::int => rawTextureDataT;
-  type imageT;
-  let getImageWidth: imageT => int;
-  let getImageHeight: imageT => int;
-  type loadOptionT =
-    | LoadAuto
-    | LoadL
-    | LoadLA
-    | LoadRGB
-    | LoadRGBA;
-  let loadImage:
-    filename::string =>
-    loadOption::loadOptionT? =>
-    callback::(option imageT => unit) =>
-    unit =>
-    unit;
-  let texImage2DWithImage: context::contextT => target::int => level::int => image::imageT => unit;
-  /*let texImage2D:
-    context::contextT =>
-    target::int =>
-    level::int =>
-    internalFormat::int =>
-    width::int =>
-    height::int =>
-    format::int =>
-    type_::int =>
-    data::rawTextureDataT =>
-    unit;*/
-  let uniform1i: context::contextT => location::uniformT => int => unit;
-  let uniform1f: context::contextT => location::uniformT => float => unit;
-  /*let generateMipmap: context::contextT => target::int => unit;*/
   module type Bigarray = {
     type t 'a 'b;
     type float64_elt;
@@ -136,6 +104,39 @@ module type t = {
     let sub: t 'a 'b => offset::int => len::int => t 'a 'b;
   };
   module Bigarray: Bigarray;
+  let readPixels_RGBA:
+    context::contextT => x::int => y::int => width::int => height::int => Bigarray.t int Bigarray.int8_unsigned_elt;
+  type imageT;
+  let getImageWidth: imageT => int;
+  let getImageHeight: imageT => int;
+  type loadOptionT =
+    | LoadAuto
+    | LoadL
+    | LoadLA
+    | LoadRGB
+    | LoadRGBA;
+  let loadImage:
+    filename::string =>
+    loadOption::loadOptionT? =>
+    callback::(option imageT => unit) =>
+    unit =>
+    unit;
+  let texImage2DWithImage: context::contextT => target::int => level::int => image::imageT => unit;
+  /*let texImage2D:
+    context::contextT =>
+    target::int =>
+    level::int =>
+    internalFormat::int =>
+    width::int =>
+    height::int =>
+    format::int =>
+    type_::int =>
+    data::rawTextureDataT =>
+    unit;*/
+  let uniform1i: context::contextT => location::uniformT => int => unit;
+  let uniform1f: context::contextT => location::uniformT => float => unit;
+  /*let generateMipmap: context::contextT => target::int => unit;*/
+
   let texImage2D_RGBA:
     context::contextT =>
     target::int =>
@@ -186,7 +187,7 @@ module type t = {
       unit;
   };
   module Mat4: Mat4T;
-  let uniformMatrix4fv: context::contextT => location::int => value::Mat4.t => unit;
+  let uniformMatrix4fv: context::contextT => location::uniformT => value::Mat4.t => unit;
   type shaderParamsT =
     | Shader_delete_status
     | Compile_status
