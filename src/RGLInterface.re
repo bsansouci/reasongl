@@ -163,7 +163,7 @@ module type t = {
     attribute::attributeT =>
     size::int =>
     type_::int =>
-    normalize::bool =>
+    normalized::bool =>
     stride::int =>
     offset::int =>
     unit;
@@ -186,7 +186,7 @@ module type t = {
       unit;
   };
   module Mat4: Mat4T;
-  /*let uniformMatrix4fv: context::contextT => location::uniformT => value::Mat4.t => unit;*/
+  let uniformMatrix4fv: context::contextT => location::int => transpose::bool => value::array float => unit;
   type shaderParamsT =
     | Shader_delete_status
     | Compile_status
