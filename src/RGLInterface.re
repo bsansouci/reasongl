@@ -186,7 +186,7 @@ module type t = {
       unit;
   };
   module Mat4: Mat4T;
-  let uniformMatrix4fv: context::contextT => location::int => transpose::bool => value::array float => unit;
+  let uniformMatrix4fv: context::contextT => location::int => value::array float => unit;
   type shaderParamsT =
     | Shader_delete_status
     | Compile_status
