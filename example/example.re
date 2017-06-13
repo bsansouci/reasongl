@@ -198,7 +198,7 @@ let render time => {
     attribute::aVertexPosition
     size::3
     type_::Constants.float_
-    normalize::false
+    normalized::false
     stride::0
     offset::0;
 
@@ -219,7 +219,7 @@ let render time => {
     attribute::aVertexColor
     size::4
     type_::Constants.float_
-    normalize::false
+    normalized::false
     stride::0
     offset::0;
   Gl.uniformMatrix4fv ::context location::pMatrixUniform value::camera.projectionMatrix;

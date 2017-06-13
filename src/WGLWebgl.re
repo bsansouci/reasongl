@@ -262,126 +262,9 @@ module Gl: RGLInterface.t = {
   external activeTexture : context::contextT => target::int => unit = "activeTexture" [@@bs.send];
   external bindTexture : context::contextT => target::int => texture::textureT => unit = "bindTexture" [@@bs.send];
   external texParameteri : context::contextT => target::int => pname::int => param::int => unit = "texParameteri" [@@bs.send];
-  /* This is mostly so we know internally what `rawTextureDataT` is. */
-  type uint8array;
-  type rawTextureDataT = uint8array;
-  external makeUint8ArrayWithLength : int => rawTextureDataT = "Uint8Array" [@@bs.new];
-  external makeUint8Array : array int => rawTextureDataT = "Uint8Array" [@@bs.new];
-  let toTextureData data => makeUint8Array data;
   external enable : context::contextT => int => unit = "enable" [@@bs.send];
   external disable : context::contextT => int => unit = "disable" [@@bs.send];
   external blendFunc : context::contextT => int => int => unit = "blendFunc" [@@bs.send];
-  type frameBufferT = int;
-  external createFrameBuffer : context::contextT => frameBufferT = "createFramebuffer" [@@bs.send];
-  external _bindFrameBuffer : context::contextT =>
-                              target::int =>
-                              frameBuffer::'frameBufferT =>
-                              unit = "bindFramebuffer" [@@bs.send];
-  let bindFrameBuffer ::context ::target ::frameBuffer =>
-    switch frameBuffer {
-    | None => _bindFrameBuffer context target Js.null
-    | Some frameBuffer => _bindFrameBuffer context target frameBuffer
-    };
-  external framebufferTexture2d : context::contextT =>
-                                  target::int =>
-                                  attachment::int =>
-                                  texTarget::int =>
-                                  texture::textureT =>
-                                  level::int =>
-                                  unit = "framebufferTexture2D" [@@bs.send];
-  external readPixels : context::contextT =>
-                        x::int =>
-                        y::int =>
-                        width::int =>
-                        height::int =>
-                        format::int =>
-                        type_::int =>
-                        pixels::rawTextureDataT =>
-                        unit = "readPixels" [@@bs.send];
-  let readPixelsRGBA ::context ::x ::y ::width ::height => {
-    let data = makeUint8ArrayWithLength (width * height * 4);
-    readPixels
-      ::context
-      ::x
-      ::y
-      ::width
-      ::height
-      format::RGLConstants.rgba
-      type_::RGLConstants.unsigned_byte
-      pixels::data;
-    data
-  };
-  type imageT;
-  external getImageWidth : imageT => int = "width" [@@bs.get];
-  external getImageHeight : imageT => int = "height" [@@bs.get];
-  type loadOptionT =
-    | LoadAuto
-    | LoadL
-    | LoadLA
-    | LoadRGB
-    | LoadRGBA;
-
-  /** makeImage, setSrc and addEventListener are three helpers for loadImage. */
-  external makeImage : unit => imageT = "Image" [@@bs.new];
-  /* TODO: when the type of bs.set is `imageT => unit` you get something like
-
-      node_modules/reglweb/src/webgl.re:
-        Bsppx.Location.Error(_)
-        File "node_modules/reglweb/src/webgl.re", line 1:
-        Error: Error while running external preprocessor
-        Command line: bsppx.exe '/var/folders/g_/v45pqsrn65xbszd33yvd8lj40000gn/T/camlppx129341' '/var/folders/g_/v45pqsrn65xbszd33yvd8lj40000gn/T/camlppx438846'
-
-        This is due to the fact that bsppx expects 2 args, the "this" and the new value to set.
-
-        We should open an issue in Buckelscript.
-     */
-  external setSrc : imageT => string => unit = "src" [@@bs.set];
-  external addEventListener : imageT => string => (unit => unit) => unit = "addEventListener" [@@bs.send];
-
-  /** TODO: We don't care about forcing load option for web images (we do allow it for native as SOIL supports
-      it). We should probably not do this... */
-  let loadImage ::filename ::loadOption=? ::callback () =>
-    switch loadOption {
-    | _ =>
-      let image = makeImage ();
-      setSrc image filename;
-      addEventListener image "load" (fun () => callback (Some image))
-    };
-  external _texImage2DWithImage : context::contextT =>
-                                  target::int =>
-                                  level::int =>
-                                  internalFormat::int =>
-                                  format::int =>
-                                  type_::int =>
-                                  image::imageT =>
-                                  unit = "texImage2D" [@@bs.send];
-  let texImage2DWithImage ::context ::target ::level ::image =>
-    _texImage2DWithImage
-      context target level RGLConstants.rgba RGLConstants.rgba RGLConstants.unsigned_byte image;
-  external _texImage2D : context::contextT =>
-                         target::int =>
-                         level::int =>
-                         internalFormat::int =>
-                         width::int =>
-                         height::int =>
-                         border::int =>
-                         format::int =>
-                         type_::int =>
-                         data::rawTextureDataT =>
-                         unit = "texImage2D" [@@bs.send];
-  let texImage2D
-      ::context
-      ::target
-      ::level
-      ::internalFormat
-      ::width
-      ::height
-      ::format
-      ::type_
-      ::data =>
-    _texImage2D context target level internalFormat width height 0 format type_ data;
-  external generateMipmap : context::contextT => target::int => unit = "generateMipmap" [@@bs.send];
-
   /** Those externals are used for bufferData to instantiate what gl.bufferData actually expects, because JS
    *  doesn't differentiate between float and int but the GL backend needs to know the types precisely.
    **/
@@ -485,6 +368,102 @@ module Gl: RGLInterface.t = {
     external set : t 'a 'b => int => 'a => unit = "" [@@bs.set_index];
     let sub arr ::offset ::len => sub arr offset (offset + len);
   };
+  external readPixels : context::contextT =>
+                        x::int =>
+                        y::int =>
+                        width::int =>
+                        height::int =>
+                        format::int =>
+                        type_::int =>
+                        pixels::Bigarray.t int Bigarray.int8_unsigned_elt =>
+                        unit = "readPixels" [@@bs.send];
+
+  let readPixels_RGBA ::context ::x ::y ::width ::height => {
+    let data = createUint8Array (width * height * 4);
+    readPixels
+      ::context
+      ::x
+      ::y
+      ::width
+      ::height
+      format::RGLConstants.rgba
+      type_::RGLConstants.unsigned_byte
+      pixels::data;
+    data
+  };
+  type imageT;
+  external getImageWidth : imageT => int = "width" [@@bs.get];
+  external getImageHeight : imageT => int = "height" [@@bs.get];
+  type loadOptionT =
+    | LoadAuto
+    | LoadL
+    | LoadLA
+    | LoadRGB
+    | LoadRGBA;
+
+  /** makeImage, setSrc and addEventListener are three helpers for loadImage. */
+  external makeImage : unit => imageT = "Image" [@@bs.new];
+  /* TODO: when the type of bs.set is `imageT => unit` you get something like
+
+      node_modules/reglweb/src/webgl.re:
+        Bsppx.Location.Error(_)
+        File "node_modules/reglweb/src/webgl.re", line 1:
+        Error: Error while running external preprocessor
+        Command line: bsppx.exe '/var/folders/g_/v45pqsrn65xbszd33yvd8lj40000gn/T/camlppx129341' '/var/folders/g_/v45pqsrn65xbszd33yvd8lj40000gn/T/camlppx438846'
+
+        This is due to the fact that bsppx expects 2 args, the "this" and the new value to set.
+
+        We should open an issue in Buckelscript.
+     */
+  external setSrc : imageT => string => unit = "src" [@@bs.set];
+  external addEventListener : imageT => string => (unit => unit) => unit = "addEventListener" [@@bs.send];
+
+  /** TODO: We don't care about forcing load option for web images (we do allow it for native as SOIL supports
+      it). We should probably not do this... */
+  let loadImage ::filename ::loadOption=? ::callback () =>
+    switch loadOption {
+    | _ =>
+      let image = makeImage ();
+      setSrc image filename;
+      addEventListener image "load" (fun () => callback (Some image))
+    };
+  external _texImage2DWithImage : context::contextT =>
+                                  target::int =>
+                                  level::int =>
+                                  internalFormat::int =>
+                                  format::int =>
+                                  type_::int =>
+                                  image::imageT =>
+                                  unit = "texImage2D" [@@bs.send];
+  let texImage2DWithImage ::context ::target ::level ::image =>
+    _texImage2DWithImage
+      context target level RGLConstants.rgba RGLConstants.rgba RGLConstants.unsigned_byte image;
+  external _texImage2D : context::contextT =>
+                         target::int =>
+                         level::int =>
+                         internalFormat::int =>
+                         width::int =>
+                         height::int =>
+                         border::int =>
+                         format::int =>
+                         type_::int =>
+                         data::Bigarray.t 'a 'b =>
+                         unit = "texImage2D" [@@bs.send];
+  let texImage2D_RGBA ::context ::target ::level ::width ::height ::border ::data =>
+    _texImage2D
+      ::context
+      ::target
+      ::level
+      internalFormat::RGLConstants.rgba
+      ::width
+      ::height
+      ::border
+      format::RGLConstants.rgba
+      type_::RGLConstants.unsigned_byte
+      ::data;
+  /*external generateMipmap : context::contextT => target::int => unit = "generateMipmap" [@@bs.send];*/
+
+
   external bufferData : context::contextT =>
                         target::int =>
                         data::Bigarray.t 'a 'b =>
@@ -499,13 +478,13 @@ module Gl: RGLInterface.t = {
                                   attribute::attributeT =>
                                   size::int =>
                                   type_::int =>
-                                  normalize::Js.boolean =>
+                                  normalized::Js.boolean =>
                                   stride::int =>
                                   offset::int =>
                                   unit = "vertexAttribPointer" [@@bs.send];
-  let vertexAttribPointer ::context ::attribute ::size ::type_ ::normalize ::stride ::offset => {
-    let normalize = if normalize {Js.true_} else {Js.false_};
-    _vertexAttribPointer ::context ::attribute ::size ::type_ ::normalize ::stride ::offset
+  let vertexAttribPointer ::context ::attribute ::size ::type_ ::normalized ::stride ::offset => {
+    let normalized = if normalized {Js.true_} else {Js.false_};
+    _vertexAttribPointer ::context ::attribute ::size ::type_ ::normalized ::stride ::offset
   };
   module type Mat4T = {
     type t;
