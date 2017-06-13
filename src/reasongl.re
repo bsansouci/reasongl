@@ -271,10 +271,6 @@ module Gl: ReasonglInterface.Gl.t = {
   let texParameteri context::contextT ::target ::pname ::param =>
     Gl.texParameteri ::target ::pname ::param;
 
-  /** TODO: this causes bugs when loading big images, as ocaml arrays are limited in size. We need to replace
-      this with a Bigarary. This will also improve general performance as we won't need to copy over data. */
-  type rawTextureDataT = array int;
-  let toTextureData data => data;
   let enable ::context i => Gl.enable i;
   let disable ::context i => Gl.disable i;
   let blendFunc ::context a b => Gl.blendFunc sfactor::a dfactor::b;
@@ -293,7 +289,7 @@ module Gl: ReasonglInterface.Gl.t = {
       };
     let framebufferTexture2d ::context ::target ::attachment ::texTarget ::texture ::level =>
       Gl.framebufferTexture2d target attachment texTarget texture level;*/
-  let readPixelsRGBA ::context ::x ::y ::width ::height =>
+  let readPixels_RGBA ::context ::x ::y ::width ::height =>
     /* pixel format: RGBA with 1 byte per color
        let data =
          Bigarray.Array1.create Bigarray.int8_unsigned Bigarray.c_layout (width * height * 4);
