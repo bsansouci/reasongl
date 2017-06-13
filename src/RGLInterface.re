@@ -105,7 +105,7 @@ module type t = {
     unit;*/
   let uniform1i: context::contextT => location::uniformT => int => unit;
   let uniform1f: context::contextT => location::uniformT => float => unit;
-  let generateMipmap: context::contextT => target::int => unit;
+  /*let generateMipmap: context::contextT => target::int => unit;*/
   module type Bigarray = {
     type t 'a 'b;
     type float64_elt;
@@ -186,7 +186,7 @@ module type t = {
       unit;
   };
   module Mat4: Mat4T;
-  let uniformMatrix4fv: context::contextT => location::uniformT => value::Mat4.t => unit;
+  /*let uniformMatrix4fv: context::contextT => location::uniformT => value::Mat4.t => unit;*/
   type shaderParamsT =
     | Shader_delete_status
     | Compile_status
