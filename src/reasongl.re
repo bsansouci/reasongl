@@ -225,7 +225,7 @@ module Gl: ReasonglInterface.Gl.t = {
           (Int64.mul (Int64.sub time !prevTime) (Int64.of_float 1000.))
           (Sdl.get_performance_frequency ());
       let shouldQuit = checkEvents ();
-      if (Int64.compare diff (Int64.of_float 16.666) == 1) {
+      if (Int64.compare diff (Int64.of_float 16.6666666) == 1) {
         displayFunc (Int64.to_float diff);
         Sdl.gl_swap_window window;
         prevTime := time
@@ -256,7 +256,7 @@ module Gl: ReasonglInterface.Gl.t = {
       /*let a = Bigarray.Array1.create Bigarray.int32 Bigarray.c_layout 1;*/
       context::(context: contextT) =>
     /*Gl.genBuffers 1 a;*/
-    (Gl.genBuffers 1).(0);
+    Gl.genBuffer ();
   /*Int32.to_int a.{0}*/
   let bindBuffer context::(context: contextT) ::target ::buffer => Gl.bindBuffer ::target ::buffer;
   type textureT = Gl.textureT;
@@ -265,12 +265,11 @@ module Gl: ReasonglInterface.Gl.t = {
       context::(context: contextT) =>
     /*Gl.genTextures 1 a;*/
     /*Int32.to_int a.{0}*/
-    (Gl.genTextures 1).(0);
+    Gl.genTexture ();
   let activeTexture ::context ::target => Gl.activeTexture target;
   let bindTexture ::context ::target ::texture => Gl.bindTexture ::target ::texture;
   let texParameteri context::contextT ::target ::pname ::param =>
     Gl.texParameteri ::target ::pname ::param;
-
   let enable ::context i => Gl.enable i;
   let disable ::context i => Gl.disable i;
   let blendFunc ::context a b => Gl.blendFunc sfactor::a dfactor::b;
