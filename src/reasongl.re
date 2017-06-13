@@ -121,7 +121,7 @@ module Gl: RGLInterface.t = {
     let getContext (window: t) :contextT =>
       getContext window "webgl" {"preserveDrawingBuffer": true, "antialias": false};
   };
-  module Events = WGLEvents;
+  module Events = Events;
   type mouseButtonEventT =
     button::Events.buttonStateT => state::Events.stateT => x::int => y::int => unit;
 

@@ -7,4 +7,5 @@
     "type": "dev"
   }],
   "bs-dependencies": ["ReasonglInterface"],
+  "allowed-build-kinds": ["js"],
 }

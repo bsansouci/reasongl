@@ -3,7 +3,7 @@
  * vim: set ft=reason:
  */
 module Constants = RGLConstants;
-module Gl = WGLWebgl.Gl;
+module Gl = Reasongl.Gl;
 
 /**
  * This program is an example of how to draw a square.
