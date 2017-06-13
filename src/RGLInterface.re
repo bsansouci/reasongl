@@ -17,7 +17,7 @@ module type t = {
     let getContext: t => contextT;
   };
   module Window: WindowT;
-  module Events : RGLEvents.t;
+  module Events: RGLEvents.t;
 
   /** We're currently mimicking the JS asynchronous event handling allowing the user to register callbacks.
    * Instead of mutating global state in the Events module, we simply force the user to register all events
@@ -30,8 +30,8 @@ module type t = {
     mouseDown::(button::Events.buttonStateT => state::Events.stateT => x::int => y::int => unit)? =>
     mouseUp::(button::Events.buttonStateT => state::Events.stateT => x::int => y::int => unit)? =>
     mouseMove::(x::int => y::int => unit)? =>
-    keyDown::((keycode::Events.keycodeT => repeat::bool => unit))? =>
-    keyUp::((keycode::Events.keycodeT => unit))? =>
+    keyDown::(keycode::Events.keycodeT => repeat::bool => unit)? =>
+    keyUp::(keycode::Events.keycodeT => unit)? =>
     windowResize::(unit => unit)? =>
     displayFunc::(float => unit) =>
     unit =>
@@ -62,18 +62,18 @@ module type t = {
   let enable: context::contextT => int => unit;
   let disable: context::contextT => int => unit;
   let blendFunc: context::contextT => int => int => unit;
-  type frameBufferT;
-  let createFrameBuffer: context::contextT => frameBufferT;
-  let bindFrameBuffer:
-    context::contextT => target::int => frameBuffer::option frameBufferT => unit;
-  let framebufferTexture2d:
+  /*type frameBufferT;
+    let createFrameBuffer: context::contextT => frameBufferT;*/
+  /*let bindFrameBuffer:
+    context::contextT => target::int => frameBuffer::option frameBufferT => unit;*/
+  /*let framebufferTexture2d:
     context::contextT =>
     target::int =>
     attachment::int =>
     texTarget::int =>
     texture::textureT =>
     level::int =>
-    unit;
+    unit;*/
   let readPixelsRGBA:
     context::contextT => x::int => y::int => width::int => height::int => rawTextureDataT;
   type imageT;
@@ -92,7 +92,7 @@ module type t = {
     unit =>
     unit;
   let texImage2DWithImage: context::contextT => target::int => level::int => image::imageT => unit;
-  let texImage2D:
+  /*let texImage2D:
     context::contextT =>
     target::int =>
     level::int =>
@@ -102,7 +102,7 @@ module type t = {
     format::int =>
     type_::int =>
     data::rawTextureDataT =>
-    unit;
+    unit;*/
   let uniform1i: context::contextT => location::uniformT => int => unit;
   let uniform1f: context::contextT => location::uniformT => float => unit;
   let generateMipmap: context::contextT => target::int => unit;
@@ -136,6 +136,15 @@ module type t = {
     let sub: t 'a 'b => offset::int => len::int => t 'a 'b;
   };
   module Bigarray: Bigarray;
+  let texImage2D_RGBA:
+    context::contextT =>
+    target::int =>
+    level::int =>
+    width::int =>
+    height::int =>
+    border::int =>
+    data::Bigarray.t 'a 'b =>
+    unit;
   let bufferData: context::contextT => target::int => data::Bigarray.t 'a 'b => usage::int => unit;
   /* let bufferData2:
      context::contextT =>
@@ -196,4 +205,3 @@ module type t = {
   let drawElements:
     context::contextT => mode::int => count::int => type_::int => offset::int => unit;
 };
-
