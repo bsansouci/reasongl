@@ -72,7 +72,6 @@ module Gl: ReasonglInterface.Gl.t = {
     let getHeight: t => int;
     let init: argv::array string => t;
     let setWindowSize: window::t => width::int => height::int => unit;
-    let initDisplayMode: window::t => double_buffer::bool => unit => unit;
     let getContext: t => contextT;
   };
   module Window = {
@@ -98,7 +97,6 @@ module Gl: ReasonglInterface.Gl.t = {
     };
     let setWindowSize window::(window: t) ::width ::height =>
       Sdl.set_window_size window ::width ::height;
-    let initDisplayMode ::window double_buffer::_ () => ();
     let getContext (window: t) :contextT => {
       let ctx = Sdl.gl_create_context window;
       let e = Sdl.gl_make_current window ctx;
@@ -252,20 +250,10 @@ module Gl: ReasonglInterface.Gl.t = {
   type bufferT = Gl.bufferT;
   type attributeT = Gl.attribT;
   type uniformT = Gl.uniformT;
-  let createBuffer
-      /*let a = Bigarray.Array1.create Bigarray.int32 Bigarray.c_layout 1;*/
-      context::(context: contextT) =>
-    /*Gl.genBuffers 1 a;*/
-    Gl.genBuffer ();
-  /*Int32.to_int a.{0}*/
+  let createBuffer context::(context: contextT) => Gl.genBuffer ();
   let bindBuffer context::(context: contextT) ::target ::buffer => Gl.bindBuffer ::target ::buffer;
   type textureT = Gl.textureT;
-  let createTexture
-      /*let a = Bigarray.Array1.create Bigarray.int32 Bigarray.c_layout 1;*/
-      context::(context: contextT) =>
-    /*Gl.genTextures 1 a;*/
-    /*Int32.to_int a.{0}*/
-    Gl.genTexture ();
+  let createTexture context::(context: contextT) => Gl.genTexture ();
   let activeTexture ::context ::target => Gl.activeTexture target;
   let bindTexture ::context ::target ::texture => Gl.bindTexture ::target ::texture;
   let texParameteri context::contextT ::target ::pname ::param =>
@@ -273,39 +261,7 @@ module Gl: ReasonglInterface.Gl.t = {
   let enable ::context i => Gl.enable i;
   let disable ::context i => Gl.disable i;
   let blendFunc ::context a b => Gl.blendFunc sfactor::a dfactor::b;
-  /*type frameBufferT = int;
-    let createFrameBuffer = {
-      let a = Bigarray.Array1.create Bigarray.int32 Bigarray.c_layout 1;
-      fun context::(context: contextT) => {
-        Gl.genFramebuffers 1 a;
-        Int32.to_int a.{0}
-      }
-    };*/
-  /*let bindFrameBuffer ::context ::target ::frameBuffer =>
-      switch frameBuffer {
-      | None => Gl.bindFramebuffer target 0
-      | Some frameBuffer => Gl.bindFramebuffer target frameBuffer
-      };
-    let framebufferTexture2d ::context ::target ::attachment ::texTarget ::texture ::level =>
-      Gl.framebufferTexture2d target attachment texTarget texture level;*/
   let readPixels_RGBA ::context ::x ::y ::width ::height =>
-    /* pixel format: RGBA with 1 byte per color
-       let data =
-         Bigarray.Array1.create Bigarray.int8_unsigned Bigarray.c_layout (width * height * 4);
-       Gl.read_pixels
-         0
-         0
-         width
-         height
-         ReasonglInterface.Constants.rgba
-         ReasonglInterface.Constants.unsigned_byte
-         (`Data data);
-       let size = Bigarray.Array1.dim data;
-       let ocam_array = Array.make size 0;
-       for i in 0 to (size - 1) {
-         ocam_array.(i) = data.{i}
-       };
-       ocam_array*/
     Gl.readPixels_RGBA ::x ::y ::width ::height;
   type loadOptionT =
     | LoadAuto
@@ -343,36 +299,16 @@ module Gl: ReasonglInterface.Gl.t = {
       ::data =>
     Gl.texImage2D_RGBA ::target ::level ::width ::height ::border ::data;
   let texImage2DWithImage ::context ::target ::level ::image => {
-    /* We only support rgb and rgba for now. */
-    /*let format =
-      switch image.channels {
-      | 3 => ReasonglInterface.Constants.rgb
-      | 4 => ReasonglInterface.Constants.rgba
-      | _ => assert false
-      };*/
     let data =
       Bigarray.Array1.create Bigarray.int8_unsigned Bigarray.c_layout (Array.length image.data);
     for i in 0 to (Array.length image.data) {
       data.{i} = image.data.(0)
     };
     texImage2D_RGBA
-      ::context
-      ::target
-      ::level
-      /*format*/
-      width::image.width
-      height::image.height
-      border::0
-      /*format*/
-      /*ReasonglInterface.Constants.unsigned_byte*/
-      ::data
+      ::context ::target ::level width::image.width height::image.height border::0 ::data
   };
   let uniform1i ::context ::location v0 => Gl.uniform1i ::location val::v0;
   let uniform1f ::context ::location v0 => Gl.uniform1f ::location val::v0;
-  /*let generateMipmap ::context ::target => Gl.generate_mipmap target;*/
-  /* type float32Array = Bigarray.float32_elt;
-     type uint16Array = Bigarray.int16_unsigned_elt;
-     type uint8Array = Bigarray.int8_unsigned_elt; */
   module type Bigarray = {
     type t 'a 'b;
     type float64_elt;
@@ -456,31 +392,8 @@ module Gl: ReasonglInterface.Gl.t = {
     let sub (type a) (type b) (arr: t a b) ::offset ::len :t a b =>
       Bigarray.Array1.sub arr offset len;
   };
-  /* type float32 = Bigarray.float32_elt;
-     type uint16 = Bigarray.int16_unsigned_elt;
-     type uint8 = Bigarray.int8_unsigned_elt;
-     type bigarray 'a 'b = Bigarray.Array1.t 'a 'b Bigarray.c_layout;
-     let createFloat32Array size => Bigarray.Array1.create Bigarray.float32 Bigarray.c_layout size;
-     let createFloat32ArrayWithArray arr =>
-       Bigarray.Array1.of_array Bigarray.float32 Bigarray.c_layout arr;
-     let createUint16Array size =>
-       Bigarray.Array1.create Bigarray.int16_unsigned Bigarray.c_layout size;
-     let arrayLength arr => Bigarray.Array1.dim arr;
-     let createUint8Array size =>
-       Bigarray.Array1.create Bigarray.int8_unsigned Bigarray.c_layout size;
-     let get arr i => arr.{i};
-     let set arr i v => arr.{i} = v; */
   let bufferData context::(context: contextT) ::target data::(data: Bigarray.t 'a 'b) ::usage =>
     Gl.bufferData ::target ::data ::usage;
-  /* let bufferData context::(context: contextT) ::target data::(data: dataKind) ::usage =>
-     switch data {
-     | Float32 d =>
-       let bigData = createFloat32Array d;
-       Gl.buffer_data target (Gl.bigarray_byte_size bigData) (Some bigData) usage
-     | UInt16 d =>
-       let bigData = createUint16Array d;
-       Gl.buffer_data target (Gl.bigarray_byte_size bigData) (Some bigData) usage
-     }; */
   let viewport context::(context: contextT) ::x ::y ::width ::height =>
     Gl.viewport ::x ::y ::width ::height;
   let clear context::(context: contextT) ::mask => Gl.clear mask;
@@ -491,7 +404,7 @@ module Gl: ReasonglInterface.Gl.t = {
       program::(program: programT)
       ::name
       :attributeT =>
-    Gl.getAttribLocation program name;
+    Gl.getAttribLocation ::program ::name;
   let enableVertexAttribArray context::(context: contextT) ::attribute =>
     Gl.enableVertexAttribArray attribute;
   let vertexAttribPointer
@@ -624,9 +537,9 @@ module Gl: ReasonglInterface.Gl.t = {
       out.(15) = matrix.(15)
     };
     let rotate out::(out: t) matrix::(matrix: t) rad::(rad: float) vec::(vec: array float) => {
-      let x = matrix.(0);
-      let y = matrix.(1);
-      let z = matrix.(2);
+      let x = vec.(0);
+      let y = vec.(1);
+      let z = vec.(2);
       let len = sqrt (x *. x +. y *. y +. z *. z);
       if (abs_float len > epsilon) {
         let len = 1. /. sqrt (x *. x +. y *. y +. z *. z);
@@ -711,7 +624,7 @@ module Gl: ReasonglInterface.Gl.t = {
    * and transform = false because "Must be GL_FALSE"...
    */
   let uniformMatrix4fv context::(context: contextT) ::location ::value =>
-    Gl.uniformMatrix4fv location false (Mat4.to_array value);
+    Gl.uniformMatrix4fv ::location transpose::false value::(Mat4.to_array value);
   type shaderParamsT =
     | Shader_delete_status
     | Compile_status
@@ -724,13 +637,8 @@ module Gl: ReasonglInterface.Gl.t = {
   /**
    * We use Bigarray here as some sort of pointer.
    */
-  let _getProgramParameter
-      /*let a = Bigarray.create Bigarray.Int32 1;*/
-      context::(context: contextT)
-      program::(program: programT)
-      ::paramName =>
+  let _getProgramParameter context::(context: contextT) program::(program: programT) ::paramName =>
     Gl.getProgramiv ::program pname::paramName;
-  /*Int32.to_int (Bigarray.get a 0)*/
   let getProgramParameter context::(context: contextT) program::(program: programT) ::paramName =>
     switch paramName {
     | Program_delete_status =>
@@ -738,34 +646,18 @@ module Gl: ReasonglInterface.Gl.t = {
     | Link_status => _getProgramParameter ::context ::program paramName::Gl.gl_link_status
     | Validate_status => _getProgramParameter ::context ::program paramName::Gl.gl_validate_status
     };
-  let _getShaderParameter
-      /*let a = Bigarray.create Bigarray.Int32 1;*/
-      context::(context: contextT)
-      ::shader
-      ::paramName =>
+  let _getShaderParameter context::(context: contextT) ::shader ::paramName =>
     Gl.getShaderiv ::shader pname::paramName;
-  /*Int32.to_int (Bigarray.get a 0)*/
   let getShaderParameter context::(context: contextT) ::shader ::paramName =>
     switch paramName {
     | Shader_delete_status => _getShaderParameter ::context ::shader paramName::Gl.gl_delete_status
     | Compile_status => _getShaderParameter ::context ::shader paramName::Gl.gl_compile_status
     | Shader_type => _getShaderParameter ::context ::shader paramName::Gl.gl_shader_type
     };
-  let getShaderInfoLog context::(context: contextT) ::shader =>
-    /*let len = _getShaderParameter ::context ::shader paramName::Gl.gl_info_log_length;*/
-    /*let logData = Bigarray.create Bigarray.Char len;*/
-    Gl.getShaderInfoLog shader;
-  /*Gl.string_of_bigarray logData*/
-  let getProgramInfoLog context::(context: contextT) ::program =>
-    /*let len = _getProgramParameter ::context ::program paramName::Gl.gl_info_log_length;*/
-    /*let logData = Bigarray.create Bigarray.Char len;*/
-    Gl.getProgramInfoLog program;
-  /*Gl.string_of_bigarray logData*/
+  let getShaderInfoLog context::(context: contextT) ::shader => Gl.getShaderInfoLog shader;
+  let getProgramInfoLog context::(context: contextT) ::program => Gl.getProgramInfoLog program;
   let getShaderSource context::(context: contextT) shader::(shader: shaderT) =>
-    /*let len = _getShaderParameter ::context ::shader paramName::Gl.gl_shader_source_length;*/
-    /*let logData = Bigarray.create Bigarray.Char len;*/
     Gl.getShaderSource shader;
-  /*Gl.string_of_bigarray logData*/
   let drawArrays context::(context: contextT) ::mode ::first ::count =>
     Gl.drawArrays ::mode ::first ::count;
   let drawElements context::(context: contextT) ::mode ::count ::type_ ::offset =>
