@@ -13,7 +13,7 @@ INCDIR = SOIL/src
 OBJDIR = _build/
 
 CXX = gcc
-CXXFLAGS = -O2 -s -Wall
+CXXFLAGS =
 DELETER = rm -f
 COPIER = cp
 
@@ -34,7 +34,7 @@ $(BIN): $(OBJ)
 	@echo -------------------------------------------------------------------
 	@echo Done. As root, type 'make install' to install the library.
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.c	
+$(OBJDIR)/%.o: $(SRCDIR)/%.c
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 
 
