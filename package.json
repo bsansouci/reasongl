@@ -1,12 +1,12 @@
 {
   "name": "ReasonglNative",
-  "version": "0.1.14",
+  "version": "0.2.0",
   "description": "Reason bindings to OpenGL",
   "dependencies": {
-    "ReasonglInterface": "bsansouci/reasongl-interface#bsb-support-new",
+    "ReasonglInterface": "github:bsansouci/reasongl-interface#bsb-support-new",
     "sdl2": "github:bsansouci/SDL-mirror#bsb-support",
-    "tgls": "bsansouci/tgls#bsb-support-new",
-    "tsdl": "bsansouci/tsdl#bsb-support-new"
+    "tgls": "github:bsansouci/tgls#bsb-support-new",
+    "tsdl": "github:bsansouci/tsdl#bsb-support-new"
   },
   "repository": {
     "type": "git",

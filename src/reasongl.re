@@ -236,32 +236,31 @@ module Gl: ReasonglInterface.Gl.t = {
   };
   type programT = Gl.programT;
   type shaderT = Gl.shaderT;
-  let clearColor ::context ::r ::g ::b ::a => Gl.clearColor red::r green::g blue::b alpha::a;
-  let createProgram context::(context: contextT) :programT => Gl.createProgram ();
-  let createShader context::(context: contextT) ::shaderType :shaderT =>
-    Gl.createShader shaderType;
-  let attachShader ::context ::program ::shader => Gl.attachShader ::program ::shader;
-  let deleteShader ::context ::shader => Gl.deleteShader shader;
-  let shaderSource ::context ::shader ::source =>
+  let clearColor context::_ ::r ::g ::b ::a => Gl.clearColor red::r green::g blue::b alpha::a;
+  let createProgram context::_ :programT => Gl.createProgram ();
+  let createShader context::_ ::shaderType :shaderT => Gl.createShader shaderType;
+  let attachShader context::_ ::program ::shader => Gl.attachShader ::program ::shader;
+  let deleteShader context::_ ::shader => Gl.deleteShader shader;
+  let shaderSource context::_ ::shader ::source =>
     Gl.shaderSource shader [|"#version 120 \n", source|];
-  let compileShader ::context ::shader => Gl.compileShader shader;
-  let linkProgram ::context ::program => Gl.linkProgram program;
-  let useProgram ::context ::program => Gl.useProgram program;
+  let compileShader context::_ ::shader => Gl.compileShader shader;
+  let linkProgram context::_ ::program => Gl.linkProgram program;
+  let useProgram context::_ ::program => Gl.useProgram program;
   type bufferT = Gl.bufferT;
   type attributeT = Gl.attribT;
   type uniformT = Gl.uniformT;
-  let createBuffer context::(context: contextT) => Gl.genBuffer ();
-  let bindBuffer context::(context: contextT) ::target ::buffer => Gl.bindBuffer ::target ::buffer;
+  let createBuffer context::_ => Gl.genBuffer ();
+  let bindBuffer context::_ ::target ::buffer => Gl.bindBuffer ::target ::buffer;
   type textureT = Gl.textureT;
-  let createTexture context::(context: contextT) => Gl.genTexture ();
-  let activeTexture ::context ::target => Gl.activeTexture target;
-  let bindTexture ::context ::target ::texture => Gl.bindTexture ::target ::texture;
-  let texParameteri context::contextT ::target ::pname ::param =>
+  let createTexture context::_ => Gl.genTexture ();
+  let activeTexture context::_ ::target => Gl.activeTexture target;
+  let bindTexture context::_ ::target ::texture => Gl.bindTexture ::target ::texture;
+  let texParameteri context::_ ::target ::pname ::param =>
     Gl.texParameteri ::target ::pname ::param;
-  let enable ::context i => Gl.enable i;
-  let disable ::context i => Gl.disable i;
-  let blendFunc ::context a b => Gl.blendFunc sfactor::a dfactor::b;
-  let readPixels_RGBA ::context ::x ::y ::width ::height =>
+  let enable context::_ i => Gl.enable i;
+  let disable context::_ i => Gl.disable i;
+  let blendFunc context::_ a b => Gl.blendFunc sfactor::a dfactor::b;
+  let readPixels_RGBA context::_ ::x ::y ::width ::height =>
     Gl.readPixels_RGBA ::x ::y ::width ::height;
   type loadOptionT =
     | LoadAuto
@@ -289,14 +288,7 @@ module Gl: ReasonglInterface.Gl.t = {
     | LoadRGB => callback (soilLoadImage ::filename loadOption::3)
     | LoadRGBA => callback (soilLoadImage ::filename loadOption::4)
     };
-  let texImage2D_RGBA
-      context::(context: contextT)
-      ::target
-      ::level
-      ::width
-      ::height
-      ::border
-      ::data =>
+  let texImage2D_RGBA context::_ ::target ::level ::width ::height ::border ::data =>
     Gl.texImage2D_RGBA ::target ::level ::width ::height ::border ::data;
   let texImage2DWithImage ::context ::target ::level ::image => {
     let data =
@@ -307,8 +299,8 @@ module Gl: ReasonglInterface.Gl.t = {
     texImage2D_RGBA
       ::context ::target ::level width::image.width height::image.height border::0 ::data
   };
-  let uniform1i ::context ::location v0 => Gl.uniform1i ::location val::v0;
-  let uniform1f ::context ::location v0 => Gl.uniform1f ::location val::v0;
+  let uniform1i context::_ ::location v0 => Gl.uniform1i ::location val::v0;
+  let uniform1f context::_ ::location v0 => Gl.uniform1f ::location val::v0;
   module type Bigarray = {
     type t 'a 'b;
     type float64_elt;
@@ -392,29 +384,16 @@ module Gl: ReasonglInterface.Gl.t = {
     let sub (type a) (type b) (arr: t a b) ::offset ::len :t a b =>
       Bigarray.Array1.sub arr offset len;
   };
-  let bufferData context::(context: contextT) ::target data::(data: Bigarray.t 'a 'b) ::usage =>
+  let bufferData context::_ ::target data::(data: Bigarray.t 'a 'b) ::usage =>
     Gl.bufferData ::target ::data ::usage;
-  let viewport context::(context: contextT) ::x ::y ::width ::height =>
-    Gl.viewport ::x ::y ::width ::height;
-  let clear context::(context: contextT) ::mask => Gl.clear mask;
-  let getUniformLocation context::(context: contextT) program::(program: programT) ::name :uniformT =>
+  let viewport context::_ ::x ::y ::width ::height => Gl.viewport ::x ::y ::width ::height;
+  let clear context::_ ::mask => Gl.clear mask;
+  let getUniformLocation context::_ program::(program: programT) ::name :uniformT =>
     Gl.getUniformLocation ::program ::name;
-  let getAttribLocation
-      context::(context: contextT)
-      program::(program: programT)
-      ::name
-      :attributeT =>
+  let getAttribLocation context::_ program::(program: programT) ::name :attributeT =>
     Gl.getAttribLocation ::program ::name;
-  let enableVertexAttribArray context::(context: contextT) ::attribute =>
-    Gl.enableVertexAttribArray attribute;
-  let vertexAttribPointer
-      context::(context: contextT)
-      ::attribute
-      ::size
-      ::type_
-      ::normalized
-      ::stride
-      ::offset =>
+  let enableVertexAttribArray context::_ ::attribute => Gl.enableVertexAttribArray attribute;
+  let vertexAttribPointer context::_ ::attribute ::size ::type_ ::normalized ::stride ::offset =>
     /* For now `offset` is only going to be an offset (limited by the webgl API?). */
     Gl.vertexAttribPointer index::attribute ::size typ::type_ ::normalized ::stride ::offset;
   module type Mat4T = {
@@ -623,7 +602,7 @@ module Gl: ReasonglInterface.Gl.t = {
   /** count = 1 for now https://www.opengl.org/sdk/docs/man/html/glUniform.xhtml
    * and transform = false because "Must be GL_FALSE"...
    */
-  let uniformMatrix4fv context::(context: contextT) ::location ::value =>
+  let uniformMatrix4fv context::_ ::location ::value =>
     Gl.uniformMatrix4fv ::location transpose::false value::(Mat4.to_array value);
   type shaderParamsT =
     | Shader_delete_status
@@ -637,29 +616,27 @@ module Gl: ReasonglInterface.Gl.t = {
   /**
    * We use Bigarray here as some sort of pointer.
    */
-  let _getProgramParameter context::(context: contextT) program::(program: programT) ::paramName =>
+  let _getProgramParameter context::_ program::(program: programT) ::paramName =>
     Gl.getProgramiv ::program pname::paramName;
-  let getProgramParameter context::(context: contextT) program::(program: programT) ::paramName =>
+  let getProgramParameter ::context program::(program: programT) ::paramName =>
     switch paramName {
     | Program_delete_status =>
       _getProgramParameter ::context ::program paramName::Gl.gl_delete_status
     | Link_status => _getProgramParameter ::context ::program paramName::Gl.gl_link_status
     | Validate_status => _getProgramParameter ::context ::program paramName::Gl.gl_validate_status
     };
-  let _getShaderParameter context::(context: contextT) ::shader ::paramName =>
+  let _getShaderParameter context::_ ::shader ::paramName =>
     Gl.getShaderiv ::shader pname::paramName;
-  let getShaderParameter context::(context: contextT) ::shader ::paramName =>
+  let getShaderParameter ::context ::shader ::paramName =>
     switch paramName {
     | Shader_delete_status => _getShaderParameter ::context ::shader paramName::Gl.gl_delete_status
     | Compile_status => _getShaderParameter ::context ::shader paramName::Gl.gl_compile_status
     | Shader_type => _getShaderParameter ::context ::shader paramName::Gl.gl_shader_type
     };
-  let getShaderInfoLog context::(context: contextT) ::shader => Gl.getShaderInfoLog shader;
-  let getProgramInfoLog context::(context: contextT) ::program => Gl.getProgramInfoLog program;
-  let getShaderSource context::(context: contextT) shader::(shader: shaderT) =>
-    Gl.getShaderSource shader;
-  let drawArrays context::(context: contextT) ::mode ::first ::count =>
-    Gl.drawArrays ::mode ::first ::count;
-  let drawElements context::(context: contextT) ::mode ::count ::type_ ::offset =>
+  let getShaderInfoLog context::_ ::shader => Gl.getShaderInfoLog shader;
+  let getProgramInfoLog context::_ ::program => Gl.getProgramInfoLog program;
+  let getShaderSource context::_ shader::(shader: shaderT) => Gl.getShaderSource shader;
+  let drawArrays context::_ ::mode ::first ::count => Gl.drawArrays ::mode ::first ::count;
+  let drawElements context::_ ::mode ::count ::type_ ::offset =>
     Gl.drawElements ::mode ::count typ::type_ ::offset;
 };
