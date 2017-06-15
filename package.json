@@ -8,6 +8,9 @@
     "tgls": "github:bsansouci/tgls#bsb-support-new",
     "tsdl": "github:bsansouci/tsdl#bsb-support-new"
   },
+  "scripts": {
+    "postinstall": "mkdir -p _build/lib/ && mkdir -p _build/include && cp SOIL/src/SOIL.h _build/include/SOIL.h && make"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bsansouci/reasongl-native.git"
