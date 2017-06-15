@@ -1,10 +1,15 @@
 {
   "name": "ReasonglNative",
-  "sources": "src",
+  "sources": [{
+    "dir": "src"
+  }, {
+    "dir": "example",
+    "type": "dev"
+  }],
   "bs-dependencies": ["Tsdl", "Tgls", "ReasonglInterface"],
   "entries": [{
     "kind": "bytecode",
-    "main": "Opengl"
+    "main": "Example"
   }],
   "static_libraries": [
     "_build/lib/libsoil.a",
