@@ -16,5 +16,5 @@
     "_build/lib/libsoil_wrapper.a",
   ],
   "allowed-build-kinds": ["bytecode", "native"],
-  "build_script": "gcc -I$OCAML_LIB -c src/soil_wrapper.c -o _build/lib/libsoil_wrapper.a"
+  "build_script": "make lib",
 }

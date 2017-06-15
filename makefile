@@ -55,3 +55,8 @@ uninstall:
 	@echo SOIL library uninstalled.
 
 .PHONY: all clean install uninstall
+
+lib: _build/lib/libsoil_wrapper.a
+
+_build/lib/libsoil_wrapper.a:	src/soil_wrapper.c
+	gcc -I$(OCAML_LIB) -c src/soil_wrapper.c -o _build/lib/libsoil_wrapper.a
