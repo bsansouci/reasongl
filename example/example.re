@@ -3,7 +3,9 @@
  * vim: set ft=reason:
  */
 module Constants = RGLConstants;
+
 module Gl = Reasongl.Gl;
+
 
 /**
  * This program is an example of how to draw a square.
@@ -50,8 +52,7 @@ let getProgram
         None
       }
     } else {
-      print_endline @@
-      "Fragment shader error: " ^ Gl.getShaderInfoLog ::context fragmentShader;
+      print_endline @@ "Fragment shader error: " ^ Gl.getShaderInfoLog ::context fragmentShader;
       None
     }
   } else {
@@ -229,9 +230,5 @@ let render _ => {
 };
 
 
-let windowResize () => {
-  print_endline @@ "test";
-};
-
 /** Start the render loop. **/
-Gl.render ::window displayFunc::render ::windowResize ();
+Gl.render ::window displayFunc::render ();
