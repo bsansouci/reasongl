@@ -23,39 +23,39 @@ let getProgram
     vertexShader::(vertexShaderSource: string)
     fragmentShader::(fragmentShaderSource: string)
     :option Gl.programT => {
-  let vertexShader = Gl.createShader context Constants.vertex_shader;
-  Gl.shaderSource context vertexShader vertexShaderSource;
-  Gl.compileShader context vertexShader;
+  let vertexShader = Gl.createShader ::context Constants.vertex_shader;
+  Gl.shaderSource ::context shader::vertexShader source::vertexShaderSource;
+  Gl.compileShader ::context vertexShader;
   let compiledCorrectly =
     Gl.getShaderParameter ::context shader::vertexShader paramName::Gl.Compile_status == 1;
   if compiledCorrectly {
-    let fragmentShader = Gl.createShader context Constants.fragment_shader;
-    Gl.shaderSource context fragmentShader fragmentShaderSource;
-    Gl.compileShader context fragmentShader;
+    let fragmentShader = Gl.createShader ::context Constants.fragment_shader;
+    Gl.shaderSource ::context shader::fragmentShader source::fragmentShaderSource;
+    Gl.compileShader ::context fragmentShader;
     let compiledCorrectly =
       Gl.getShaderParameter ::context shader::fragmentShader paramName::Gl.Compile_status == 1;
     if compiledCorrectly {
-      let program = Gl.createProgram context;
+      let program = Gl.createProgram ::context;
       Gl.attachShader ::context ::program shader::vertexShader;
-      Gl.deleteShader ::context shader::vertexShader;
+      Gl.deleteShader ::context vertexShader;
       Gl.attachShader ::context ::program shader::fragmentShader;
-      Gl.deleteShader ::context shader::fragmentShader;
-      Gl.linkProgram context program;
+      Gl.deleteShader ::context fragmentShader;
+      Gl.linkProgram ::context program;
       let linkedCorrectly =
         Gl.getProgramParameter ::context ::program paramName::Gl.Link_status == 1;
       if linkedCorrectly {
         Some program
       } else {
-        print_endline @@ "Linking error: " ^ Gl.getProgramInfoLog ::context ::program;
+        print_endline @@ "Linking error: " ^ Gl.getProgramInfoLog ::context program;
         None
       }
     } else {
       print_endline @@
-      "Fragment shader error: " ^ Gl.getShaderInfoLog ::context shader::fragmentShader;
+      "Fragment shader error: " ^ Gl.getShaderInfoLog ::context fragmentShader;
       None
     }
   } else {
-    print_endline @@ "Vertex shader error: " ^ Gl.getShaderInfoLog ::context shader::vertexShader;
+    print_endline @@ "Vertex shader error: " ^ Gl.getShaderInfoLog ::context vertexShader;
     None
   }
 };
@@ -114,9 +114,9 @@ let camera = {projectionMatrix: Gl.Mat4.create ()};
  * Those buffers are basically pointers to chunks of memory on the graphics card. They're used to store the
  * vertex and color data.
  */
-let vertexBuffer = Gl.createBuffer context;
+let vertexBuffer = Gl.createBuffer ::context;
 
-let colorBuffer = Gl.createBuffer context;
+let colorBuffer = Gl.createBuffer ::context;
 
 
 /** Compiles the shaders and gets the program with the shaders loaded into **/
@@ -128,7 +128,7 @@ let program =
   | Some program => program
   };
 
-Gl.useProgram context program;
+Gl.useProgram ::context program;
 
 
 /** Get the attribs ahead of time to be used inside the render function **/
@@ -140,7 +140,7 @@ let aVertexColor = Gl.getAttribLocation ::context ::program name::"aVertexColor"
 
 Gl.enableVertexAttribArray ::context attribute::aVertexColor;
 
-let pMatrixUniform = Gl.getUniformLocation context program "uPMatrix";
+let pMatrixUniform = Gl.getUniformLocation ::context ::program name::"uPMatrix";
 
 Gl.uniformMatrix4fv ::context location::pMatrixUniform value::camera.projectionMatrix;
 
@@ -163,7 +163,7 @@ Gl.Mat4.ortho
 /**
  * Render simply draws a rectangle.
  */
-let render time => {
+let render _ => {
   /* 0,0 is the bottom left corner */
   let x = 150;
   let y = 150;
@@ -229,5 +229,9 @@ let render time => {
 };
 
 
+let windowResize () => {
+  print_endline @@ "test";
+};
+
 /** Start the render loop. **/
-Gl.render ::window displayFunc::render ();
+Gl.render ::window displayFunc::render ::windowResize ();

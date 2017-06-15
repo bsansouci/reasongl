@@ -100,7 +100,6 @@ module Gl: RGLInterface.t = {
     let getHeight: t => int;
     let init: argv::array string => t;
     let setWindowSize: window::t => width::int => height::int => unit;
-    let initDisplayMode: window::t => double_buffer::bool => unit => unit;
     let getContext: t => contextT;
   };
   module Window = {
@@ -117,7 +116,6 @@ module Gl: RGLInterface.t = {
       setWidth window width;
       setHeight window height
     };
-    let initDisplayMode ::window double_buffer::_ () => ();
     let getContext (window: t) :contextT =>
       getContext window "webgl" {"preserveDrawingBuffer": true, "antialias": false};
   };
@@ -231,6 +229,10 @@ module Gl: RGLInterface.t = {
           }
         )
     };
+    switch windowResize {
+    | None => ()
+    | Some cb => Document.addEventListener Document.window "resize" (fun _ => cb ())
+    };
     let rec tick prev () => {
       let now = Document.now ();
       displayFunc (now -. prev);
@@ -242,16 +244,16 @@ module Gl: RGLInterface.t = {
   type shaderT;
   external clearColor : context::contextT => r::float => g::float => b::float => a::float => unit = "clearColor" [@@bs.send];
   external createProgram : context::contextT => programT = "createProgram" [@@bs.send];
-  external createShader : context::contextT => shaderType::int => shaderT = "createShader" [@@bs.send];
+  external createShader : context::contextT => int => shaderT = "createShader" [@@bs.send];
   external _shaderSource : context::contextT => shader::shaderT => source::string => unit = "shaderSource" [@@bs.send];
   let shaderSource ::context ::shader ::source =>
     _shaderSource
       ::context ::shader source::("#version 100 \n precision highp float; \n" ^ source);
-  external compileShader : context::contextT => shader::shaderT => unit = "compileShader" [@@bs.send];
+  external compileShader : context::contextT => shaderT => unit = "compileShader" [@@bs.send];
   external attachShader : context::contextT => program::programT => shader::shaderT => unit = "attachShader" [@@bs.send];
-  external deleteShader : context::contextT => shader::shaderT => unit = "deleteShader" [@@bs.send];
-  external linkProgram : context::contextT => program::programT => unit = "linkProgram" [@@bs.send];
-  external useProgram : context::contextT => program::programT => unit = "useProgram" [@@bs.send];
+  external deleteShader : context::contextT => shaderT => unit = "deleteShader" [@@bs.send];
+  external linkProgram : context::contextT => programT => unit = "linkProgram" [@@bs.send];
+  external useProgram : context::contextT => programT => unit = "useProgram" [@@bs.send];
   type bufferT;
   type attributeT;
   type uniformT;
@@ -259,12 +261,13 @@ module Gl: RGLInterface.t = {
   external bindBuffer : context::contextT => target::int => buffer::bufferT => unit = "bindBuffer" [@@bs.send];
   type textureT;
   external createTexture : context::contextT => textureT = "createTexture" [@@bs.send];
-  external activeTexture : context::contextT => target::int => unit = "activeTexture" [@@bs.send];
+  external activeTexture : context::contextT => int => unit = "activeTexture" [@@bs.send];
   external bindTexture : context::contextT => target::int => texture::textureT => unit = "bindTexture" [@@bs.send];
   external texParameteri : context::contextT => target::int => pname::int => param::int => unit = "texParameteri" [@@bs.send];
   external enable : context::contextT => int => unit = "enable" [@@bs.send];
   external disable : context::contextT => int => unit = "disable" [@@bs.send];
   external blendFunc : context::contextT => int => int => unit = "blendFunc" [@@bs.send];
+
   /** Those externals are used for bufferData to instantiate what gl.bufferData actually expects, because JS
    *  doesn't differentiate between float and int but the GL backend needs to know the types precisely.
    **/
@@ -377,7 +380,6 @@ module Gl: RGLInterface.t = {
                         type_::int =>
                         pixels::Bigarray.t int Bigarray.int8_unsigned_elt =>
                         unit = "readPixels" [@@bs.send];
-
   let readPixels_RGBA ::context ::x ::y ::width ::height => {
     let data = createUint8Array (width * height * 4);
     readPixels
@@ -437,7 +439,13 @@ module Gl: RGLInterface.t = {
                                   unit = "texImage2D" [@@bs.send];
   let texImage2DWithImage ::context ::target ::level ::image =>
     _texImage2DWithImage
-      context target level RGLConstants.rgba RGLConstants.rgba RGLConstants.unsigned_byte image;
+      ::context
+      ::target
+      ::level
+      internalFormat::RGLConstants.rgba
+      format::RGLConstants.rgba
+      type_::RGLConstants.unsigned_byte
+      ::image;
   external _texImage2D : context::contextT =>
                          target::int =>
                          level::int =>
@@ -462,8 +470,6 @@ module Gl: RGLInterface.t = {
       type_::RGLConstants.unsigned_byte
       ::data;
   /*external generateMipmap : context::contextT => target::int => unit = "generateMipmap" [@@bs.send];*/
-
-
   external bufferData : context::contextT =>
                         target::int =>
                         data::Bigarray.t 'a 'b =>
@@ -527,8 +533,8 @@ module Gl: RGLInterface.t = {
                      far::float =>
                      unit = "" [@@bs.scope "mat4"] [@@bs.module "gl-matrix"];
   };
-  external uniform1i : context::contextT => location::uniformT => int => unit = "uniform1i" [@@bs.send];
-  external uniform1f : context::contextT => location::uniformT => float => unit = "uniform1f" [@@bs.send];
+  external uniform1i : context::contextT => location::uniformT => val::int => unit = "uniform1i" [@@bs.send];
+  external uniform1f : context::contextT => location::uniformT => val::float => unit = "uniform1f" [@@bs.send];
   external _uniformMatrix4fv : context::contextT =>
                                location::uniformT =>
                                transpose::Js.boolean =>
@@ -627,9 +633,9 @@ module Gl: RGLInterface.t = {
     | Shader_type =>
       _getShaderParameter ::context ::shader paramName::(shaderType ::context) Shader_type_internal
     };
-  external getShaderInfoLog : context::contextT => shader::shaderT => string = "getShaderInfoLog" [@@bs.send];
-  external getProgramInfoLog : context::contextT => program::programT => string = "getProgramInfoLog" [@@bs.send];
-  external getShaderSource : context::contextT => shader::shaderT => string = "getShaderSource" [@@bs.send];
+  external getShaderInfoLog : context::contextT => shaderT => string = "getShaderInfoLog" [@@bs.send];
+  external getProgramInfoLog : context::contextT => programT => string = "getProgramInfoLog" [@@bs.send];
+  external getShaderSource : context::contextT => shaderT => string = "getShaderSource" [@@bs.send];
   external drawArrays : context::contextT => mode::int => first::int => count::int => unit = "drawArrays" [@@bs.send];
   external drawElements : context::contextT =>
                           mode::int =>
