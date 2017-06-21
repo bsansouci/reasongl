@@ -29,13 +29,19 @@ let create_window gl::(maj, min) => {
             fun () =>
               set Sdl.Gl.doublebuffer 1 >>= (
                 fun () =>
-                  Sdl.create_window
-                    title::w_title
-                    x::Sdl.Window.pos_centered
-                    y::Sdl.Window.pos_centered
-                    w::640
-                    h::480
-                    flags::w_atts
+                  set Sdl.Gl.multisamplebuffers 1 >>= (
+                    fun () =>
+                      set Sdl.Gl.multisamplesamples 8 >>= (
+                        fun () =>
+                          Sdl.create_window
+                            title::w_title
+                            x::Sdl.Window.pos_centered
+                            y::Sdl.Window.pos_centered
+                            w::640
+                            h::480
+                            flags::w_atts
+                      )
+                  )
               )
           )
       )
