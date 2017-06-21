@@ -117,7 +117,7 @@ module Gl: RGLInterface.t = {
       setHeight window height
     };
     let getContext (window: t) :contextT =>
-      getContext window "webgl" {"preserveDrawingBuffer": true, "antialias": false};
+      getContext window "webgl" {"preserveDrawingBuffer": true, "antialias": true};
   };
   module Events = Events;
   type mouseButtonEventT =
