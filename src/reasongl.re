@@ -195,7 +195,7 @@ module Gl: RGLInterface.t = {
           }
         )
     };
-    let keyLastPressed = ref None;
+    let keyLastPressed = ref [];
     switch keyDown {
     | None => ()
     | Some cb =>
@@ -205,12 +205,10 @@ module Gl: RGLInterface.t = {
         (
           fun e => {
             let keycode = getWhich e;
-            let repeat =
-              switch !keyLastPressed {
-              | None => false
-              | Some k => k === keycode
-              };
-            keyLastPressed := Some keycode;
+            let repeat = List.fold_left (fun acc k => acc || k === keycode) false !keyLastPressed;
+            if (not repeat) {
+              keyLastPressed := [keycode, ...!keyLastPressed]
+            };
             cb keycode::(Events.keycodeMap keycode) ::repeat
           }
         )
@@ -224,7 +222,7 @@ module Gl: RGLInterface.t = {
         (
           fun e => {
             let keycode = getWhich e;
-            keyLastPressed := None;
+            keyLastPressed := List.filter (fun k => k !== keycode) !keyLastPressed;
             cb keycode::(Events.keycodeMap keycode)
           }
         )
