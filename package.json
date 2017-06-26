@@ -8,6 +8,6 @@
   },
   "author": "bsansouci & schmavery",
   "devDependencies": {
-    "bs-platform": "bsansouci/bucklescript#simple-native-compilation"
+    "bsb-native": "bsansouci/bsb-native"
   }
 }
