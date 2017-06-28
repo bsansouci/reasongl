@@ -1,3 +1,5 @@
+#include <unistd.h>
+
 #include <caml/alloc.h>
 #include <caml/custom.h>
 #include <caml/memory.h>
@@ -44,3 +46,12 @@ CAMLprim value load_image(value string, value force_channels) {
   }
 }
 
+void reasongl_sleepf(double time) {
+  usleep((int)(time * 1000.0f));   // usleep takes sleep time in us (1 millionth of a second)
+}
+
+void reasongl_sleepf_byte(value time) {
+  CAMLparam1(time);
+  usleep((int)(Double_val(time) * 1000.0f));   // usleep takes sleep time in us (1 millionth of a second)
+  CAMLreturn0;
+}
