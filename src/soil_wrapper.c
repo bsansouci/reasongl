@@ -46,8 +46,6 @@ CAMLprim value load_image(value string, value force_channels) {
   }
 }
 
-void reasongl_usleep_byte(value time) {
-  CAMLparam1(time);
+void reasongl_usleep(value time) {
   usleep(Int_val(time));
-  CAMLreturn0;
 }

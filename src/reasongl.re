@@ -116,7 +116,7 @@ module Gl: ReasonglInterface.Gl.t = {
   module Events = Events;
   type mouseButtonEventT =
     button::Events.buttonStateT => state::Events.stateT => x::int => y::int => unit;
-  external usleep : int => unit = "reasongl_usleep_byte" "usleep" [@@noalloc];
+  external usleep : int => unit = "reasongl_usleep" [@@noalloc];
   
   /** See Gl.re for explanation. **/
   let render
@@ -226,24 +226,21 @@ module Gl: ReasonglInterface.Gl.t = {
     let timeSinceLastDraw = ref (Int64.to_float (Sdl.get_performance_counter ()));
     let oneFrame = 1000. /. 60.;
     let shouldQuit = ref false;
-    let diff = ref 0.;
     let rec tick () => {
       let time = Int64.to_float (Sdl.get_performance_counter ());
-      diff := ((time -. !timeSinceLastDraw) *. 1000. /. (Int64.to_float (Sdl.get_performance_frequency ())));
-      if (!diff > oneFrame) {
+      let diff = ((time -. !timeSinceLastDraw) *. 1000. /. (Int64.to_float (Sdl.get_performance_frequency ())));
+      if (diff > oneFrame) {
         timeSinceLastDraw := time;
-        while (!diff > oneFrame) {
           shouldQuit := !shouldQuit || checkEvents ();
-          displayFunc !diff;
+          displayFunc diff;
           Sdl.gl_swap_window window;
-          diff := !diff -. oneFrame;
-        };
       };
       if (not !shouldQuit) {
-        /* only sleep if we had extra time this frame and we have 2ms to spare or more because of 
+        /* only sleep if we had extra time this frame and we have 3ms to spare or more because of 
           the lack of precision of sleep (and ocaml overhead) */
-        if (oneFrame -. !diff > 2.) {
-          usleep (int_of_float (1000. *. (oneFrame -. !diff -. 1.)));
+        let timeToSleep = mod_float (oneFrame -. diff) oneFrame -. 2.;
+        if (timeToSleep > 1.) {
+          usleep (int_of_float (1000. *. timeToSleep));
         };
         tick ()
       }
