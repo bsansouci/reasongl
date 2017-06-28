@@ -116,7 +116,7 @@ module Gl: ReasonglInterface.Gl.t = {
   module Events = Events;
   type mouseButtonEventT =
     button::Events.buttonStateT => state::Events.stateT => x::int => y::int => unit;
-  external sleepf : float => unit = "reasongl_sleepf_byte" "reasongl_sleepf" [@@unboxed] [@@noalloc];
+  external usleep : int => unit = "reasongl_usleep_byte" "usleep" [@@noalloc];
   
   /** See Gl.re for explanation. **/
   let render
@@ -223,27 +223,27 @@ module Gl: ReasonglInterface.Gl.t = {
       };
       !shouldQuit
     };
-    let prevTime = ref (Int64.to_float (Sdl.get_performance_counter ()));
+    let timeSinceLastDraw = ref (Int64.to_float (Sdl.get_performance_counter ()));
     let oneFrame = 1000. /. 60.;
-    let freq = Int64.to_float (Sdl.get_performance_frequency ());
+    let shouldQuit = ref false;
+    let diff = ref 0.;
     let rec tick () => {
       let time = Int64.to_float (Sdl.get_performance_counter ());
-      let diff = ref ((time -. !prevTime) *. 1000. /. freq);
-      prevTime := time;
-      let shouldQuit = ref false;
-      let loopTimes = ref 0;
-      while (!diff > oneFrame) {
-        shouldQuit := !shouldQuit || checkEvents ();
-        displayFunc !diff;
-        Sdl.gl_swap_window window;
-        diff := !diff -. oneFrame;
-        loopTimes := !loopTimes + 1;
+      diff := ((time -. !timeSinceLastDraw) *. 1000. /. (Int64.to_float (Sdl.get_performance_frequency ())));
+      if (!diff > oneFrame) {
+        timeSinceLastDraw := time;
+        while (!diff > oneFrame) {
+          shouldQuit := !shouldQuit || checkEvents ();
+          displayFunc !diff;
+          Sdl.gl_swap_window window;
+          diff := !diff -. oneFrame;
+        };
       };
       if (not !shouldQuit) {
         /* only sleep if we had extra time this frame and we have 2ms to spare or more because of 
           the lack of precision of sleep (and ocaml overhead) */
-        if (!loopTimes <= 1 && oneFrame -. !diff > 2.) {
-          sleepf (oneFrame -. !diff);
+        if (oneFrame -. !diff > 2.) {
+          usleep (int_of_float (1000. *. (oneFrame -. !diff -. 1.)));
         };
         tick ()
       }
