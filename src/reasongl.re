@@ -222,18 +222,21 @@ module Gl: ReasonglInterface.Gl.t = {
       };
       !shouldQuit
     };
-    let prevTime = ref Int64.zero;
+    let prevTime = ref (Int64.to_float @@ Sdl.get_performance_counter ());
+    let oneFrame = 1000. /. 60.;
     let rec tick () => {
-      let time = Sdl.get_performance_counter ();
+      let time = Int64.to_float @@ Sdl.get_performance_counter ();
       let diff =
-        Int64.div
-          (Int64.mul (Int64.sub time !prevTime) (Int64.of_float 1000.))
-          (Sdl.get_performance_frequency ());
-      let shouldQuit = checkEvents ();
-      if (Int64.compare diff (Int64.of_float 16.6666666) == 1) {
-        displayFunc (Int64.to_float diff);
+          ((time -. !prevTime) *. 1000.) /. 
+          (Int64.to_float @@ Sdl.get_performance_frequency ());
+      let shouldQuit = if (diff > oneFrame) {
+        let shouldQuit = checkEvents ();
+        displayFunc diff;
         Sdl.gl_swap_window window;
-        prevTime := time
+        prevTime := time;
+        shouldQuit;
+      } else {
+        false
       };
       if (not shouldQuit) {
         tick ()
