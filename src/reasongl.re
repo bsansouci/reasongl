@@ -304,10 +304,11 @@ module Gl: ReasonglInterface.Gl.t = {
   let texImage2D_RGBA context::_ ::target ::level ::width ::height ::border ::data =>
     Gl.texImage2D_RGBA ::target ::level ::width ::height ::border ::data;
   let texImage2DWithImage ::context ::target ::level ::image => {
+    let length = Array.length image.data;
     let data =
-      Bigarray.Array1.create Bigarray.int8_unsigned Bigarray.c_layout (Array.length image.data);
-    for i in 0 to (Array.length image.data) {
-      data.{i} = image.data.(0)
+      Bigarray.Array1.create Bigarray.int8_unsigned Bigarray.c_layout length;
+    for i in 0 to (length - 1) {
+      data.{i} = image.data.(i)
     };
     texImage2D_RGBA
       ::context ::target ::level width::image.width height::image.height border::0 ::data
