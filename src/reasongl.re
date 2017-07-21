@@ -407,9 +407,9 @@ module Gl: ReasonglInterface.Gl.t = {
   let getAttribLocation context::_ program::(program: programT) ::name :attributeT =>
     Gl.getAttribLocation ::program ::name;
   let enableVertexAttribArray context::_ ::attribute => Gl.enableVertexAttribArray attribute;
-  let vertexAttribPointer context::_ ::attribute ::size ::type_ ::normalized ::stride ::offset =>
+  let vertexAttribPointer context::_ ::attribute ::size ::type_ ::normalize ::stride ::offset =>
     /* For now `offset` is only going to be an offset (limited by the webgl API?). */
-    Gl.vertexAttribPointer index::attribute ::size typ::type_ ::normalized ::stride ::offset;
+    Gl.vertexAttribPointer index::attribute ::size typ::type_ ::normalize ::stride ::offset;
   module type Mat4T = {
     type t;
     let to_array: t => array float;
