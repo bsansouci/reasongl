@@ -148,7 +148,7 @@ module type t = {
     attribute::attributeT =>
     size::int =>
     type_::int =>
-    normalized::bool =>
+    normalize::bool =>
     stride::int =>
     offset::int =>
     unit;
