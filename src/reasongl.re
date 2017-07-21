@@ -482,13 +482,13 @@ module Gl: RGLInterface.t = {
                                   attribute::attributeT =>
                                   size::int =>
                                   type_::int =>
-                                  normalized::Js.boolean =>
+                                  normalize::Js.boolean =>
                                   stride::int =>
                                   offset::int =>
                                   unit = "vertexAttribPointer" [@@bs.send];
-  let vertexAttribPointer ::context ::attribute ::size ::type_ ::normalized ::stride ::offset => {
-    let normalized = if normalized {Js.true_} else {Js.false_};
-    _vertexAttribPointer ::context ::attribute ::size ::type_ ::normalized ::stride ::offset
+  let vertexAttribPointer ::context ::attribute ::size ::type_ ::normalize ::stride ::offset => {
+    let normalize = if normalize {Js.true_} else {Js.false_};
+    _vertexAttribPointer ::context ::attribute ::size ::type_ ::normalize ::stride ::offset
   };
   module type Mat4T = {
     type t;
