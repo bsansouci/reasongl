@@ -8,6 +8,6 @@
   },
   "author": "bsansouci & schmavery",
   "devDependencies": {
-    "bsb-native": "bsansouci/bsb-native"
+    "bs-platform": "*"
   }
 }

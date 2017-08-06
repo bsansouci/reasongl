@@ -11,10 +11,12 @@ module Document = {
   external getContext : element => string => 'context = "getContext" [@@bs.send];
   external getWidth : element => int = "width" [@@bs.get];
   external getHeight : element => int = "height" [@@bs.get];
-  external requestAnimationFrame : (unit => unit) => unit = "window.requestAnimationFrame" [@@bs.val];
+  external requestAnimationFrame : (unit => unit) => int = "window.requestAnimationFrame" [@@bs.val];
   external now : unit => float = "Date.now" [@@bs.val];
   external addEventListener : 'window => string => ('eventT => unit) => unit = "addEventListener" [@@bs.send];
+  
 };
+external setHiddenRAFID : 'a => int => unit = "__hiddenrafid" [@@bs.set];
 
 external getButton : 'eventT => int = "button" [@@bs.get];
 
@@ -234,9 +236,9 @@ module Gl: RGLInterface.t = {
     let rec tick prev () => {
       let now = Document.now ();
       displayFunc (now -. prev);
-      Document.requestAnimationFrame (tick now)
+      setHiddenRAFID canvas (Document.requestAnimationFrame (tick now))
     };
-    Document.requestAnimationFrame (tick (Document.now ()))
+    setHiddenRAFID canvas (Document.requestAnimationFrame (tick (Document.now ())))
   };
   type programT;
   type shaderT;
