@@ -117,7 +117,7 @@ module Gl: ReasonglInterface.Gl.t = {
   type mouseButtonEventT =
     button::Events.buttonStateT => state::Events.stateT => x::int => y::int => unit;
   external usleep : int => unit = "reasongl_usleep" [@@noalloc];
-  
+
   /** See Gl.re for explanation. **/
   let render
       window::(window: Window.t)
@@ -228,19 +228,20 @@ module Gl: ReasonglInterface.Gl.t = {
     let shouldQuit = ref false;
     let rec tick () => {
       let time = Int64.to_float (Sdl.get_performance_counter ());
-      let diff = ((time -. !timeSinceLastDraw) *. 1000. /. (Int64.to_float (Sdl.get_performance_frequency ())));
+      let diff =
+        (time -. !timeSinceLastDraw) *. 1000. /. Int64.to_float (Sdl.get_performance_frequency ());
       if (diff > oneFrame) {
         timeSinceLastDraw := time;
-          shouldQuit := !shouldQuit || checkEvents ();
-          displayFunc diff;
-          Sdl.gl_swap_window window;
+        shouldQuit := !shouldQuit || checkEvents ();
+        displayFunc diff;
+        Sdl.gl_swap_window window
       };
       if (not !shouldQuit) {
-        /* only sleep if we had extra time this frame and we have 3ms to spare or more because of 
-          the lack of precision of sleep (and ocaml overhead) */
+        /* only sleep if we had extra time this frame and we have 3ms to spare or more because of
+           the lack of precision of sleep (and ocaml overhead) */
         let timeToSleep = mod_float (oneFrame -. diff) oneFrame -. 2.;
         if (timeToSleep > 1.) {
-          usleep (int_of_float (1000. *. timeToSleep));
+          usleep (int_of_float (1000. *. timeToSleep))
         };
         tick ()
       }
@@ -270,6 +271,19 @@ module Gl: ReasonglInterface.Gl.t = {
   let bindTexture context::_ ::target ::texture => Gl.bindTexture ::target ::texture;
   let texParameteri context::_ ::target ::pname ::param =>
     Gl.texParameteri ::target ::pname ::param;
+  let texSubImage2D
+      context::_
+      ::target
+      ::level
+      ::xoffset
+      ::yoffset
+      ::width
+      ::height
+      ::format
+      ::type_
+      ::pixels =>
+    Gl.texSubImage2D
+      ::target ::level ::xoffset ::yoffset ::width ::height ::format ::type_ ::pixels;
   let enable context::_ i => Gl.enable i;
   let disable context::_ i => Gl.disable i;
   let blendFunc context::_ a b => Gl.blendFunc sfactor::a dfactor::b;
@@ -281,7 +295,12 @@ module Gl: ReasonglInterface.Gl.t = {
     | LoadLA
     | LoadRGB
     | LoadRGBA;
-  type imageT = {width: int, height: int, channels: int, data: array int};
+  type imageT = {
+    width: int,
+    height: int,
+    channels: int,
+    data: array int
+  };
   let getImageWidth image => image.width;
   let getImageHeight image => image.height;
 
@@ -366,7 +385,7 @@ module Gl: ReasonglInterface.Gl.t = {
       | Int :kind int int_elt
       | Int64 :kind int64 int64_elt
       | Int32 :kind int32 int32_elt;
-    let create (type a) (type b) (kind: kind a b) size :t a b =>
+    let create (type a b) (kind: kind a b) size :t a b =>
       switch kind {
       | Float64 => Bigarray.Array1.create Bigarray.Float64 Bigarray.c_layout size
       | Float32 => Bigarray.Array1.create Bigarray.Float32 Bigarray.c_layout size
@@ -379,7 +398,7 @@ module Gl: ReasonglInterface.Gl.t = {
       | Int64 => Bigarray.Array1.create Bigarray.Int64 Bigarray.c_layout size
       | Int32 => Bigarray.Array1.create Bigarray.Int32 Bigarray.c_layout size
       };
-    let of_array (type a) (type b) (kind: kind a b) (arr: array a) :t a b =>
+    let of_array (type a b) (kind: kind a b) (arr: array a) :t a b =>
       switch kind {
       | Float64 => Bigarray.Array1.of_array Bigarray.Float64 Bigarray.c_layout arr
       | Float32 => Bigarray.Array1.of_array Bigarray.Float32 Bigarray.c_layout arr
@@ -395,8 +414,7 @@ module Gl: ReasonglInterface.Gl.t = {
     let dim = Bigarray.Array1.dim;
     let get = Bigarray.Array1.get;
     let set = Bigarray.Array1.set;
-    let sub (type a) (type b) (arr: t a b) ::offset ::len :t a b =>
-      Bigarray.Array1.sub arr offset len;
+    let sub (type a b) (arr: t a b) ::offset ::len :t a b => Bigarray.Array1.sub arr offset len;
   };
   let bufferData context::_ ::target data::(data: Bigarray.t 'a 'b) ::usage =>
     Gl.bufferData ::target ::data ::usage;

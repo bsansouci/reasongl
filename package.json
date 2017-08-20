@@ -9,7 +9,7 @@
     "tsdl": "github:bsansouci/tsdl#bsb-support-new"
   },
   "scripts": {
-    "postinstall": "mkdir -p _build/lib/ && mkdir -p _build/include && cp SOIL/src/SOIL.h _build/include/SOIL.h && make"
+    "postinstall": "make npm"
   },
   "repository": {
     "type": "git",
@@ -17,6 +17,13 @@
   },
   "author": "bsansouci & schmavery",
   "devDependencies": {
-    "bs-platform": "bsansouci/bsb-native"
+    "bs-platform": "bsansouci/bsb-native",
+    "opam_of_packagejson": "*"
+  },
+  "opam": {
+    "dependencies": {
+      "reason": "build & >=  \"1.13.3\""
+    },
+    "mainModule": "Reasongl"
   }
 }
