@@ -17,8 +17,7 @@ let (>>=) t f =>
   };
 
 let create_window gl::(maj, min) => {
-  let combine = Sdl.Window.(+);
-  let w_atts = Sdl.Window.(combine opengl resizable);
+  let w_atts = Sdl.Window.(opengl + resizable + allow_highdpi);
   let w_title = Printf.sprintf "OpenGL %d.%d (core profile)" maj min;
   let set a v => Sdl.Gl.gl_set_attribute attr::a value::v;
   set Sdl.Gl.context_profile_mask Sdl.Gl.context_profile_compatibility >>= (
@@ -130,13 +129,14 @@ module Gl: ReasonglInterface.Gl.t = {
       displayFunc::(displayFunc: float => unit)
       () => {
     let checkEvents () :bool => {
+      open Sdl.Event;
       let shouldQuit = ref false;
       let shouldPoll = ref true;
       while !shouldPoll {
         switch (Sdl.Event.poll_event ()) {
         | None => shouldPoll := false
         | Some e =>
-          let eventType = Sdl.Event.typ e;
+          let eventType = e.typ;
           if (eventType == Sdl.Event.quit) {
             shouldQuit := true
           } else if (
@@ -145,10 +145,10 @@ module Gl: ReasonglInterface.Gl.t = {
             switch mouseDown {
             | None => ()
             | Some cb =>
-              let x = Sdl.Event.mouse_button_x e;
-              let y = Sdl.Event.mouse_button_y e;
+              let x = e.mouse_button_x;
+              let y = e.mouse_button_y;
               let button =
-                switch (Sdl.Event.mouse_button_button e) {
+                switch e.mouse_button_button {
                 | 1 => Events.LeftButton
                 | 2 => Events.MiddleButton
                 | 3 => Events.RightButton
@@ -163,10 +163,10 @@ module Gl: ReasonglInterface.Gl.t = {
             switch mouseUp {
             | None => ()
             | Some cb =>
-              let x = Sdl.Event.mouse_button_x e;
-              let y = Sdl.Event.mouse_button_y e;
+              let x = e.mouse_button_x;
+              let y = e.mouse_button_y;
               let button =
-                switch (Sdl.Event.mouse_button_button e) {
+                switch e.mouse_button_button {
                 | 1 => Events.LeftButton
                 | 2 => Events.MiddleButton
                 | 3 => Events.RightButton
@@ -181,8 +181,8 @@ module Gl: ReasonglInterface.Gl.t = {
             switch mouseMove {
             | None => ()
             | Some cb =>
-              let x = Sdl.Event.mouse_motion_x e;
-              let y = Sdl.Event.mouse_motion_y e;
+              let x = e.mouse_motion_x;
+              let y = e.mouse_motion_y;
               cb ::x ::y;
               ()
             }
@@ -193,9 +193,9 @@ module Gl: ReasonglInterface.Gl.t = {
             | None => ()
             | Some cb =>
               if (
-                Sdl.Event.window_event_enum e == Sdl.Event.window_resized ||
-                Sdl.Event.window_event_enum e == Sdl.Event.window_maximized ||
-                Sdl.Event.window_event_enum e == Sdl.Event.window_restored
+                e.window_event_enum == Sdl.Event.window_resized ||
+                e.window_event_enum == Sdl.Event.window_maximized ||
+                e.window_event_enum == Sdl.Event.window_restored
               ) {
                 cb ()
               }
@@ -206,7 +206,7 @@ module Gl: ReasonglInterface.Gl.t = {
             switch keyDown {
             | None => ()
             | Some cb =>
-              let (keycode, repeat) = Sdl.Event.(keyboard_keycode e, keyboard_repeat e);
+              let (keycode, repeat) = (e.keyboard_keycode, e.keyboard_repeat);
               cb keycode::(Events.keycodeMap keycode) repeat::(repeat === 1)
             }
           } else if (
@@ -215,7 +215,7 @@ module Gl: ReasonglInterface.Gl.t = {
             switch keyUp {
             | None => ()
             | Some cb =>
-              let keycode = Sdl.Event.keyboard_keycode e;
+              let keycode = e.keyboard_keycode;
               cb keycode::(Events.keycodeMap keycode)
             }
           }
@@ -324,8 +324,7 @@ module Gl: ReasonglInterface.Gl.t = {
     Gl.texImage2D_RGBA ::target ::level ::width ::height ::border ::data;
   let texImage2DWithImage ::context ::target ::level ::image => {
     let length = Array.length image.data;
-    let data =
-      Bigarray.Array1.create Bigarray.int8_unsigned Bigarray.c_layout length;
+    let data = Bigarray.Array1.create Bigarray.int8_unsigned Bigarray.c_layout length;
     for i in 0 to (length - 1) {
       data.{i} = image.data.(i)
     };
@@ -334,6 +333,10 @@ module Gl: ReasonglInterface.Gl.t = {
   };
   let uniform1i context::_ ::location ::val => Gl.uniform1i ::location ::val;
   let uniform1f context::_ ::location ::val => Gl.uniform1f ::location ::val;
+  let uniform2f context::_ ::location ::v1 ::v2 => Gl.uniform2f ::location ::v1 ::v2;
+  let uniform3f context::_ ::location ::v1 ::v2 ::v3 => Gl.uniform3f ::location ::v1 ::v2 ::v3;
+  let uniform4f context::_ ::location ::v1 ::v2 ::v3 ::v4 =>
+    Gl.uniform4f ::location ::v1 ::v2 ::v3 ::v4;
   module type Bigarray = {
     type t 'a 'b;
     type float64_elt;
@@ -359,8 +362,11 @@ module Gl: ReasonglInterface.Gl.t = {
     let create: kind 'a 'b => int => t 'a 'b;
     let of_array: kind 'a 'b => array 'a => t 'a 'b;
     let dim: t 'a 'b => int;
+    let blit: t 'a 'b => t 'a 'b => unit;
     let get: t 'a 'b => int => 'a;
+    let unsafe_get: t 'a 'b => int => 'a;
     let set: t 'a 'b => int => 'a => unit;
+    let unsafe_set: t 'a 'b => int => 'a => unit;
     let sub: t 'a 'b => offset::int => len::int => t 'a 'b;
   };
   module Bigarray = {
@@ -412,8 +418,11 @@ module Gl: ReasonglInterface.Gl.t = {
       | Int32 => Bigarray.Array1.of_array Bigarray.Int32 Bigarray.c_layout arr
       };
     let dim = Bigarray.Array1.dim;
+    let blit = Bigarray.Array1.blit;
     let get = Bigarray.Array1.get;
+    let unsafe_get = Bigarray.Array1.unsafe_get;
     let set = Bigarray.Array1.set;
+    let unsafe_set = Bigarray.Array1.unsafe_set;
     let sub (type a b) (arr: t a b) ::offset ::len :t a b => Bigarray.Array1.sub arr offset len;
   };
   let bufferData context::_ ::target data::(data: Bigarray.t 'a 'b) ::usage =>
@@ -428,6 +437,8 @@ module Gl: ReasonglInterface.Gl.t = {
   let vertexAttribPointer context::_ ::attribute ::size ::type_ ::normalize ::stride ::offset =>
     /* For now `offset` is only going to be an offset (limited by the webgl API?). */
     Gl.vertexAttribPointer index::attribute ::size typ::type_ ::normalize ::stride ::offset;
+  let vertexAttribDivisor context::_ ::attribute ::divisor =>
+    Gl.vertexAttribDivisor ::attribute ::divisor;
   module type Mat4T = {
     type t;
     let to_array: t => array float;
@@ -671,4 +682,6 @@ module Gl: ReasonglInterface.Gl.t = {
   let drawArrays context::_ ::mode ::first ::count => Gl.drawArrays ::mode ::first ::count;
   let drawElements context::_ ::mode ::count ::type_ ::offset =>
     Gl.drawElements ::mode ::count typ::type_ ::offset;
+  let drawElementsInstanced context::_ ::mode ::count ::type_ ::indices ::primcount =>
+    Gl.drawElementsInstanced ::mode ::count ::type_ ::indices ::primcount;
 };
