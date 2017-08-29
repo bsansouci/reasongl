@@ -98,8 +98,11 @@ module type t = {
     let create: kind 'a 'b => int => t 'a 'b;
     let of_array: kind 'a 'b => array 'a => t 'a 'b;
     let dim: t 'a 'b => int;
+    let blit: t 'a 'b => t 'a 'b => unit;
     let get: t 'a 'b => int => 'a;
+    let unsafe_get: t 'a 'b => int => 'a;
     let set: t 'a 'b => int => 'a => unit;
+    let unsafe_set: t 'a 'b => int => 'a => unit;
     let sub: t 'a 'b => offset::int => len::int => t 'a 'b;
   };
   module Bigarray: Bigarray;
@@ -128,6 +131,17 @@ module type t = {
   let texImage2DWithImage: context::contextT => target::int => level::int => image::imageT => unit;
   let uniform1i: context::contextT => location::uniformT => val::int => unit;
   let uniform1f: context::contextT => location::uniformT => val::float => unit;
+  let uniform2f: context::contextT => location::uniformT => v1::float => v2::float => unit;
+  let uniform3f:
+    context::contextT => location::uniformT => v1::float => v2::float => v3::float => unit;
+  let uniform4f:
+    context::contextT =>
+    location::uniformT =>
+    v1::float =>
+    v2::float =>
+    v3::float =>
+    v4::float =>
+    unit;
   let texImage2D_RGBA:
     context::contextT =>
     target::int =>
@@ -152,6 +166,7 @@ module type t = {
     stride::int =>
     offset::int =>
     unit;
+  let vertexAttribDivisor: context::contextT => attribute::attributeT => divisor::int => unit;
   module type Mat4T = {
     type t;
     let to_array: t => array float;
@@ -189,4 +204,12 @@ module type t = {
   let drawArrays: context::contextT => mode::int => first::int => count::int => unit;
   let drawElements:
     context::contextT => mode::int => count::int => type_::int => offset::int => unit;
+  let drawElementsInstanced:
+    context::contextT =>
+    mode::int =>
+    count::int =>
+    type_::int =>
+    indices::int =>
+    primcount::int =>
+    unit;
 };
