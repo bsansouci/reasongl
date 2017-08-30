@@ -223,13 +223,12 @@ module Gl: ReasonglInterface.Gl.t = {
       };
       !shouldQuit
     };
-    let timeSinceLastDraw = ref (Int64.to_float (Sdl.get_performance_counter ()));
+    let timeSinceLastDraw = ref (Sdl.get_performance_counter ());
     let oneFrame = 1000. /. 60.;
     let shouldQuit = ref false;
     let rec tick () => {
-      let time = Int64.to_float (Sdl.get_performance_counter ());
-      let diff =
-        (time -. !timeSinceLastDraw) *. 1000. /. Int64.to_float (Sdl.get_performance_frequency ());
+      let time = Sdl.get_performance_counter ();
+      let diff = Sdl.get_time_diff !timeSinceLastDraw time;
       if (diff > oneFrame) {
         timeSinceLastDraw := time;
         shouldQuit := !shouldQuit || checkEvents ();
