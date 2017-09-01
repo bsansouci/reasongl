@@ -76,6 +76,8 @@ module Gl: ReasonglInterface.Gl.t = {
     type t;
     let getWidth: t => int;
     let getHeight: t => int;
+    let getPixelWidth: t => int;
+    let getPixelHeight: t => int;
     let init: argv::array string => t;
     let setWindowSize: window::t => width::int => height::int => unit;
     let getContext: t => contextT;
@@ -88,6 +90,14 @@ module Gl: ReasonglInterface.Gl.t = {
     };
     let getHeight (window: t) => {
       let (_, height) = Sdl.get_window_size window;
+      height
+    };
+    let getPixelWidth (window: t) => {
+      let (width, _) = Sdl.get_drawable_size window;
+      width
+    };
+    let getPixelHeight (window: t) => {
+      let (_, height) = Sdl.get_drawable_size window;
       height
     };
 
