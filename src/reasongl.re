@@ -16,6 +16,7 @@ module Document = {
   external now : unit => float = "Date.now" [@@bs.val];
   external addEventListener : 'window => string => ('eventT => unit) => unit =
     "addEventListener" [@@bs.send];
+  external devicePixelRatio : float = "window.devicePixelRatio" [@@bs.val];
 };
 
 external setHiddenRAFID : 'a => int => unit = "__hiddenrafid" [@@bs.set];
@@ -53,6 +54,10 @@ external getContext : 'canvas => string => 'options => 'context = "getContext" [
 type styleT;
 
 external getStyle : 'canvas => styleT = "style" [@@bs.get];
+
+external setWidthStyle : styleT => int => unit = "width" [@@bs.set];
+
+external setHeightStyle : styleT => int => unit = "height" [@@bs.set];
 
 external setBackgroundColor : styleT => string => unit = "backgroundColor" [@@bs.set];
 
@@ -101,6 +106,9 @@ module Gl: RGLInterface.t = {
     type t;
     let getWidth: t => int;
     let getHeight: t => int;
+    let getPixelWidth: t => int;
+    let getPixelHeight: t => int;
+    let getPixelScale: t => float;
     let init: argv::array string => t;
     let setWindowSize: window::t => width::int => height::int => unit;
     let getContext: t => contextT;
@@ -109,6 +117,11 @@ module Gl: RGLInterface.t = {
     type t;
     let getWidth = getWidth;
     let getHeight = getHeight;
+    let getPixelWidth (window: t) =>
+      int_of_float @@ (float_of_int @@ getWidth window) *. Document.devicePixelRatio;
+    let getPixelHeight (window: t) =>
+      int_of_float @@ (float_of_int @@ getHeight window) *. Document.devicePixelRatio;
+    let getPixelScale (window: t) => Document.devicePixelRatio;
     let init argv::_ => {
       let canvas: t = createCanvas ();
       setBackgroundColor (getStyle canvas) "black";
@@ -116,8 +129,10 @@ module Gl: RGLInterface.t = {
       canvas
     };
     let setWindowSize window::(window: t) ::width ::height => {
-      setWidth window width;
-      setHeight window height
+      setWidth window (int_of_float @@ float_of_int width *. Document.devicePixelRatio);
+      setHeight window (int_of_float @@ float_of_int height *. Document.devicePixelRatio);
+      setWidthStyle (getStyle window) width;
+      setHeightStyle (getStyle window) height
     };
     let getContext (window: t) :contextT =>
       getContext window "webgl" {"preserveDrawingBuffer": true, "antialias": true};
@@ -377,7 +392,7 @@ module Gl: RGLInterface.t = {
       | Int64 => assert false
       };
     external dim : 'a => int = "length" [@@bs.get];
-    let blit: t 'a 'b => t 'a 'b => unit = "set";
+    external blit : t 'a 'b => t 'a 'b => unit = "set" [@@bs.send];
     external get : t 'a 'b => int => 'a = "" [@@bs.get_index];
     external unsafe_get : t 'a 'b => int => 'a = "" [@@bs.get_index];
     external set : t 'a 'b => int => 'a => unit = "" [@@bs.set_index];
