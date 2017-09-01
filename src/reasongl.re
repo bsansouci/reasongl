@@ -103,7 +103,7 @@ module Gl: ReasonglInterface.Gl.t = {
     };
     /* 72 is the magic number */
     let getPixelScale (window: t) => {
-      let {hdpi} = Sdl.get_window_dpi window;
+      let {Sdl.hdpi: hdpi} = Sdl.get_window_dpi window;
       hdpi /. 72.
     };
 
