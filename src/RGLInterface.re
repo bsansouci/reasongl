@@ -11,6 +11,8 @@ module type t = {
     type t;
     let getWidth: t => int;
     let getHeight: t => int;
+    let getPixelWidth: t => int;
+    let getPixelHeight: t => int;
     let init: argv::array string => t;
     let setWindowSize: window::t => width::int => height::int => unit;
     let getContext: t => contextT;
