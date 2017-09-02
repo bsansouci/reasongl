@@ -121,7 +121,7 @@ module Gl: RGLInterface.t = {
       int_of_float @@ (float_of_int @@ getWidth window) *. Document.devicePixelRatio;
     let getPixelHeight (window: t) =>
       int_of_float @@ (float_of_int @@ getHeight window) *. Document.devicePixelRatio;
-    let getPixelScale (window: t) => Document.devicePixelRatio;
+    let getPixelScale (_: t) => Document.devicePixelRatio;
     let init argv::_ => {
       let canvas: t = createCanvas ();
       setBackgroundColor (getStyle canvas) "black";
@@ -399,6 +399,19 @@ module Gl: RGLInterface.t = {
     external unsafe_set : t 'a 'b => int => 'a => unit = "" [@@bs.set_index];
     let sub arr ::offset ::len => sub arr offset (offset + len);
   };
+  external texSubImage2D :
+    context::contextT =>
+    target::int =>
+    level::int =>
+    xoffset::int =>
+    yoffset::int =>
+    width::int =>
+    height::int =>
+    format::int =>
+    type_::int =>
+    pixels::Bigarray.t 'a 'b =>
+    unit =
+    "texSubImage2D" [@@bs.send];
   external readPixels :
     context::contextT =>
     x::int =>
