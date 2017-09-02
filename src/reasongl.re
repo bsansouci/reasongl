@@ -286,19 +286,6 @@ module Gl: ReasonglInterface.Gl.t = {
   let bindTexture context::_ ::target ::texture => Gl.bindTexture ::target ::texture;
   let texParameteri context::_ ::target ::pname ::param =>
     Gl.texParameteri ::target ::pname ::param;
-  let texSubImage2D
-      context::_
-      ::target
-      ::level
-      ::xoffset
-      ::yoffset
-      ::width
-      ::height
-      ::format
-      ::type_
-      ::pixels =>
-    Gl.texSubImage2D
-      ::target ::level ::xoffset ::yoffset ::width ::height ::format ::type_ ::pixels;
   let enable context::_ i => Gl.enable i;
   let disable context::_ i => Gl.disable i;
   let blendFunc context::_ a b => Gl.blendFunc sfactor::a dfactor::b;
@@ -440,6 +427,19 @@ module Gl: ReasonglInterface.Gl.t = {
     let unsafe_set = Bigarray.Array1.unsafe_set;
     let sub (type a b) (arr: t a b) ::offset ::len :t a b => Bigarray.Array1.sub arr offset len;
   };
+  let texSubImage2D
+      context::_
+      ::target
+      ::level
+      ::xoffset
+      ::yoffset
+      ::width
+      ::height
+      ::format
+      ::type_
+      pixels::(pixels: Bigarray.t 'a 'b) =>
+    Gl.texSubImage2D
+      ::target ::level ::xoffset ::yoffset ::width ::height ::format ::type_ ::pixels;
   let bufferData context::_ ::target data::(data: Bigarray.t 'a 'b) ::usage =>
     Gl.bufferData ::target ::data ::usage;
   let viewport context::_ ::x ::y ::width ::height => Gl.viewport ::x ::y ::width ::height;
