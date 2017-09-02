@@ -102,6 +102,7 @@ module type t = {
     let of_array: kind 'a 'b => array 'a => t 'a 'b;
     let dim: t 'a 'b => int;
     let blit: t 'a 'b => t 'a 'b => unit;
+    let unsafe_blit: t 'a 'b => t 'a 'b => offset::int => numOfBytes::int => unit;
     let get: t 'a 'b => int => 'a;
     let unsafe_get: t 'a 'b => int => 'a;
     let set: t 'a 'b => int => 'a => unit;
