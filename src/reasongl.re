@@ -365,6 +365,7 @@ module Gl: ReasonglInterface.Gl.t = {
     let of_array: kind 'a 'b => array 'a => t 'a 'b;
     let dim: t 'a 'b => int;
     let blit: t 'a 'b => t 'a 'b => unit;
+    let unsafe_blit: t 'a 'b => t 'a 'b => offset::int => numOfBytes::int => unit;
     let get: t 'a 'b => int => 'a;
     let unsafe_get: t 'a 'b => int => 'a;
     let set: t 'a 'b => int => 'a => unit;
@@ -421,6 +422,19 @@ module Gl: ReasonglInterface.Gl.t = {
       };
     let dim = Bigarray.Array1.dim;
     let blit = Bigarray.Array1.blit;
+    /* "What is going on here" you may ask.
+       Well we kinda sorta profiled the app and noticed that ba_caml_XYZ was called a lot.
+       This is an attempt at reducing the cost of those calls. We implemented our own C blit (
+       which is just memcpy) 
+                Ben - August 28th 2017
+          */
+    external unsafe_blit :
+      Bigarray.Array1.t 'a 'b 'c =>
+      Bigarray.Array1.t 'a 'b 'c =>
+      offset::int =>
+      numOfBytes::int =>
+      unit =
+      "bigarray_unsafe_blit" [@@noalloc];
     let get = Bigarray.Array1.get;
     let unsafe_get = Bigarray.Array1.unsafe_get;
     let set = Bigarray.Array1.set;

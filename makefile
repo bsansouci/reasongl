@@ -66,7 +66,10 @@ prebuild:
 	mkdir -p _build/include
 	cp SOIL/src/SOIL.h _build/include/SOIL.h
 
-lib: _build/lib/libsoil_wrapper.a
+lib: _build/lib/libsoil_wrapper.a reasongl.o
 
 _build/lib/libsoil_wrapper.a:	src/soil_wrapper.c
 	gcc -I$(OCAML_LIB) -c src/soil_wrapper.c -o _build/lib/libsoil_wrapper.a
+
+reasongl.o: src/reasongl.c
+	ocamlopt.opt -c src/reasongl.c
