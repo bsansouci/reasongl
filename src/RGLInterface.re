@@ -109,6 +109,18 @@ module type t = {
     let sub: t 'a 'b => offset::int => len::int => t 'a 'b;
   };
   module Bigarray: Bigarray;
+  let texSubImage2D:
+    context::contextT =>
+    target::int =>
+    level::int =>
+    xoffset::int =>
+    yoffset::int =>
+    width::int =>
+    height::int =>
+    format::int =>
+    type_::int =>
+    pixels::Bigarray.t 'a 'b =>
+    unit;
   let readPixels_RGBA:
     context::contextT =>
     x::int =>
