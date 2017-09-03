@@ -337,6 +337,7 @@ module Gl: RGLInterface.t = {
     let of_array: kind 'a 'b => array 'a => t 'a 'b;
     let dim: t 'a 'b => int;
     let blit: t 'a 'b => t 'a 'b => unit;
+    let unsafe_blit: t 'a 'b => t 'a 'b => offset::int => numOfBytes::int => unit;
     let get: t 'a 'b => int => 'a;
     let unsafe_get: t 'a 'b => int => 'a;
     let set: t 'a 'b => int => 'a => unit;
@@ -393,6 +394,9 @@ module Gl: RGLInterface.t = {
       };
     external dim : 'a => int = "length" [@@bs.get];
     external blit : t 'a 'b => t 'a 'b => unit = "set" [@@bs.send];
+    external unsafe_blit : t 'a 'b => t 'a 'b => offset::int => unit = "set" [@@bs.send];
+    let unsafe_blit: t 'a 'b => t 'a 'b => offset::int => numOfBytes::int => unit =
+      fun arr arr2 ::offset numOfBytes::_ => unsafe_blit arr2 arr offset;
     external get : t 'a 'b => int => 'a = "" [@@bs.get_index];
     external unsafe_get : t 'a 'b => int => 'a = "" [@@bs.get_index];
     external set : t 'a 'b => int => 'a => unit = "" [@@bs.set_index];
@@ -591,10 +595,10 @@ module Gl: RGLInterface.t = {
   external uniform1f : context::contextT => location::uniformT => val::float => unit =
     "uniform1f" [@@bs.send];
   external uniform2f : context::contextT => location::uniformT => v1::float => v2::float => unit =
-    "uniform1f" [@@bs.send];
+    "uniform2f" [@@bs.send];
   external uniform3f :
     context::contextT => location::uniformT => v1::float => v2::float => v3::float => unit =
-    "uniform1f" [@@bs.send];
+    "uniform3f" [@@bs.send];
   external uniform4f :
     context::contextT =>
     location::uniformT =>
@@ -603,7 +607,7 @@ module Gl: RGLInterface.t = {
     v3::float =>
     v4::float =>
     unit =
-    "uniform1f" [@@bs.send];
+    "uniform4f" [@@bs.send];
   external _uniformMatrix4fv :
     context::contextT => location::uniformT => transpose::Js.boolean => value::Mat4.t => unit =
     "uniformMatrix4fv" [@@bs.send];
