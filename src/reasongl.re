@@ -55,9 +55,9 @@ type styleT;
 
 external getStyle : 'canvas => styleT = "style" [@@bs.get];
 
-external setWidthStyle : styleT => int => unit = "width" [@@bs.set];
+external setWidthStyle : styleT => string => unit = "width" [@@bs.set];
 
-external setHeightStyle : styleT => int => unit = "height" [@@bs.set];
+external setHeightStyle : styleT => string => unit = "height" [@@bs.set];
 
 external setBackgroundColor : styleT => string => unit = "backgroundColor" [@@bs.set];
 
@@ -115,8 +115,8 @@ module Gl: RGLInterface.t = {
   };
   module Window = {
     type t;
-    let getWidth = getWidth;
-    let getHeight = getHeight;
+    let getWidth window => int_of_float @@ (float_of_int (getWidth window)) /. Document.devicePixelRatio;
+    let getHeight window => int_of_float @@ (float_of_int (getHeight window)) /. Document.devicePixelRatio;
     let getPixelWidth (window: t) =>
       int_of_float @@ (float_of_int @@ getWidth window) *. Document.devicePixelRatio;
     let getPixelHeight (window: t) =>
@@ -131,8 +131,8 @@ module Gl: RGLInterface.t = {
     let setWindowSize window::(window: t) ::width ::height => {
       setWidth window (int_of_float @@ float_of_int width *. Document.devicePixelRatio);
       setHeight window (int_of_float @@ float_of_int height *. Document.devicePixelRatio);
-      setWidthStyle (getStyle window) width;
-      setHeightStyle (getStyle window) height
+      setWidthStyle (getStyle window) (string_of_int width ^ "px");
+      setHeightStyle (getStyle window) (string_of_int height ^ "px")
     };
     let getContext (window: t) :contextT =>
       getContext window "webgl" {"preserveDrawingBuffer": true, "antialias": true};
