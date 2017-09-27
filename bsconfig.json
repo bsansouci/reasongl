@@ -16,7 +16,7 @@
     "_build/lib/libsoil.a",
     "_build/lib/libsoil_wrapper.a",
   ],
-  "warnings": "-44",
+  "warnings": {"number": "-44"},
   "allowed-build-kinds": ["bytecode", "native"],
   "build_script": "make lib",
 }
