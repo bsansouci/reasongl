@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "description": "Reason bindings to WebGL",
   "dependencies": {
-    "ReasonglInterface": "bsansouci/reasongl-interface#bsb-support-new",
+    "ReasonglInterface": "bsansouci/reasongl-interface",
     "gl-matrix": "*"
   },
   "author": "bsansouci & schmavery",
