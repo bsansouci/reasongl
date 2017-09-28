@@ -6,7 +6,7 @@ GL library for web and native.
 
 ReasonGL works by exposing a common interface between WebGL and OpenGL and then choosing a backend to use as the implementation of the interface at compile time.
 
-If you want to get started quickly, check out [this branch of ReasonglExampleProject](https://github.com/bsansouci/reasonglexampleproject/tree/bsb-support-new). It's a great starting point to any project using `ReasonGL` and a simple tutorial. The master branch is a much bigger and complete example.
+If you want to get started quickly, check out [this simple branch of ReasonglExampleProject](https://github.com/bsansouci/reasonglexampleproject/tree/simple). It's a great starting point to any project using `ReasonGL` and a simple tutorial. The master branch is a much bigger and complete example.
 
 [ReWitness](https://github.com/bsansouci/rewitness) is another big example project using those bindings.
 
