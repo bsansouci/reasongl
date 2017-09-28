@@ -1,6 +1,6 @@
 ReasonGL
 ---
-This is a GL API for web and native written for Reason.
+GL library for web and native.
 
 100% shared rendering code between platforms.
 
