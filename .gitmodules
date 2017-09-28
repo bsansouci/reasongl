@@ -1,9 +1,0 @@
-[submodule "packages/reasongl-interface"]
-	path = packages/reasongl-interface
-	url = https://github.com/bsansouci/reasongl-interface
-[submodule "packages/reasongl-native"]
-	path = packages/reasongl-native
-	url = https://github.com/bsansouci/reasongl-native
-[submodule "packages/reasongl-web"]
-	path = packages/reasongl-web
-	url = https://github.com/bsansouci/reasongl-web
