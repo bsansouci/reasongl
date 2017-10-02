@@ -4,6 +4,8 @@ GL library for web and native.
 
 100% shared rendering code between platforms.
 
+If you'd like a higher level API than GL, check out [Reprocessing](https://github.com/Schmavery/reprocessing).
+
 ReasonGL works by exposing a common interface between WebGL and OpenGL and then choosing a backend to use as the implementation of the interface at compile time.
 
 If you want to get started quickly, check out [this simple branch of ReasonglExampleProject](https://github.com/bsansouci/reasonglexampleproject/tree/simple). It's a great starting point to any project using `ReasonGL` and a simple tutorial. The master branch is a much bigger and complete example.
