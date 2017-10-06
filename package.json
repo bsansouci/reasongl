@@ -3,9 +3,9 @@
   "version": "0.2.0",
   "description": "Reason bindings to OpenGL",
   "dependencies": {
-    "ReasonglInterface": "github:bsansouci/reasongl-interface#bsb-support-new",
-    "tgls": "github:bsansouci/tgls#bsb-support-new",
-    "tsdl": "github:bsansouci/tsdl#bsb-support-new"
+    "ReasonglInterface": "bsansouci/reasongl-interface",
+    "tgls": "bsansouci/tgls",
+    "tsdl": "bsansouci/tsdl"
   },
   "scripts": {
     "postinstall": "make npm"
