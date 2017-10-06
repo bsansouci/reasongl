@@ -11,12 +11,12 @@
     "kind": "bytecode",
     "main": "Example"
   }],
-  "static_libraries": [
+  "static-libraries": [
     "reasongl.o",
     "_build/lib/libsoil.a",
     "_build/lib/libsoil_wrapper.a",
   ],
   "warnings": {"number": "-44"},
   "allowed-build-kinds": ["bytecode", "native"],
-  "build_script": "make lib",
+  "build-script": "make lib",
 }
