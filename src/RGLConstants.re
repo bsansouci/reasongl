@@ -168,6 +168,14 @@ let texture_mag_filter = 10240;
 
 let texture_min_filter = 10241;
 
+let nearest = 9728;
+
 let linear = 9729;
 
+let nearest_mipmap_nearest = 9984;
+
 let linear_mipmap_nearest = 9985;
+
+let nearest_mipmap_linear = 9986;
+
+let linear_mipmap_linear = 9987;
