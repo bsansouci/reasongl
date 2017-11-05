@@ -8,4 +8,5 @@
   }],
   "bs-dependencies": ["ReasonglInterface"],
   "allowed-build-kinds": ["js"],
+  "refmt": 3,
 }

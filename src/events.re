@@ -2,9 +2,11 @@ type buttonStateT =
   | LeftButton
   | MiddleButton
   | RightButton;
+
 type stateT =
   | MouseDown
   | MouseUp;
+
 type keycodeT =
   | Backspace
   | Tab
@@ -138,4 +140,3 @@ let keycodeMap: int => keycodeT =
   | 221 => CloseBracket
   | 222 => Quote
   | _ => Nothing;
-
