@@ -73,6 +73,5 @@ module type t = {
     | CapsLock
     | Backtick
     | Nothing;
-  let keycodeMap : int => keycodeT;
+  let keycodeMap: int => keycodeT;
 };
-
