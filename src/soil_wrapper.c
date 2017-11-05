@@ -1,6 +1,7 @@
 #include <unistd.h>
 
 #include <caml/alloc.h>
+#include <caml/bigarray.h>
 #include <caml/custom.h>
 #include <caml/memory.h>
 #include <caml/mlvalues.h>
@@ -35,13 +36,11 @@ CAMLprim value load_image(value string, value force_channels) {
 
     // Try wrapping the `data` pointer in a box, so ctypes doesn't try to
     // dereference an unsigned char* but a boxed one.
-    int size = width * height * channels;
-    dataArr = caml_alloc_small(size, 0);
-    for(int i = 0; i < size; i++) {
-      Field(dataArr, i) = Val_int(data[i]);
-    }
+    intnat *size = malloc(sizeof(intnat));
+    *size = width * height * channels;
+
+    dataArr = caml_ba_alloc(CAML_BA_UINT8, 1, data, size);
     Field(record_image_data, 3) = dataArr;
-    SOIL_free_image_data(data);
     CAMLreturn(Val_some(record_image_data));
   }
 }
