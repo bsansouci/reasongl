@@ -19,5 +19,5 @@
   "warnings": {"number": "-44"},
   "allowed-build-kinds": ["bytecode", "native"],
   "build-script": "make lib",
-  "refmt": 2,
+  "refmt": 3,
 }
