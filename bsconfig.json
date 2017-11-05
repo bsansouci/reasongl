@@ -8,8 +8,8 @@
   }],
   "bs-dependencies": ["Tsdl", "Tgls", "ReasonglInterface"],
   "entries": [{
-    "kind": "bytecode",
-    "main": "Example"
+    "backend": "bytecode",
+    "main-module": "Example"
   }],
   "static-libraries": [
     "reasongl.o",
