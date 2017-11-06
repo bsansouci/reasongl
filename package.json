@@ -4,8 +4,8 @@
   "description": "Reason bindings to OpenGL",
   "dependencies": {
     "ReasonglInterface": "bsansouci/reasongl-interface",
-    "tgls": "bsansouci/tgls",
-    "tsdl": "bsansouci/tsdl"
+    "Tgls": "bsansouci/tgls",
+    "Tsdl": "bsansouci/tsdl"
   },
   "scripts": {
     "postinstall": "make npm"
