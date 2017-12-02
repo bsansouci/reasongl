@@ -19,6 +19,8 @@ module Document = {
   [@bs.val] external devicePixelRatio : float = "window.devicePixelRatio";
 };
 
+type canvasT;
+
 [@bs.set] external setHiddenRAFID : ('a, int) => unit = "__hiddenrafid";
 
 [@bs.get] external getButton : 'eventT => int = "button";
@@ -29,31 +31,31 @@ module Document = {
 
 [@bs.get] external getWhich : 'eventT => int = "which";
 
-[@bs.send] external getBoundingClientRect : 'canvas => 'leftAndTop = "getBoundingClientRect";
+[@bs.send] external getBoundingClientRect : canvasT => 'leftAndTop = "getBoundingClientRect";
 
 [@bs.get] external getTop : 'a => int = "top";
 
 [@bs.get] external getLeft : 'a => int = "left";
 
-[@bs.get] external getWidth : 'canvas => int = "width";
+[@bs.get] external getCanvasWidth : canvasT => int = "width";
 
-[@bs.get] external getHeight : 'canvas => int = "height";
+[@bs.get] external getCanvasHeight : canvasT => int = "height";
 
-[@bs.set] external setWidth : ('canvas, int) => unit = "width";
+[@bs.set] external setWidth : (canvasT, int) => unit = "width";
 
-[@bs.set] external setHeight : ('canvas, int) => unit = "height";
+[@bs.set] external setHeight : (canvasT, int) => unit = "height";
 
-[@bs.val] external createElement : string => 'canvas = "document.createElement";
+[@bs.val] external createElement : string => canvasT = "document.createElement";
 
 let createCanvas = () => createElement("canvas");
 
-[@bs.val] external addToBody : 'canvas => unit = "document.body.appendChild";
+[@bs.val] external addToBody : canvasT => unit = "document.body.appendChild";
 
-[@bs.send] external getContext : ('canvas, string, 'options) => 'context = "getContext";
+[@bs.send] external getContext : (canvasT, string, 'options) => 'context = "getContext";
 
 type styleT;
 
-[@bs.get] external getStyle : 'canvas => styleT = "style";
+[@bs.get] external getStyle : canvasT => styleT = "style";
 
 [@bs.set] external setWidthStyle : (styleT, string) => unit = "width";
 
@@ -73,11 +75,48 @@ external openFile :
 [@bs.set] external onreadystatechange : (httpRequestT, unit => unit) => unit =
   "onreadystatechange";
 
+[@bs.set] external setResponseType : (httpRequestT, string) => unit = "responseType";
+
 [@bs.get] external getReadyState : httpRequestT => int = "readyState";
 
 [@bs.get] external getStatus : httpRequestT => int = "status";
 
 [@bs.get] external getResponseText : httpRequestT => string = "responseText";
+
+type arrayBufferT;
+
+type soundT;
+
+type audioContextT;
+
+type audioLocT;
+
+type audioGainT;
+
+[@bs.new] external makeAudioContext : unit => audioContextT = "AudioContext";
+
+[@bs.get] external getResponse : httpRequestT => arrayBufferT = "response";
+
+[@bs.send] external decodeAudioData : (audioContextT, arrayBufferT, soundT => unit) => unit =
+  "decodeAudioData";
+
+[@bs.send] external createBufferSource : audioContextT => audioLocT = "createBufferSource";
+
+[@bs.send] external createGain : audioContextT => audioLocT = "createGain";
+
+[@bs.get] external getGain : 'a => audioGainT = "gain";
+
+[@bs.set] external setGainValue : (audioGainT, float) => unit = "value";
+
+[@bs.set] external setAudioSourceBuffer : (audioLocT, soundT) => unit = "buffer";
+
+[@bs.get] external getAudioContextDestination : audioContextT => audioLocT = "destination";
+
+[@bs.send] external audioSourceConnect : (audioLocT, audioLocT) => unit = "connect";
+
+[@bs.send] external audioSourceStart : (audioLocT, float) => unit = "start";
+
+[@bs.set] external setAudioSourceLoop : (audioLocT, Js.boolean) => unit = "loop";
 
 [@bs.send] external sendRequest : (httpRequestT, Js.null('a)) => unit = "send";
 
@@ -113,30 +152,62 @@ module Gl: RGLInterface.t = {
     let getContext: t => contextT;
   };
   module Window = {
-    type t;
-    let getWidth = (window) =>
-      int_of_float @@ float_of_int(getWidth(window)) /. Document.devicePixelRatio;
-    let getHeight = (window) =>
-      int_of_float @@ float_of_int(getHeight(window)) /. Document.devicePixelRatio;
-    let getPixelWidth = (window: t) =>
-      int_of_float @@ (float_of_int @@ getWidth(window)) *. Document.devicePixelRatio;
-    let getPixelHeight = (window: t) =>
-      int_of_float @@ (float_of_int @@ getHeight(window)) *. Document.devicePixelRatio;
+    type t = (canvasT, audioContextT);
+    let getWidth = ((window, _ac)) =>
+      int_of_float @@ float_of_int(getCanvasWidth(window)) /. Document.devicePixelRatio;
+    let getHeight = ((window, _ac)) =>
+      int_of_float @@ float_of_int(getCanvasHeight(window)) /. Document.devicePixelRatio;
+    let getPixelWidth = ((window, _ac)) =>
+      int_of_float @@ (float_of_int @@ getCanvasWidth(window)) *. Document.devicePixelRatio;
+    let getPixelHeight = ((window, _ac)) =>
+      int_of_float @@ (float_of_int @@ getCanvasHeight(window)) *. Document.devicePixelRatio;
     let getPixelScale = (_: t) => Document.devicePixelRatio;
     let init = (~argv as _) => {
-      let canvas: t = createCanvas();
+      let canvas = createCanvas();
       setBackgroundColor(getStyle(canvas), "black");
       addToBody(canvas);
-      canvas
+      (canvas, makeAudioContext())
     };
-    let setWindowSize = (~window: t, ~width, ~height) => {
-      setWidth(window, int_of_float @@ float_of_int(width) *. Document.devicePixelRatio);
-      setHeight(window, int_of_float @@ float_of_int(height) *. Document.devicePixelRatio);
-      setWidthStyle(getStyle(window), string_of_int(width) ++ "px");
-      setHeightStyle(getStyle(window), string_of_int(height) ++ "px")
+    let setWindowSize = (~window as (w, _), ~width, ~height) => {
+      setWidth(w, int_of_float @@ float_of_int(width) *. Document.devicePixelRatio);
+      setHeight(w, int_of_float @@ float_of_int(height) *. Document.devicePixelRatio);
+      setWidthStyle(getStyle(w), string_of_int(width) ++ "px");
+      setHeightStyle(getStyle(w), string_of_int(height) ++ "px")
     };
-    let getContext = (window: t) : contextT =>
+    let getContext = ((window, _ac)) : contextT =>
       getContext(window, "webgl", {"preserveDrawingBuffer": true, "antialias": true});
+  };
+  module type AudioT = {
+    type t;
+    let loadSound: (Window.t, string, t => unit) => unit;
+    let playSound: (Window.t, t, ~volume: float, ~loop: bool) => unit;
+  };
+  module Audio = {
+    type t = soundT;
+    let loadSound = ((_window, audioctx), path, cb) => {
+      let rawFile = makeXMLHttpRequest();
+      setResponseType(rawFile, "arraybuffer");
+      openFile(rawFile, ~kind="GET", ~filename=path, ~whatIsThis=Js.true_);
+      onreadystatechange(
+        rawFile,
+        () =>
+          if (getReadyState(rawFile) === 4
+              && (getStatus(rawFile) === 200 || getStatus(rawFile) === 0)) {
+            decodeAudioData(audioctx, getResponse(rawFile), cb)
+          }
+      );
+      sendRequest(rawFile, Js.null)
+    };
+    let playSound = ((_window, audioctx), sound, ~volume, ~loop) => {
+      let src = createBufferSource(audioctx);
+      let gain = createGain(audioctx);
+      setGainValue(getGain(gain), volume);
+      setAudioSourceBuffer(src, sound);
+      audioSourceConnect(src, gain);
+      audioSourceConnect(gain, getAudioContextDestination(audioctx));
+      audioSourceStart(src, 0.0);
+      setAudioSourceLoop(src, Js.Boolean.to_js_boolean(loop))
+    };
   };
   module Events = Events;
   type mouseButtonEventT =
@@ -145,7 +216,7 @@ module Gl: RGLInterface.t = {
   /*** See Gl.re for explanation. **/
   let render =
       (
-        ~window as canvas: Window.t,
+        ~window as (canvas, _ac): Window.t,
         ~mouseDown: option(mouseButtonEventT)=?,
         ~mouseUp: option(mouseButtonEventT)=?,
         ~mouseMove: option(((~x: int, ~y: int) => unit))=?,
@@ -402,7 +473,7 @@ module Gl: RGLInterface.t = {
     [@bs.send] external blit : (t('a, 'b), t('a, 'b)) => unit = "set";
     [@bs.send] external unsafe_blit : (t('a, 'b), t('a, 'b), ~offset: int) => unit = "set";
     let unsafe_blit: (t('a, 'b), t('a, 'b), ~offset: int, ~numOfBytes: int) => unit =
-      (arr, arr2, ~offset, ~numOfBytes as _) => unsafe_blit(arr2, arr, offset);
+      (arr, arr2, ~offset, ~numOfBytes as _) => unsafe_blit(arr2, arr, ~offset);
     [@bs.get_index] external get : (t('a, 'b), int) => 'a = "";
     [@bs.get_index] external unsafe_get : (t('a, 'b), int) => 'a = "";
     [@bs.set_index] external set : (t('a, 'b), int, 'a) => unit = "";
