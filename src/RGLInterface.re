@@ -19,6 +19,12 @@ module type t = {
     let getContext: t => contextT;
   };
   module Window: WindowT;
+  module type AudioT = {
+    type t;
+    let loadSound: (Window.t, string, t => unit) => unit;
+    let playSound: (Window.t, t, ~volume: float, ~loop: bool) => unit;
+  };
+  module Audio: AudioT;
   module Events: RGLEvents.t;
 
   /*** We're currently mimicking the JS asynchronous event handling allowing the user to register callbacks.
