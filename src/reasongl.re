@@ -158,9 +158,9 @@ module Gl: RGLInterface.t = {
     let getHeight = ((window, _ac)) =>
       int_of_float @@ float_of_int(getCanvasHeight(window)) /. Document.devicePixelRatio;
     let getPixelWidth = ((window, _ac)) =>
-      int_of_float @@ (float_of_int @@ getCanvasWidth(window)) *. Document.devicePixelRatio;
+      int_of_float @@ (float_of_int @@ getCanvasWidth(window));
     let getPixelHeight = ((window, _ac)) =>
-      int_of_float @@ (float_of_int @@ getCanvasHeight(window)) *. Document.devicePixelRatio;
+      int_of_float @@ (float_of_int @@ getCanvasHeight(window));
     let getPixelScale = (_: t) => Document.devicePixelRatio;
     let init = (~argv as _) => {
       let canvas = createCanvas();
