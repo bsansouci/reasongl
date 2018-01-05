@@ -1,0 +1,28 @@
+{
+  "name": "ReasonglNative",
+  "version": "0.2.0",
+  "description": "Reason bindings to OpenGL",
+  "dependencies": {
+    "ReasonglInterface": "bsansouci/reasongl-interface",
+    "Tgls": "bsansouci/tgls",
+    "Tsdl": "bsansouci/tsdl"
+  },
+  "scripts": {
+    "postinstall": "make npm"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bsansouci/reasongl-native.git"
+  },
+  "author": "bsansouci & schmavery",
+  "devDependencies": {
+    "bs-platform": "bsansouci/bsb-native",
+    "opam_of_packagejson": "*"
+  },
+  "opam": {
+    "dependencies": {
+      "reason": "build & >=  \"1.13.3\""
+    },
+    "mainModule": "Reasongl"
+  }
+}

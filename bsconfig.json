@@ -15,6 +15,13 @@
     "dir": "example",
     "type": "dev"
   }],
+  "static-libraries": [
+    "reasongl.o",
+    "_build/lib/libsoil.a",
+    "_build/lib/libsoil_wrapper.a"
+  ],
+  "warnings": {"number": "-44"},
+  "build-script": "make lib",
   "bs-dependencies": ["Tsdl", "Tgls"],
   "refmt": 3
 }
