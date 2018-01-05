@@ -3,6 +3,7 @@
  * vim: set ft=reason:
  */
 module Constants = RGLConstants;
+
 module Gl = Reasongl.Gl;
 
 /**
@@ -50,8 +51,7 @@ let getProgram
         None
       }
     } else {
-      print_endline @@
-      "Fragment shader error: " ^ Gl.getShaderInfoLog ::context fragmentShader;
+      print_endline @@ "Fragment shader error: " ^ Gl.getShaderInfoLog ::context fragmentShader;
       None
     }
   } else {
