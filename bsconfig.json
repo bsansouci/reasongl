@@ -8,8 +8,6 @@
     },{
       "dir": "web",
       "backend": ["js"]
-    },{
-      "dir": "interface"
     }]
   },{
     "dir": "example",
@@ -23,5 +21,15 @@
   "warnings": {"number": "-44"},
   "build-script": "make lib",
   "bs-dependencies": ["Tsdl", "Tgls"],
+  "entries": [ {
+    "backend": "native",
+    "main-module": "Example"
+  },{
+    "backend": "bytecode",
+    "main-module": "Example"
+  },{
+    "backend": "js",
+    "main-module": "Example"
+  }],
   "refmt": 3
 }
