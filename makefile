@@ -28,8 +28,8 @@ BIN = $(LIBDIR)/$(LIB)
 
 # This is the build rule for opam, we do the same first step as npm and then do the step that bsb
 # would do
-build: npm lib src/soil_wrapper.c
-	gcc -I`ocamlc -where` -c src/soil_wrapper.c -o _build/lib/libsoil_wrapper.a
+build: npm lib src/native/soil_wrapper.c
+	gcc -I`ocamlc -where` -c src/native/soil_wrapper.c -o _build/lib/libsoil_wrapper.a
 
 npm: prebuild $(BIN)
 
@@ -68,8 +68,8 @@ prebuild:
 
 lib: _build/lib/libsoil_wrapper.a reasongl.o
 
-_build/lib/libsoil_wrapper.a:	src/soil_wrapper.c
-	gcc -I$(OCAML_LIB) -c src/soil_wrapper.c -o _build/lib/libsoil_wrapper.a
+_build/lib/libsoil_wrapper.a:	src/native/soil_wrapper.c
+	gcc -I$(OCAML_LIB) -c src/native/soil_wrapper.c -o _build/lib/libsoil_wrapper.a
 
-reasongl.o: src/reasongl.c
-	ocamlopt.opt -c src/reasongl.c
+reasongl.o: src/native/reasongl.c
+	ocamlopt.opt -c src/native/reasongl.c

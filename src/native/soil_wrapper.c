@@ -5,7 +5,7 @@
 #include <caml/custom.h>
 #include <caml/memory.h>
 #include <caml/mlvalues.h>
-#include "../SOIL/src/SOIL.h"
+#include "../../SOIL/src/SOIL.h"
 
 #define Val_none Val_int(0)
 
