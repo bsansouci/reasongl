@@ -14,9 +14,33 @@ If you want to get started quickly, check out [this simple branch of ReasonglExa
 
 All of the method names are taken directly from opengl, and their docs should apply.
 
-# Where is the code
-The code for this is actually divided into 3 sub projects: [reasongl-interface](https://github.com/bsansouci/reasongl-interface), [reasongl-native](https://github.com/bsansouci/reasongl-native), [reasongl-web](https://github.com/bsansouci/reasongl-web). You always need `reasongl-interface` and then can choose which backend you'd like depending on your needs. Simply add them to your [bs-dependencies](https://github.com/bsansouci/reasonglexampleproject/blob/60c23c61348be43ace772d45968048b462c1c2d9/bsconfig.json#L4) in your `bsconfig.json` (see [bsb-native](https://github.com/bsansouci/bsb-native) for help with the build system).
+ReasonglInterface
+===
 
-- `reasongl-interface` This exposes the common interface to both backends. This also contains the `Constants` module which contains a bunch of constants that are needed for a lot of GL functions.
-- `reasongl-native` This is the native backend, which uses OpenGL 2.1.
-- `resaongl-web` This is the web backend, which uses WebGL.
+Interface over OpenGL and WebGL. This alone isn't very useful, it can be used to write your own implementation for a new target that we're not currently supporting. If you implement all of the function in here, any program written on top of ReasonGL will auto-magically work on that new target. 
+
+See [reasongl](https://github.com/bsansouci/reasongl) for details on how to use this as a library.
+
+ReasonglNative
+===
+
+Slightly high level OCaml/Reason bindings to OpenGL.
+
+This repository follows the interface described in [ReasonglInterface](https://github.com/bsansouci/reasongl-interface) which is an abstraction designed on top of OpenGL 2.1 and WebGL. This package also depends on SDL to create a window and handle events.
+
+The best way to use this is to use [bsb-native](https://github.com/bsansouci/bsb-native), add this package to your `bs-dependencies` along with `ReasonglInterface` and then simply refer to the module `Reasongl`.
+
+If you're not using `bsb-native` you can simply wrap your code in a functor that takes `Gl : ReasonglInterface.Gl.t` and have, for example, a native entry point file containing `module NativeMain = Main (ReasonglNative);` which just passes the right implementation manually.
+
+If you want super thin direct bindings to OpenGL use [tgls](https://github.com/bsansouci/tgls).
+
+If you want direct bindings to SDL use [tsdl](https://github.com/bsansouci/tsdl).
+
+ReasonglWeb
+===
+
+Slightly high level OCaml/Reason bindings to WebGL.
+
+This repository follows the interface described in [ReasonglInterface](https://github.com/bsansouci/reasongl-interface) which is an abstraction designed on top of OpenGL 2.1 and WebGL.
+
+The best way to use this is to use [bsb](https://bucklescript.github.io/bucklescript/Manual.html#_bucklescript_build_system_code_bsb_code), add this package to your `bs-dependencies` along with `ReasonglInterface` and then simply refer to the module `Reasongl`.

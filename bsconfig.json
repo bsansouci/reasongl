@@ -1,0 +1,35 @@
+{
+  "name": "reasongl",
+  "sources": [{
+    "dir": "src",
+    "subdirs": [{
+      "dir": "native",
+      "backend": ["native", "bytecode"]
+    },{
+      "dir": "web",
+      "backend": ["js"]
+    }]
+  },{
+    "dir": "example",
+    "type": "dev"
+  }],
+  "static-libraries": [
+    "reasongl.o",
+    "_build/lib/libsoil.a",
+    "_build/lib/libsoil_wrapper.a"
+  ],
+  "warnings": {"number": "-44"},
+  "build-script": "make lib",
+  "bs-dependencies": ["Tsdl", "Tgls"],
+  "entries": [ {
+    "backend": "native",
+    "main-module": "Example"
+  },{
+    "backend": "bytecode",
+    "main-module": "Example"
+  },{
+    "backend": "js",
+    "main-module": "Example"
+  }],
+  "refmt": 3
+}
