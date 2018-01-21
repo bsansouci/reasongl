@@ -128,6 +128,7 @@ module Gl: ReasonglInterface.Gl.t = {
       Sdl.set_window_size(window, ~width, ~height);
     let getContext = (window: t) : contextT => {
       let ctx = Sdl.gl_create_context(window);
+      Gl.gladLoadGL();
       let e = Sdl.gl_make_current(window, ctx);
       if (e != 0) {
         failwith @@ Sdl.error()
@@ -303,7 +304,9 @@ module Gl: ReasonglInterface.Gl.t = {
     | LoadLA
     | LoadRGB
     | LoadRGBA;
-  type imageT = {
+  
+  /* We do this because Tgls can load images through SOIL */
+  type imageT = Gl.imageT = {
     width: int,
     height: int,
     channels: int,
@@ -311,22 +314,14 @@ module Gl: ReasonglInterface.Gl.t = {
   };
   let getImageWidth = (image) => image.width;
   let getImageHeight = (image) => image.height;
-
-  /***
-   * Internal dep on SOIL. This helps us load a bunch of different formats of image and get a `unsigned char*`
-   * which we transform into an `array int` and then a bigarray before passing it to tgls.
-   *
-   * This is very unefficient as we end we 3 copies of the data (1 original and 2 copies). We should be able
-   * to pass in the C `char*` directly to tgls if we can figure out how ctypes works.
-   */
-  external soilLoadImage : (~filename: string, ~loadOption: int) => option(imageT) = "load_image";
+  
   let loadImage = (~filename, ~loadOption=LoadAuto, ~callback: option(imageT) => unit, ()) =>
     switch loadOption {
-    | LoadAuto => callback(soilLoadImage(~filename, ~loadOption=0))
-    | LoadL => callback(soilLoadImage(~filename, ~loadOption=1))
-    | LoadLA => callback(soilLoadImage(~filename, ~loadOption=2))
-    | LoadRGB => callback(soilLoadImage(~filename, ~loadOption=3))
-    | LoadRGBA => callback(soilLoadImage(~filename, ~loadOption=4))
+    | LoadAuto => callback(Gl.soilLoadImage(~filename, ~loadOption=0))
+    | LoadL => callback(Gl.soilLoadImage(~filename, ~loadOption=1))
+    | LoadLA => callback(Gl.soilLoadImage(~filename, ~loadOption=2))
+    | LoadRGB => callback(Gl.soilLoadImage(~filename, ~loadOption=3))
+    | LoadRGBA => callback(Gl.soilLoadImage(~filename, ~loadOption=4))
     };
   let texImage2D_RGBA = (~context as _, ~target, ~level, ~width, ~height, ~border, ~data) =>
     Gl.texImage2D_RGBA(~target, ~level, ~width, ~height, ~border, ~data);
