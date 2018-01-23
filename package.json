@@ -3,12 +3,9 @@
   "version": "0.2.0",
   "description": "Reason bindings to GL",
   "dependencies": {
-    "Tgls": "bsansouci/tgls",
-    "Tsdl": "bsansouci/tsdl",
+    "Tgls": "bsansouci/tgls#glad",
+    "Tsdl": "bsansouci/tsdl#glad",
     "gl-matrix": "*"
-  },
-  "scripts": {
-    "postinstall": "make npm"
   },
   "repository": {
     "type": "git",
@@ -16,13 +13,6 @@
   },
   "author": "bsansouci & schmavery",
   "devDependencies": {
-    "bs-platform": "bsansouci/bsb-native#2.1.1",
-    "opam_of_packagejson": "*"
-  },
-  "opam": {
-    "dependencies": {
-      "reason": "build & >=  \"1.13.3\""
-    },
-    "mainModule": "Reasongl"
+    "bs-platform": "bsansouci/bsb-native#2.1.1"
   }
 }
