@@ -292,7 +292,7 @@ module Gl: RGLInterface.t = {
         Document.window, /* This is the real window. The "window" param is the canvas. */
         "keydown",
         (e) => {
-          let keycode = getWhich(e);
+          let keycode = Int32.of_int(getWhich(e));
           let repeat = List.fold_left((acc, k) => acc || k === keycode, false, keyLastPressed^);
           if (! repeat) {
             keyLastPressed := [keycode, ...keyLastPressed^]
@@ -308,7 +308,7 @@ module Gl: RGLInterface.t = {
         Document.window,
         "keyup",
         (e) => {
-          let keycode = getWhich(e);
+          let keycode = Int32.of_int(getWhich(e));
           keyLastPressed := List.filter((k) => k !== keycode, keyLastPressed^);
           cb(~keycode=Events.keycodeMap(keycode))
         }

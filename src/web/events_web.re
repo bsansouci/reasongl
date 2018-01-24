@@ -75,8 +75,8 @@ type keycodeT =
   | Backtick
   | Nothing;
 
-let keycodeMap: int => keycodeT =
-  fun
+let keycodeMap: Int32.t => keycodeT = (i32) =>
+  switch (Int32.to_int(i32)) {
   | 8 => Backspace
   | 9 => Tab
   | 13 => Enter
@@ -139,4 +139,5 @@ let keycodeMap: int => keycodeT =
   | 220 => Backslash
   | 221 => CloseBracket
   | 222 => Quote
-  | _ => Nothing;
+  | _ => Nothing
+};
