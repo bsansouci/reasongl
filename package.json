@@ -3,8 +3,8 @@
   "version": "0.2.0",
   "description": "Reason bindings to GL",
   "dependencies": {
-    "Tgls": "bsansouci/tgls#glad",
-    "Tsdl": "bsansouci/tsdl#glad",
+    "Tgls": "bsansouci/tgls",
+    "Tsdl": "bsansouci/tsdl",
     "gl-matrix": "*"
   },
   "repository": {
