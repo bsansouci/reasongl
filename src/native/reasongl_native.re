@@ -304,7 +304,7 @@ module Gl: ReasonglInterface.Gl.t = {
     | LoadLA
     | LoadRGB
     | LoadRGBA;
-  
+
   /* We do this because Tgls can load images through SOIL */
   type imageT = Gl.imageT = {
     width: int,
@@ -314,8 +314,7 @@ module Gl: ReasonglInterface.Gl.t = {
   };
   let getImageWidth = (image) => image.width;
   let getImageHeight = (image) => image.height;
-  
-  external soilLoadImageFromMemory : (~data: string, ~loadOption: int) => option(imageT) = "load_image_from_memory";
+
   let loadImage = (~filename, ~loadOption=LoadAuto, ~callback: option(imageT) => unit, ()) =>
     switch loadOption {
     | LoadAuto => callback(Gl.soilLoadImage(~filename, ~loadOption=0))
@@ -323,13 +322,15 @@ module Gl: ReasonglInterface.Gl.t = {
     | LoadLA => callback(Gl.soilLoadImage(~filename, ~loadOption=2))
     | LoadRGB => callback(Gl.soilLoadImage(~filename, ~loadOption=3))
     | LoadRGBA => callback(Gl.soilLoadImage(~filename, ~loadOption=4))
+    };
+
   let loadImageFromMemory = (~data, ~loadOption=LoadAuto, ~callback: option(imageT) => unit, ()) =>
     switch loadOption {
-    | LoadAuto => callback(soilLoadImageFromMemory(~data, ~loadOption=0))
-    | LoadL => callback(soilLoadImageFromMemory(~data, ~loadOption=1))
-    | LoadLA => callback(soilLoadImageFromMemory(~data, ~loadOption=2))
-    | LoadRGB => callback(soilLoadImageFromMemory(~data, ~loadOption=3))
-    | LoadRGBA => callback(soilLoadImageFromMemory(~data, ~loadOption=4))
+    | LoadAuto => callback(Gl.soilLoadImageFromMemory(~data, ~loadOption=0))
+    | LoadL => callback(Gl.soilLoadImageFromMemory(~data, ~loadOption=1))
+    | LoadLA => callback(Gl.soilLoadImageFromMemory(~data, ~loadOption=2))
+    | LoadRGB => callback(Gl.soilLoadImageFromMemory(~data, ~loadOption=3))
+    | LoadRGBA => callback(Gl.soilLoadImageFromMemory(~data, ~loadOption=4))
     };
   let texImage2D_RGBA = (~context as _, ~target, ~level, ~width, ~height, ~border, ~data) =>
     Gl.texImage2D_RGBA(~target, ~level, ~width, ~height, ~border, ~data);
