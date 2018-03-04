@@ -147,6 +147,9 @@ module type t = {
   let loadImage:
     (~filename: string, ~loadOption: loadOptionT=?, ~callback: option(imageT) => unit, unit) =>
     unit;
+  let loadImageFromMemory:
+    (~data: string, ~loadOption: loadOptionT=?, ~callback: option(imageT) => unit, unit) =>
+    unit;
   let texImage2DWithImage: (~context: contextT, ~target: int, ~level: int, ~image: imageT) => unit;
   let uniform1i: (~context: contextT, ~location: uniformT, ~value: int) => unit;
   let uniform1f: (~context: contextT, ~location: uniformT, ~value: float) => unit;

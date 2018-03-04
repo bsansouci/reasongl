@@ -552,6 +552,8 @@ module Gl: RGLInterface.t = {
   [@bs.send] external addEventListener : (imageT, string, unit => unit) => unit =
     "addEventListener";
 
+  [@bs.val] external btoa : string => string = "";
+
   /*** TODO: We don't care about forcing load option for web images (we do allow it for native as SOIL supports
        it). We should probably not do this... */
   let loadImage = (~filename, ~loadOption=?, ~callback, ()) =>
@@ -561,6 +563,11 @@ module Gl: RGLInterface.t = {
       setSrc(image, filename);
       addEventListener(image, "load", () => callback(Some(image)))
     };
+  let loadImageFromMemory = (~data, ~loadOption=?, ~callback, ()) => {
+    let image = makeImage();
+    setSrc(image, "data:image/png;base64," ++ btoa(data));
+    addEventListener(image, "load", () => callback(Some(image)))
+  };
   [@bs.send]
   external _texImage2DWithImage :
     (
