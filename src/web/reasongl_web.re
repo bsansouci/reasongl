@@ -7,14 +7,18 @@ module Document = {
   type window;
   let window: window = [%bs.raw "window"];
   /* external setGlDebug : window => GlT.context => unit = "debugContext" [@@bs.set]; */
-  [@bs.val] external getElementById : string => element = "document.getElementById";
-  [@bs.send] external getContext : (element, string) => 'context = "getContext";
+  [@bs.val]
+  external getElementById : string => element = "document.getElementById";
+  [@bs.send]
+  external getContext : (element, string) => 'context = "getContext";
   [@bs.get] external getWidth : element => int = "width";
   [@bs.get] external getHeight : element => int = "height";
-  [@bs.val] external requestAnimationFrame : (unit => unit) => int =
+  [@bs.val]
+  external requestAnimationFrame : (unit => unit) => int =
     "window.requestAnimationFrame";
   [@bs.val] external now : unit => float = "Date.now";
-  [@bs.send] external addEventListener : ('window, string, 'eventT => unit) => unit =
+  [@bs.send]
+  external addEventListener : ('window, string, 'eventT => unit) => unit =
     "addEventListener";
   [@bs.val] external devicePixelRatio : float = "window.devicePixelRatio";
 };
@@ -31,7 +35,9 @@ type canvasT;
 
 [@bs.get] external getWhich : 'eventT => int = "which";
 
-[@bs.send] external getBoundingClientRect : canvasT => 'leftAndTop = "getBoundingClientRect";
+[@bs.send]
+external getBoundingClientRect : canvasT => 'leftAndTop =
+  "getBoundingClientRect";
 
 [@bs.get] external getTop : 'a => int = "top";
 
@@ -45,13 +51,15 @@ type canvasT;
 
 [@bs.set] external setHeight : (canvasT, int) => unit = "height";
 
-[@bs.val] external createElement : string => canvasT = "document.createElement";
+[@bs.val]
+external createElement : string => canvasT = "document.createElement";
 
 let createCanvas = () => createElement("canvas");
 
 [@bs.val] external addToBody : canvasT => unit = "document.body.appendChild";
 
-[@bs.send] external getContext : (canvasT, string, 'options) => 'context = "getContext";
+[@bs.send]
+external getContext : (canvasT, string, 'options) => 'context = "getContext";
 
 type styleT;
 
@@ -61,21 +69,26 @@ type styleT;
 
 [@bs.set] external setHeightStyle : (styleT, string) => unit = "height";
 
-[@bs.set] external setBackgroundColor : (styleT, string) => unit = "backgroundColor";
+[@bs.set]
+external setBackgroundColor : (styleT, string) => unit = "backgroundColor";
 
 type httpRequestT;
 
-[@bs.new] external makeXMLHttpRequest : unit => httpRequestT = "XMLHttpRequest";
+[@bs.new]
+external makeXMLHttpRequest : unit => httpRequestT = "XMLHttpRequest";
 
 [@bs.send]
 external openFile :
-  (httpRequestT, ~kind: string, ~filename: string, ~whatIsThis: Js.boolean) => unit =
+  (httpRequestT, ~kind: string, ~filename: string, ~whatIsThis: Js.boolean) =>
+  unit =
   "open";
 
-[@bs.set] external onreadystatechange : (httpRequestT, unit => unit) => unit =
+[@bs.set]
+external onreadystatechange : (httpRequestT, unit => unit) => unit =
   "onreadystatechange";
 
-[@bs.set] external setResponseType : (httpRequestT, string) => unit = "responseType";
+[@bs.set]
+external setResponseType : (httpRequestT, string) => unit = "responseType";
 
 [@bs.get] external getReadyState : httpRequestT => int = "readyState";
 
@@ -93,14 +106,20 @@ type audioLocT;
 
 type audioGainT;
 
-let makeAudioContext : unit => audioContextT = [%bs.raw {| function() { return new (window.AudioContext || window.webkitAudioContext)(); } |} ];
+let makeAudioContext: unit => audioContextT = [%bs.raw
+  {| function() { return new (window.AudioContext || window.webkitAudioContext)(); } |}
+];
 
 [@bs.get] external getResponse : httpRequestT => arrayBufferT = "response";
 
-[@bs.send] external decodeAudioData : (audioContextT, arrayBufferT, soundT => unit) => unit =
+[@bs.send]
+external decodeAudioData :
+  (audioContextT, arrayBufferT, soundT => unit) => unit =
   "decodeAudioData";
 
-[@bs.send] external createBufferSource : audioContextT => audioLocT = "createBufferSource";
+[@bs.send]
+external createBufferSource : audioContextT => audioLocT =
+  "createBufferSource";
 
 [@bs.send] external createGain : audioContextT => audioLocT = "createGain";
 
@@ -108,36 +127,42 @@ let makeAudioContext : unit => audioContextT = [%bs.raw {| function() { return n
 
 [@bs.set] external setGainValue : (audioGainT, float) => unit = "value";
 
-[@bs.set] external setAudioSourceBuffer : (audioLocT, soundT) => unit = "buffer";
+[@bs.set]
+external setAudioSourceBuffer : (audioLocT, soundT) => unit = "buffer";
 
-[@bs.get] external getAudioContextDestination : audioContextT => audioLocT = "destination";
+[@bs.get]
+external getAudioContextDestination : audioContextT => audioLocT =
+  "destination";
 
-[@bs.send] external audioSourceConnect : (audioLocT, audioLocT) => unit = "connect";
+[@bs.send]
+external audioSourceConnect : (audioLocT, audioLocT) => unit = "connect";
 
 [@bs.send] external audioSourceStart : (audioLocT, float) => unit = "start";
 
-[@bs.set] external setAudioSourceLoop : (audioLocT, Js.boolean) => unit = "loop";
+[@bs.set]
+external setAudioSourceLoop : (audioLocT, Js.boolean) => unit = "loop";
 
 [@bs.send] external sendRequest : (httpRequestT, Js.null('a)) => unit = "send";
 
 module Gl: RGLInterface.t = {
   let target = "web";
   type contextT;
-  module type FileT = {type t; let readFile: (~filename: string, ~cb: string => unit) => unit;};
+  module type FileT = {
+    type t;
+    let readFile: (~filename: string, ~cb: string => unit) => unit;
+  };
   module File = {
     type t;
     let readFile = (~filename, ~cb) => {
       let rawFile = makeXMLHttpRequest();
       openFile(rawFile, ~kind="GET", ~filename, ~whatIsThis=Js.false_);
-      onreadystatechange(
-        rawFile,
-        () =>
-          if (getReadyState(rawFile) === 4
-              && (getStatus(rawFile) === 200 || getStatus(rawFile) === 0)) {
-            cb(getResponseText(rawFile))
-          }
+      onreadystatechange(rawFile, () =>
+        if (getReadyState(rawFile) === 4
+            && (getStatus(rawFile) === 200 || getStatus(rawFile) === 0)) {
+          cb(getResponseText(rawFile));
+        }
       );
-      sendRequest(rawFile, Js.null)
+      sendRequest(rawFile, Js.null);
     };
   };
   module type WindowT = {
@@ -154,28 +179,42 @@ module Gl: RGLInterface.t = {
   module Window = {
     type t = (canvasT, audioContextT);
     let getWidth = ((window, _ac)) =>
-      int_of_float @@ float_of_int(getCanvasWidth(window)) /. Document.devicePixelRatio;
+      int_of_float @@
+      float_of_int(getCanvasWidth(window))
+      /. Document.devicePixelRatio;
     let getHeight = ((window, _ac)) =>
-      int_of_float @@ float_of_int(getCanvasHeight(window)) /. Document.devicePixelRatio;
+      int_of_float @@
+      float_of_int(getCanvasHeight(window))
+      /. Document.devicePixelRatio;
     let getPixelWidth = ((window, _ac)) =>
-      int_of_float @@ (float_of_int @@ getCanvasWidth(window));
+      int_of_float @@ float_of_int @@ getCanvasWidth(window);
     let getPixelHeight = ((window, _ac)) =>
-      int_of_float @@ (float_of_int @@ getCanvasHeight(window));
+      int_of_float @@ float_of_int @@ getCanvasHeight(window);
     let getPixelScale = (_: t) => Document.devicePixelRatio;
     let init = (~argv as _) => {
       let canvas = createCanvas();
       setBackgroundColor(getStyle(canvas), "black");
       addToBody(canvas);
-      (canvas, makeAudioContext())
+      (canvas, makeAudioContext());
     };
     let setWindowSize = (~window as (w, _), ~width, ~height) => {
-      setWidth(w, int_of_float @@ float_of_int(width) *. Document.devicePixelRatio);
-      setHeight(w, int_of_float @@ float_of_int(height) *. Document.devicePixelRatio);
+      setWidth(
+        w,
+        int_of_float @@ float_of_int(width) *. Document.devicePixelRatio
+      );
+      setHeight(
+        w,
+        int_of_float @@ float_of_int(height) *. Document.devicePixelRatio
+      );
       setWidthStyle(getStyle(w), string_of_int(width) ++ "px");
-      setHeightStyle(getStyle(w), string_of_int(height) ++ "px")
+      setHeightStyle(getStyle(w), string_of_int(height) ++ "px");
     };
     let getContext = ((window, _ac)) : contextT =>
-      getContext(window, "webgl", {"preserveDrawingBuffer": true, "antialias": true});
+      getContext(
+        window,
+        "webgl",
+        {"preserveDrawingBuffer": true, "antialias": true}
+      );
   };
   module type AudioT = {
     type t;
@@ -188,15 +227,13 @@ module Gl: RGLInterface.t = {
       let rawFile = makeXMLHttpRequest();
       setResponseType(rawFile, "arraybuffer");
       openFile(rawFile, ~kind="GET", ~filename=path, ~whatIsThis=Js.true_);
-      onreadystatechange(
-        rawFile,
-        () =>
-          if (getReadyState(rawFile) === 4
-              && (getStatus(rawFile) === 200 || getStatus(rawFile) === 0)) {
-            decodeAudioData(audioctx, getResponse(rawFile), cb)
-          }
+      onreadystatechange(rawFile, () =>
+        if (getReadyState(rawFile) === 4
+            && (getStatus(rawFile) === 200 || getStatus(rawFile) === 0)) {
+          decodeAudioData(audioctx, getResponse(rawFile), cb);
+        }
       );
-      sendRequest(rawFile, Js.null)
+      sendRequest(rawFile, Js.null);
     };
     let playSound = ((_window, audioctx), sound, ~volume, ~loop) => {
       let src = createBufferSource(audioctx);
@@ -206,12 +243,13 @@ module Gl: RGLInterface.t = {
       audioSourceConnect(src, gain);
       audioSourceConnect(gain, getAudioContextDestination(audioctx));
       audioSourceStart(src, 0.0);
-      setAudioSourceLoop(src, Js.Boolean.to_js_boolean(loop))
+      setAudioSourceLoop(src, Js.Boolean.to_js_boolean(loop));
     };
   };
   module Events = Events;
   type mouseButtonEventT =
-    (~button: Events.buttonStateT, ~state: Events.stateT, ~x: int, ~y: int) => unit;
+    (~button: Events.buttonStateT, ~state: Events.stateT, ~x: int, ~y: int) =>
+    unit;
 
   /*** See Gl.re for explanation. **/
   let render =
@@ -219,10 +257,10 @@ module Gl: RGLInterface.t = {
         ~window as (canvas, _ac): Window.t,
         ~mouseDown: option(mouseButtonEventT)=?,
         ~mouseUp: option(mouseButtonEventT)=?,
-        ~mouseMove: option(((~x: int, ~y: int) => unit))=?,
-        ~keyDown: option(((~keycode: Events.keycodeT, ~repeat: bool) => unit))=?,
-        ~keyUp: option(((~keycode: Events.keycodeT) => unit))=?,
-        ~windowResize: option((unit => unit))=?,
+        ~mouseMove: option((~x: int, ~y: int) => unit)=?,
+        ~keyDown: option((~keycode: Events.keycodeT, ~repeat: bool) => unit)=?,
+        ~keyUp: option((~keycode: Events.keycodeT) => unit)=?,
+        ~windowResize: option(unit => unit)=?,
         ~displayFunc: float => unit,
         ()
       ) => {
@@ -232,7 +270,7 @@ module Gl: RGLInterface.t = {
       Document.addEventListener(
         canvas,
         "mousedown",
-        (e) => {
+        e => {
           let button =
             switch (getButton(e)) {
             | 0 => Events.LeftButton
@@ -244,7 +282,7 @@ module Gl: RGLInterface.t = {
           let rect = getBoundingClientRect(canvas);
           let x = getClientX(e) - getLeft(rect);
           let y = getClientY(e) - getTop(rect);
-          cb(~button, ~state, ~x, ~y)
+          cb(~button, ~state, ~x, ~y);
         }
       )
     };
@@ -254,7 +292,7 @@ module Gl: RGLInterface.t = {
       Document.addEventListener(
         canvas,
         "mouseup",
-        (e) => {
+        e => {
           let button =
             switch (getButton(e)) {
             | 0 => Events.LeftButton
@@ -266,7 +304,7 @@ module Gl: RGLInterface.t = {
           let rect = getBoundingClientRect(canvas);
           let x = getClientX(e) - getLeft(rect);
           let y = getClientY(e) - getTop(rect);
-          cb(~button, ~state, ~x, ~y)
+          cb(~button, ~state, ~x, ~y);
         }
       )
     };
@@ -276,11 +314,11 @@ module Gl: RGLInterface.t = {
       Document.addEventListener(
         canvas,
         "mousemove",
-        (e) => {
+        e => {
           let rect = getBoundingClientRect(canvas);
           let x = getClientX(e) - getLeft(rect);
           let y = getClientY(e) - getTop(rect);
-          cb(~x, ~y)
+          cb(~x, ~y);
         }
       )
     };
@@ -291,13 +329,18 @@ module Gl: RGLInterface.t = {
       Document.addEventListener(
         Document.window, /* This is the real window. The "window" param is the canvas. */
         "keydown",
-        (e) => {
+        e => {
           let keycode = Int32.of_int(getWhich(e));
-          let repeat = List.fold_left((acc, k) => acc || k === keycode, false, keyLastPressed^);
+          let repeat =
+            List.fold_left(
+              (acc, k) => acc || k === keycode,
+              false,
+              keyLastPressed^
+            );
           if (! repeat) {
-            keyLastPressed := [keycode, ...keyLastPressed^]
+            keyLastPressed := [keycode, ...keyLastPressed^];
           };
-          cb(~keycode=Events.keycodeMap(keycode), ~repeat)
+          cb(~keycode=Events.keycodeMap(keycode), ~repeat);
         }
       )
     };
@@ -307,33 +350,42 @@ module Gl: RGLInterface.t = {
       Document.addEventListener(
         Document.window,
         "keyup",
-        (e) => {
+        e => {
           let keycode = Int32.of_int(getWhich(e));
-          keyLastPressed := List.filter((k) => k !== keycode, keyLastPressed^);
-          cb(~keycode=Events.keycodeMap(keycode))
+          keyLastPressed := List.filter(k => k !== keycode, keyLastPressed^);
+          cb(~keycode=Events.keycodeMap(keycode));
         }
       )
     };
     switch windowResize {
     | None => ()
-    | Some(cb) => Document.addEventListener(Document.window, "resize", (_) => cb())
+    | Some(cb) =>
+      Document.addEventListener(Document.window, "resize", (_) => cb())
     };
     let rec tick = (prev, ()) => {
       let now = Document.now();
       displayFunc(now -. prev);
-      setHiddenRAFID(canvas, Document.requestAnimationFrame(tick(now)))
+      setHiddenRAFID(canvas, Document.requestAnimationFrame(tick(now)));
     };
-    setHiddenRAFID(canvas, Document.requestAnimationFrame(tick(Document.now())))
+    setHiddenRAFID(
+      canvas,
+      Document.requestAnimationFrame(tick(Document.now()))
+    );
   };
   type programT;
   type shaderT;
   [@bs.send]
-  external clearColor : (~context: contextT, ~r: float, ~g: float, ~b: float, ~a: float) => unit =
+  external clearColor :
+    (~context: contextT, ~r: float, ~g: float, ~b: float, ~a: float) => unit =
     "clearColor";
-  [@bs.send] external createProgram : (~context: contextT) => programT = "createProgram";
-  [@bs.send] external createShader : (~context: contextT, int) => shaderT = "createShader";
   [@bs.send]
-  external _shaderSource : (~context: contextT, ~shader: shaderT, ~source: string) => unit =
+  external createProgram : (~context: contextT) => programT = "createProgram";
+  [@bs.send]
+  external createShader : (~context: contextT, int) => shaderT =
+    "createShader";
+  [@bs.send]
+  external _shaderSource :
+    (~context: contextT, ~shader: shaderT, ~source: string) => unit =
     "shaderSource";
   let shaderSource = (~context, ~shader, ~source) =>
     _shaderSource(
@@ -341,52 +393,106 @@ module Gl: RGLInterface.t = {
       ~shader,
       ~source="#version 100 \n precision highp float; \n" ++ source
     );
-  [@bs.send] external compileShader : (~context: contextT, shaderT) => unit = "compileShader";
   [@bs.send]
-  external attachShader : (~context: contextT, ~program: programT, ~shader: shaderT) => unit =
+  external compileShader : (~context: contextT, shaderT) => unit =
+    "compileShader";
+  [@bs.send]
+  external attachShader :
+    (~context: contextT, ~program: programT, ~shader: shaderT) => unit =
     "attachShader";
-  [@bs.send] external deleteShader : (~context: contextT, shaderT) => unit = "deleteShader";
-  [@bs.send] external linkProgram : (~context: contextT, programT) => unit = "linkProgram";
-  [@bs.send] external useProgram : (~context: contextT, programT) => unit = "useProgram";
+  [@bs.send]
+  external deleteShader : (~context: contextT, shaderT) => unit =
+    "deleteShader";
+  [@bs.send]
+  external linkProgram : (~context: contextT, programT) => unit =
+    "linkProgram";
+  [@bs.send]
+  external useProgram : (~context: contextT, programT) => unit = "useProgram";
   type bufferT;
   type attributeT;
   type uniformT;
-  [@bs.send] external createBuffer : (~context: contextT) => bufferT = "createBuffer";
-  [@bs.send] external bindBuffer : (~context: contextT, ~target: int, ~buffer: bufferT) => unit =
+  [@bs.send]
+  external createBuffer : (~context: contextT) => bufferT = "createBuffer";
+  [@bs.send]
+  external bindBuffer :
+    (~context: contextT, ~target: int, ~buffer: bufferT) => unit =
     "bindBuffer";
   type textureT;
-  [@bs.send] external createTexture : (~context: contextT) => textureT = "createTexture";
-  [@bs.send] external activeTexture : (~context: contextT, int) => unit = "activeTexture";
   [@bs.send]
-  external bindTexture : (~context: contextT, ~target: int, ~texture: textureT) => unit =
+  external createTexture : (~context: contextT) => textureT = "createTexture";
+  [@bs.send]
+  external activeTexture : (~context: contextT, int) => unit = "activeTexture";
+  [@bs.send]
+  external bindTexture :
+    (~context: contextT, ~target: int, ~texture: textureT) => unit =
     "bindTexture";
   [@bs.send]
-  external texParameteri : (~context: contextT, ~target: int, ~pname: int, ~param: int) => unit =
+  external texParameteri :
+    (~context: contextT, ~target: int, ~pname: int, ~param: int) => unit =
     "texParameteri";
+  type framebufferT;
+  [@bs.send]
+  external createFramebuffer : (~context: contextT) => framebufferT = "";
+  [@bs.send]
+  external bindFramebuffer :
+    (~context: contextT, ~target: int, ~framebuffer: framebufferT) => unit =
+    "";
+  [@bs.send]
+  external bindDefaultFramebuffer :
+    (~context: contextT, ~target: int, [@bs.as {json|null|json}] _) => unit =
+    "bindFramebuffer";
+  [@bs.send]
+  external framebufferTexture2D :
+    (
+      ~context: contextT,
+      ~target: int,
+      ~attachment: int,
+      ~texTarget: int,
+      ~texture: textureT,
+      [@bs.as {json|0|json}] _
+    ) =>
+    unit =
+    "";
   [@bs.send] external enable : (~context: contextT, int) => unit = "enable";
   [@bs.send] external disable : (~context: contextT, int) => unit = "disable";
-  [@bs.send] external blendFunc : (~context: contextT, int, int) => unit = "blendFunc";
+  [@bs.send]
+  external blendFunc : (~context: contextT, int, int) => unit = "blendFunc";
 
   /*** Those externals are used for bufferData to instantiate what gl.bufferData actually expects, because JS
    *  doesn't differentiate between float and int but the GL backend needs to know the types precisely.
    **/
-  [@bs.new] external createFloat32ArrayOfArray : array(float) => 'flot32array = "Float32Array";
-  [@bs.new] external createFloat32Array : int => 'float32array = "Float32Array";
-  [@bs.new] external createFloat64ArrayOfArray : array(float) => 'flot64array = "Float64Array";
-  [@bs.new] external createFloat64Array : int => 'float64array = "Float64Array";
-  [@bs.new] external createIntArrayOfArray : array(int) => 'int32array = "Int32Array";
-  [@bs.new] external createInt32ArrayOfArray : array(int32) => 'int32array = "Int32Array";
+  [@bs.new]
+  external createFloat32ArrayOfArray : array(float) => 'flot32array =
+    "Float32Array";
+  [@bs.new]
+  external createFloat32Array : int => 'float32array = "Float32Array";
+  [@bs.new]
+  external createFloat64ArrayOfArray : array(float) => 'flot64array =
+    "Float64Array";
+  [@bs.new]
+  external createFloat64Array : int => 'float64array = "Float64Array";
+  [@bs.new]
+  external createIntArrayOfArray : array(int) => 'int32array = "Int32Array";
+  [@bs.new]
+  external createInt32ArrayOfArray : array(int32) => 'int32array =
+    "Int32Array";
   [@bs.new] external createIntArray : int => 'int32array = "Int32Array";
   [@bs.new] external createInt32Array : int => 'int32array = "Int32Array";
-  [@bs.new] external createUint16ArrayOfArray : array(int) => 'uint16array = "Uint16Array";
+  [@bs.new]
+  external createUint16ArrayOfArray : array(int) => 'uint16array =
+    "Uint16Array";
   [@bs.new] external createUint16Array : int => 'uint16array = "Uint16Array";
-  [@bs.new] external createInt16ArrayOfArray : array(int) => 'int16array = "Int16Array";
+  [@bs.new]
+  external createInt16ArrayOfArray : array(int) => 'int16array = "Int16Array";
   [@bs.new] external createInt16Array : int => 'int16array = "Int16Array";
-  [@bs.new] external createUint8ArrayOfArray : array(int) => 'uint8array = "Uint8Array";
+  [@bs.new]
+  external createUint8ArrayOfArray : array(int) => 'uint8array = "Uint8Array";
   [@bs.new] external createUint8Array : int => 'uint8array = "Uint8Array";
-  [@bs.new] external createInt8ArrayOfArray : array(int) => 'int8array = "Int8Array";
+  [@bs.new]
+  external createInt8ArrayOfArray : array(int) => 'int8array = "Int8Array";
   [@bs.new] external createInt8Array : int => 'int8array = "Int8Array";
-  [@bs.new] external createCharArrayOfArray : array(char) => 'uint8array = "Uint8Array";
+  [@bs.new]
+  external createCharArrayOfArray : array(char) => 'uint8array = "Uint8Array";
   [@bs.send] external sub : ('a, int, int) => 'a = "subarray";
   module type Bigarray = {
     type t('a, 'b);
@@ -414,7 +520,8 @@ module Gl: RGLInterface.t = {
     let of_array: (kind('a, 'b), array('a)) => t('a, 'b);
     let dim: t('a, 'b) => int;
     let blit: (t('a, 'b), t('a, 'b)) => unit;
-    let unsafe_blit: (t('a, 'b), t('a, 'b), ~offset: int, ~numOfBytes: int) => unit;
+    let unsafe_blit:
+      (t('a, 'b), t('a, 'b), ~offset: int, ~numOfBytes: int) => unit;
     let get: (t('a, 'b), int) => 'a;
     let unsafe_get: (t('a, 'b), int) => 'a;
     let set: (t('a, 'b), int, 'a) => unit;
@@ -471,9 +578,13 @@ module Gl: RGLInterface.t = {
       };
     [@bs.get] external dim : 'a => int = "length";
     [@bs.send] external blit : (t('a, 'b), t('a, 'b)) => unit = "set";
-    [@bs.send] external unsafe_blit : (t('a, 'b), t('a, 'b), ~offset: int) => unit = "set";
-    let unsafe_blit: (t('a, 'b), t('a, 'b), ~offset: int, ~numOfBytes: int) => unit =
-      (arr, arr2, ~offset, ~numOfBytes as _) => unsafe_blit(arr2, arr, ~offset);
+    [@bs.send]
+    external unsafe_blit : (t('a, 'b), t('a, 'b), ~offset: int) => unit =
+      "set";
+    let unsafe_blit:
+      (t('a, 'b), t('a, 'b), ~offset: int, ~numOfBytes: int) => unit =
+      (arr, arr2, ~offset, ~numOfBytes as _) =>
+        unsafe_blit(arr2, arr, ~offset);
     [@bs.get_index] external get : (t('a, 'b), int) => 'a = "";
     [@bs.get_index] external unsafe_get : (t('a, 'b), int) => 'a = "";
     [@bs.set_index] external set : (t('a, 'b), int, 'a) => unit = "";
@@ -522,7 +633,7 @@ module Gl: RGLInterface.t = {
       ~type_=RGLConstants.unsigned_byte,
       ~pixels=data
     );
-    data
+    data;
   };
   type imageT;
   [@bs.get] external getImageWidth : imageT => int = "width";
@@ -549,9 +660,9 @@ module Gl: RGLInterface.t = {
         We should open an issue in Buckelscript.
      */
   [@bs.set] external setSrc : (imageT, string) => unit = "src";
-  [@bs.send] external addEventListener : (imageT, string, unit => unit) => unit =
+  [@bs.send]
+  external addEventListener : (imageT, string, unit => unit) => unit =
     "addEventListener";
-
   [@bs.val] external btoa : string => string = "";
 
   /*** TODO: We don't care about forcing load option for web images (we do allow it for native as SOIL supports
@@ -561,12 +672,12 @@ module Gl: RGLInterface.t = {
     | _ =>
       let image = makeImage();
       setSrc(image, filename);
-      addEventListener(image, "load", () => callback(Some(image)))
+      addEventListener(image, "load", () => callback(Some(image)));
     };
   let loadImageFromMemory = (~data, ~loadOption=?, ~callback, ()) => {
     let image = makeImage();
     setSrc(image, "data:image/png;base64," ++ btoa(data));
-    addEventListener(image, "load", () => callback(Some(image)))
+    addEventListener(image, "load", () => callback(Some(image)));
   };
   [@bs.send]
   external _texImage2DWithImage :
@@ -607,7 +718,8 @@ module Gl: RGLInterface.t = {
     ) =>
     unit =
     "texImage2D";
-  let texImage2D_RGBA = (~context, ~target, ~level, ~width, ~height, ~border, ~data) =>
+  let texImage2D_RGBA =
+      (~context, ~target, ~level, ~width, ~height, ~border, ~data) =>
     _texImage2D(
       ~context,
       ~target,
@@ -620,6 +732,11 @@ module Gl: RGLInterface.t = {
       ~type_=RGLConstants.unsigned_byte,
       ~data
     );
+  let texImage2D_null = [%bs.raw
+    {| function(gl, target, level, width, height) {
+    gl.texImage2D(target, level, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
+  } |}
+  ];
   [@bs.send]
   external vertexAttribDivisor :
     (~context: contextT, ~attribute: attributeT, ~divisor: int) => unit =
@@ -627,21 +744,31 @@ module Gl: RGLInterface.t = {
   /*external generateMipmap : context::contextT => target::int => unit = "generateMipmap" [@@bs.send];*/
   [@bs.send]
   external bufferData :
-    (~context: contextT, ~target: int, ~data: Bigarray.t('a, 'b), ~usage: int) => unit =
+    (
+      ~context: contextT,
+      ~target: int,
+      ~data: Bigarray.t('a, 'b),
+      ~usage: int
+    ) =>
+    unit =
     "bufferData";
   [@bs.send]
-  external viewport : (~context: contextT, ~x: int, ~y: int, ~width: int, ~height: int) => unit =
+  external viewport :
+    (~context: contextT, ~x: int, ~y: int, ~width: int, ~height: int) => unit =
     "viewport";
-  [@bs.send] external clear : (~context: contextT, ~mask: int) => unit = "clear";
   [@bs.send]
-  external getUniformLocation : (~context: contextT, ~program: programT, ~name: string) => uniformT =
+  external clear : (~context: contextT, ~mask: int) => unit = "clear";
+  [@bs.send]
+  external getUniformLocation :
+    (~context: contextT, ~program: programT, ~name: string) => uniformT =
     "getUniformLocation";
   [@bs.send]
   external getAttribLocation :
     (~context: contextT, ~program: programT, ~name: string) => attributeT =
     "getAttribLocation";
   [@bs.send]
-  external enableVertexAttribArray : (~context: contextT, ~attribute: attributeT) => unit =
+  external enableVertexAttribArray :
+    (~context: contextT, ~attribute: attributeT) => unit =
     "enableVertexAttribArray";
   [@bs.send]
   external _vertexAttribPointer :
@@ -656,9 +783,18 @@ module Gl: RGLInterface.t = {
     ) =>
     unit =
     "vertexAttribPointer";
-  let vertexAttribPointer = (~context, ~attribute, ~size, ~type_, ~normalize, ~stride, ~offset) => {
+  let vertexAttribPointer =
+      (~context, ~attribute, ~size, ~type_, ~normalize, ~stride, ~offset) => {
     let normalize = if (normalize) {Js.true_} else {Js.false_};
-    _vertexAttribPointer(~context, ~attribute, ~size, ~type_, ~normalize, ~stride, ~offset)
+    _vertexAttribPointer(
+      ~context,
+      ~attribute,
+      ~size,
+      ~type_,
+      ~normalize,
+      ~stride,
+      ~offset
+    );
   };
   module type Mat4T = {
     type t;
@@ -682,17 +818,19 @@ module Gl: RGLInterface.t = {
   };
   module Mat4: Mat4T = {
     type t = array(float);
-    let to_array = (a) => a;
-    [@bs.scope "mat4"] [@bs.module "gl-matrix"] external create : unit => t = "";
-    [@bs.scope "mat4"] [@bs.module "gl-matrix"] external identity : (~out: t) => unit = "";
+    let to_array = a => a;
+    [@bs.scope "mat4"] [@bs.module "gl-matrix"]
+    external create : unit => t = "";
+    [@bs.scope "mat4"] [@bs.module "gl-matrix"]
+    external identity : (~out: t) => unit = "";
     [@bs.scope "mat4"] [@bs.module "gl-matrix"]
     external translate : (~out: t, ~matrix: t, ~vec: array(float)) => unit =
       "";
     [@bs.scope "mat4"] [@bs.module "gl-matrix"]
-    external scale : (~out: t, ~matrix: t, ~vec: array(float)) => unit =
-      "";
+    external scale : (~out: t, ~matrix: t, ~vec: array(float)) => unit = "";
     [@bs.scope "mat4"] [@bs.module "gl-matrix"]
-    external rotate : (~out: t, ~matrix: t, ~rad: float, ~vec: array(float)) => unit =
+    external rotate :
+      (~out: t, ~matrix: t, ~rad: float, ~vec: array(float)) => unit =
       "";
     [@bs.scope "mat4"] [@bs.module "gl-matrix"]
     external ortho :
@@ -708,26 +846,50 @@ module Gl: RGLInterface.t = {
       unit =
       "";
   };
-  [@bs.send] external uniform1i : (~context: contextT, ~location: uniformT, ~value: int) => unit =
+  [@bs.send]
+  external uniform1i :
+    (~context: contextT, ~location: uniformT, ~value: int) => unit =
     "uniform1i";
   [@bs.send]
-  external uniform1f : (~context: contextT, ~location: uniformT, ~value: float) => unit =
+  external uniform1f :
+    (~context: contextT, ~location: uniformT, ~value: float) => unit =
     "uniform1f";
   [@bs.send]
-  external uniform2f : (~context: contextT, ~location: uniformT, ~v1: float, ~v2: float) => unit =
+  external uniform2f :
+    (~context: contextT, ~location: uniformT, ~v1: float, ~v2: float) => unit =
     "uniform2f";
   [@bs.send]
   external uniform3f :
-    (~context: contextT, ~location: uniformT, ~v1: float, ~v2: float, ~v3: float) => unit =
+    (
+      ~context: contextT,
+      ~location: uniformT,
+      ~v1: float,
+      ~v2: float,
+      ~v3: float
+    ) =>
+    unit =
     "uniform3f";
   [@bs.send]
   external uniform4f :
-    (~context: contextT, ~location: uniformT, ~v1: float, ~v2: float, ~v3: float, ~v4: float) =>
+    (
+      ~context: contextT,
+      ~location: uniformT,
+      ~v1: float,
+      ~v2: float,
+      ~v3: float,
+      ~v4: float
+    ) =>
     unit =
     "uniform4f";
   [@bs.send]
   external _uniformMatrix4fv :
-    (~context: contextT, ~location: uniformT, ~transpose: Js.boolean, ~value: Mat4.t) => unit =
+    (
+      ~context: contextT,
+      ~location: uniformT,
+      ~transpose: Js.boolean,
+      ~value: Mat4.t
+    ) =>
+    unit =
     "uniformMatrix4fv";
   let uniformMatrix4fv = (~context, ~location, ~value) =>
     _uniformMatrix4fv(~context, ~location, ~transpose=Js.false_, ~value);
@@ -754,10 +916,13 @@ module Gl: RGLInterface.t = {
   /* | Attached_shaders
      | Active_attributes
      | Active_uniforms */
-  [@bs.get] external deleteStatus : (~context: contextT) => int = "DELETE_STATUS";
-  [@bs.get] external compileStatus : (~context: contextT) => int = "COMPILE_STATUS";
+  [@bs.get]
+  external deleteStatus : (~context: contextT) => int = "DELETE_STATUS";
+  [@bs.get]
+  external compileStatus : (~context: contextT) => int = "COMPILE_STATUS";
   [@bs.get] external linkStatus : (~context: contextT) => int = "LINK_STATUS";
-  [@bs.get] external validateStatus : (~context: contextT) => int = "VALIDATE_STATUS";
+  [@bs.get]
+  external validateStatus : (~context: contextT) => int = "VALIDATE_STATUS";
   [@bs.get] external shaderType : (~context: contextT) => int = "SHADER_TYPE";
   [@bs.send]
   external _getProgramParameter :
@@ -778,9 +943,9 @@ module Gl: RGLInterface.t = {
             ~paramName=deleteStatus(~context),
             Program_delete_status_internal
           )) {
-        1
+        1;
       } else {
-        0
+        0;
       }
     | Link_status =>
       if (_getProgramParameter(
@@ -789,9 +954,9 @@ module Gl: RGLInterface.t = {
             ~paramName=linkStatus(~context),
             Link_status_internal
           )) {
-        1
+        1;
       } else {
-        0
+        0;
       }
     | Validate_status =>
       if (_getProgramParameter(
@@ -800,9 +965,9 @@ module Gl: RGLInterface.t = {
             ~paramName=validateStatus(~context),
             Validate_status_internal
           )) {
-        1
+        1;
       } else {
-        0
+        0;
       }
     };
   [@bs.send]
@@ -824,9 +989,9 @@ module Gl: RGLInterface.t = {
             ~paramName=deleteStatus(~context),
             Shader_delete_status_internal
           )) {
-        1
+        1;
       } else {
-        0
+        0;
       }
     | Compile_status =>
       if (_getShaderParameter(
@@ -835,29 +1000,46 @@ module Gl: RGLInterface.t = {
             ~paramName=compileStatus(~context),
             Compile_status_internal
           )) {
-        1
+        1;
       } else {
-        0
+        0;
       }
     | Shader_type =>
-      _getShaderParameter(~context, ~shader, ~paramName=shaderType(~context), Shader_type_internal)
+      _getShaderParameter(
+        ~context,
+        ~shader,
+        ~paramName=shaderType(~context),
+        Shader_type_internal
+      )
     };
-  [@bs.send] external getShaderInfoLog : (~context: contextT, shaderT) => string =
+  [@bs.send]
+  external getShaderInfoLog : (~context: contextT, shaderT) => string =
     "getShaderInfoLog";
-  [@bs.send] external getProgramInfoLog : (~context: contextT, programT) => string =
+  [@bs.send]
+  external getProgramInfoLog : (~context: contextT, programT) => string =
     "getProgramInfoLog";
-  [@bs.send] external getShaderSource : (~context: contextT, shaderT) => string =
+  [@bs.send]
+  external getShaderSource : (~context: contextT, shaderT) => string =
     "getShaderSource";
   [@bs.send]
-  external drawArrays : (~context: contextT, ~mode: int, ~first: int, ~count: int) => unit =
+  external drawArrays :
+    (~context: contextT, ~mode: int, ~first: int, ~count: int) => unit =
     "drawArrays";
   [@bs.send]
   external drawElements :
-    (~context: contextT, ~mode: int, ~count: int, ~type_: int, ~offset: int) => unit =
+    (~context: contextT, ~mode: int, ~count: int, ~type_: int, ~offset: int) =>
+    unit =
     "drawElements";
   [@bs.send]
   external drawElementsInstanced :
-    (~context: contextT, ~mode: int, ~count: int, ~type_: int, ~indices: int, ~primcount: int) =>
+    (
+      ~context: contextT,
+      ~mode: int,
+      ~count: int,
+      ~type_: int,
+      ~indices: int,
+      ~primcount: int
+    ) =>
     unit =
     "drawElementsInstanced";
 };

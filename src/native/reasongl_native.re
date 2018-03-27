@@ -293,6 +293,12 @@ module Gl: ReasonglInterface.Gl.t = {
   let bindTexture = (~context as _, ~target, ~texture) => Gl.bindTexture(~target, ~texture);
   let texParameteri = (~context as _, ~target, ~pname, ~param) =>
     Gl.texParameteri(~target, ~pname, ~param);
+  type framebufferT = Gl.framebufferT;
+  let createFramebuffer = (~context as _) => Gl.genFramebuffer();
+  let bindFramebuffer = (~context as _, ~target, ~framebuffer) => Gl.bindFramebuffer(target, framebuffer);
+  let bindDefaultFramebuffer = (~context as _, ~target) => Gl.bindDefaultFramebuffer(target);
+  let framebufferTexture2D = (~context as _, ~target, ~attachment, ~texTarget, ~texture) =>
+    Gl.framebufferTexture2D(~target, ~attachment, ~texTarget, ~texture, ~level=0);
   let enable = (~context as _, i) => Gl.enable(i);
   let disable = (~context as _, i) => Gl.disable(i);
   let blendFunc = (~context as _, a, b) => Gl.blendFunc(~sfactor=a, ~dfactor=b);
@@ -334,6 +340,8 @@ module Gl: ReasonglInterface.Gl.t = {
     };
   let texImage2D_RGBA = (~context as _, ~target, ~level, ~width, ~height, ~border, ~data) =>
     Gl.texImage2D_RGBA(~target, ~level, ~width, ~height, ~border, ~data);
+  let texImage2D_null = (~context as _, ~target, ~level, ~width, ~height) =>
+    Gl.texImage2D_null(~target, ~level, ~width, ~height, ~border=0);
   let texImage2DWithImage = (~context, ~target, ~level, ~image) =>
     texImage2D_RGBA(
       ~context,

@@ -67,23 +67,17 @@ module type t = {
   let activeTexture: (~context: contextT, int) => unit;
   let bindTexture: (~context: contextT, ~target: int, ~texture: textureT) => unit;
   let texParameteri: (~context: contextT, ~target: int, ~pname: int, ~param: int) => unit;
+  type framebufferT;
+  let createFramebuffer : (~context: contextT) => framebufferT;
+  let bindFramebuffer: (~context: contextT, ~target: int, ~framebuffer: framebufferT) => unit;
+  let bindDefaultFramebuffer: (~context: contextT, ~target: int) => unit;
+  let framebufferTexture2D : (~context: contextT, ~target:int, ~attachment:int, ~texTarget:int, ~texture:textureT) => unit;
+  /*let drawBuffers : (~context : contextT, ~target: int) => unit;*/
   /*type rawTextureDataT;
     let toTextureData: array int => rawTextureDataT;*/
   let enable: (~context: contextT, int) => unit;
   let disable: (~context: contextT, int) => unit;
   let blendFunc: (~context: contextT, int, int) => unit;
-  /*type frameBufferT;
-    let createFrameBuffer: context::contextT => frameBufferT;*/
-  /*let bindFrameBuffer:
-    context::contextT => target::int => frameBuffer::option frameBufferT => unit;*/
-  /*let framebufferTexture2d:
-    context::contextT =>
-    target::int =>
-    attachment::int =>
-    texTarget::int =>
-    texture::textureT =>
-    level::int =>
-    unit;*/
   module type Bigarray = {
     type t('a, 'b);
     type float64_elt;
@@ -168,6 +162,14 @@ module type t = {
       ~height: int,
       ~border: int,
       ~data: Bigarray.t('a, 'b)
+    ) =>
+    unit;
+  let texImage2D_null: (
+      ~context: contextT,
+      ~target: int,
+      ~level: int,
+      ~width: int,
+      ~height: int
     ) =>
     unit;
   let bufferData:

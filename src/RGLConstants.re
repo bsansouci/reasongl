@@ -179,3 +179,7 @@ let linear_mipmap_nearest = 9985;
 let nearest_mipmap_linear = 9986;
 
 let linear_mipmap_linear = 9987;
+
+let framebuffer = 36160;
+
+let color_attachment0 = 36064;
