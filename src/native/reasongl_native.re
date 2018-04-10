@@ -86,7 +86,7 @@ module Gl: ReasonglInterface.Gl.t = {
     let getPixelWidth: t => int;
     let getPixelHeight: t => int;
     let getPixelScale: t => float;
-    let init: (~argv: array(string)) => t;
+    let init: (~screen: string=?, ~argv: array(string)) => t;
     let setWindowSize: (~window: t, ~width: int, ~height: int) => unit;
     let getContext: t => contextT;
   };
@@ -118,7 +118,8 @@ module Gl: ReasonglInterface.Gl.t = {
      * We create an OpenGL context at 2.1 because... it seems to be the only one that we can request that
      * osx will give us and one that has an API comparable to OpenGL ES 2.0 which is what WebGL uses.
      */
-    let init = (~argv as _) => {
+    let init = (~screen=?, ~argv as _) => {
+      /* Screen is ignored for now, we always just create a new window. */
       if (Sdl.Init.init(Sdl.Init.video lor Sdl.Init.audio) != 0) {
         failwith @@ Sdl.error()
       };
@@ -267,7 +268,9 @@ module Gl: ReasonglInterface.Gl.t = {
         tick()
       }
     };
-    tick()
+    tick();
+    /* No way to pause this externally, because we're the main loop */
+    (_ignored) => false
   };
   type programT = Gl.programT;
   type shaderT = Gl.shaderT;
