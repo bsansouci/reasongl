@@ -14,7 +14,7 @@ module type t = {
     let getPixelWidth: t => int;
     let getPixelHeight: t => int;
     let getPixelScale: t => float;
-    let init: (~argv: array(string)) => t;
+    let init: (~screen: string=?, ~argv: array(string)) => t;
     let setWindowSize: (~window: t, ~width: int, ~height: int) => unit;
     let getContext: t => contextT;
   };
@@ -45,7 +45,7 @@ module type t = {
       ~displayFunc: float => unit,
       unit
     ) =>
-    unit;
+    bool => bool;
   type programT;
   type shaderT;
   let clearColor: (~context: contextT, ~r: float, ~g: float, ~b: float, ~a: float) => unit;

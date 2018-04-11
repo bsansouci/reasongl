@@ -8,7 +8,7 @@ module Document = {
   let window: window = [%bs.raw "window"];
   /* external setGlDebug : window => GlT.context => unit = "debugContext" [@@bs.set]; */
   [@bs.val]
-  external getElementById : string => element = "document.getElementById";
+  external getElementById : string => Js.nullable(element) = "document.getElementById";
   [@bs.send]
   external getContext : (element, string) => 'context = "getContext";
   [@bs.get] external getWidth : element => int = "width";
@@ -16,6 +16,7 @@ module Document = {
   [@bs.val]
   external requestAnimationFrame : (unit => unit) => int =
     "window.requestAnimationFrame";
+  [@bs.val] external cancelAnimationFrame : int => unit = "window.cancelAnimationFrame";
   [@bs.val] external now : unit => float = "Date.now";
   [@bs.send]
   external addEventListener : ('window, string, 'eventT => unit) => unit =
@@ -172,7 +173,7 @@ module Gl: RGLInterface.t = {
     let getPixelWidth: t => int;
     let getPixelHeight: t => int;
     let getPixelScale: t => float;
-    let init: (~argv: array(string)) => t;
+    let init: (~screen: string=?, ~argv: array(string)) => t;
     let setWindowSize: (~window: t, ~width: int, ~height: int) => unit;
     let getContext: t => contextT;
   };
@@ -191,10 +192,22 @@ module Gl: RGLInterface.t = {
     let getPixelHeight = ((window, _ac)) =>
       int_of_float @@ float_of_int @@ getCanvasHeight(window);
     let getPixelScale = (_: t) => Document.devicePixelRatio;
-    let init = (~argv as _) => {
-      let canvas = createCanvas();
+    let init = (~screen=?, ~argv as _) => {
+      let node = switch screen {
+      | None => None
+      | Some(id) => {
+        Js.Nullable.to_opt(Document.getElementById(id))
+      }
+      };
+      let canvas = switch node {
+      | Some(node) => Obj.magic(node)
+      | None =>
+        let canvas = createCanvas();
+        addToBody(canvas);
+        canvas;
+      };
+
       setBackgroundColor(getStyle(canvas), "black");
-      addToBody(canvas);
       (canvas, makeAudioContext());
     };
     let setWindowSize = (~window as (w, _), ~width, ~height) => {
@@ -362,15 +375,41 @@ module Gl: RGLInterface.t = {
     | Some(cb) =>
       Document.addEventListener(Document.window, "resize", (_) => cb())
     };
+
+    let frame = ref(None);
     let rec tick = (prev, ()) => {
       let now = Document.now();
       displayFunc(now -. prev);
-      setHiddenRAFID(canvas, Document.requestAnimationFrame(tick(now)));
+      let id = Document.requestAnimationFrame(tick(now));
+      frame := Some(id);
+      setHiddenRAFID(canvas, id)
     };
-    setHiddenRAFID(
-      canvas,
-      Document.requestAnimationFrame(tick(Document.now()))
-    );
+    let id = Document.requestAnimationFrame(tick(Document.now()));
+    frame := Some(id);
+    setHiddenRAFID(canvas, id);
+    (play) => {
+      switch frame^ {
+      | None => {
+        if (play) {
+          let id = Document.requestAnimationFrame(tick(Document.now()));
+          frame := Some(id);
+          setHiddenRAFID(canvas, id);
+          true
+        } else {
+          false
+        }
+      }
+      | Some(id) => {
+        if (!play) {
+          Document.cancelAnimationFrame(id);
+          frame := None;
+          false
+        } else {
+          true
+        }
+      }
+      }
+    };
   };
   type programT;
   type shaderT;
