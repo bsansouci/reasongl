@@ -2,6 +2,17 @@
  * vim: set ft=rust:
  * vim: set ft=reason:
  */
+
+/* Hack to handle wayland https://github.com/Schmavery/reprocessing/issues/74 */
+try (
+  if (Sys.unix && Sys.getenv("WAYLAND_DISPLAY") != "") {
+    Unix.putenv("SDL_VIDEODRIVER", "wayland");
+  }
+) {
+| Not_found => ()
+};
+
+ 
 module Str = Str;
 
 module Bigarray = Bigarray;
