@@ -80,7 +80,7 @@ external makeXMLHttpRequest : unit => httpRequestT = "XMLHttpRequest";
 
 [@bs.send]
 external openFile :
-  (httpRequestT, ~kind: string, ~filename: string, ~whatIsThis: Js.boolean) =>
+  (httpRequestT, ~kind: string, ~filename: string, ~whatIsThis: bool) =>
   unit =
   "open";
 
@@ -141,7 +141,7 @@ external audioSourceConnect : (audioLocT, audioLocT) => unit = "connect";
 [@bs.send] external audioSourceStart : (audioLocT, float) => unit = "start";
 
 [@bs.set]
-external setAudioSourceLoop : (audioLocT, Js.boolean) => unit = "loop";
+external setAudioSourceLoop : (audioLocT, bool) => unit = "loop";
 
 [@bs.send] external sendRequest : (httpRequestT, Js.null('a)) => unit = "send";
 
@@ -156,7 +156,7 @@ module Gl: RGLInterface.t = {
     type t;
     let readFile = (~filename, ~cb) => {
       let rawFile = makeXMLHttpRequest();
-      openFile(rawFile, ~kind="GET", ~filename, ~whatIsThis=Js.false_);
+      openFile(rawFile, ~kind="GET", ~filename, ~whatIsThis=false);
       onreadystatechange(rawFile, () =>
         if (getReadyState(rawFile) === 4
             && (getStatus(rawFile) === 200 || getStatus(rawFile) === 0)) {
@@ -239,7 +239,7 @@ module Gl: RGLInterface.t = {
     let loadSound = ((_window, audioctx), path, cb) => {
       let rawFile = makeXMLHttpRequest();
       setResponseType(rawFile, "arraybuffer");
-      openFile(rawFile, ~kind="GET", ~filename=path, ~whatIsThis=Js.true_);
+      openFile(rawFile, ~kind="GET", ~filename=path, ~whatIsThis=true);
       onreadystatechange(rawFile, () =>
         if (getReadyState(rawFile) === 4
             && (getStatus(rawFile) === 200 || getStatus(rawFile) === 0)) {
@@ -256,7 +256,7 @@ module Gl: RGLInterface.t = {
       audioSourceConnect(src, gain);
       audioSourceConnect(gain, getAudioContextDestination(audioctx));
       audioSourceStart(src, 0.0);
-      setAudioSourceLoop(src, Js.Boolean.to_js_boolean(loop));
+      setAudioSourceLoop(src, loop);
     };
   };
   module Events = Events;
@@ -816,7 +816,7 @@ module Gl: RGLInterface.t = {
       ~attribute: attributeT,
       ~size: int,
       ~type_: int,
-      ~normalize: Js.boolean,
+      ~normalize: bool,
       ~stride: int,
       ~offset: int
     ) =>
@@ -824,7 +824,7 @@ module Gl: RGLInterface.t = {
     "vertexAttribPointer";
   let vertexAttribPointer =
       (~context, ~attribute, ~size, ~type_, ~normalize, ~stride, ~offset) => {
-    let normalize = if (normalize) {Js.true_} else {Js.false_};
+    let normalize = if (normalize) {true} else {false};
     _vertexAttribPointer(
       ~context,
       ~attribute,
@@ -925,13 +925,13 @@ module Gl: RGLInterface.t = {
     (
       ~context: contextT,
       ~location: uniformT,
-      ~transpose: Js.boolean,
+      ~transpose: bool,
       ~value: Mat4.t
     ) =>
     unit =
     "uniformMatrix4fv";
   let uniformMatrix4fv = (~context, ~location, ~value) =>
-    _uniformMatrix4fv(~context, ~location, ~transpose=Js.false_, ~value);
+    _uniformMatrix4fv(~context, ~location, ~transpose=false, ~value);
   /* Can return other value types as well, see https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Types */
   type shaderParamsInternalT('a) =
     | Shader_delete_status_internal: shaderParamsInternalT(bool)

@@ -97,7 +97,7 @@ let fragmentShaderSource = {|
 
 
 /*** This initializes the window **/
-let window = Gl.Window.init(~argv=Sys.argv);
+let window = Gl.Window.init(~screen="main", ~argv=Sys.argv);
 
 let windowSize = 600;
 
