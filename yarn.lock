@@ -12,9 +12,9 @@ Tsdl@bsansouci/tsdl:
   dependencies:
     sdl2 bsansouci/SDL-mirror#fast
 
-bs-platform@bsansouci/bsb-native:
+bs-platform@bsansouci/bsb-native#3.2.0:
   version "3.2.0"
-  resolved "https://codeload.github.com/bsansouci/bsb-native/tar.gz/a6aff1c9b118046a0830a6be4dc4027e11f31e62"
+  resolved "https://codeload.github.com/bsansouci/bsb-native/tar.gz/2dd1af6c38745cb0b04ec6d7a94e8a4eff41293f"
 
 buffer-crc32@~0.2.3:
   version "0.2.13"
