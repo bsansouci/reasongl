@@ -8,7 +8,8 @@ module Document = {
   let window: window = [%bs.raw "window"];
   /* external setGlDebug : window => GlT.context => unit = "debugContext" [@@bs.set]; */
   [@bs.val]
-  external getElementById : string => Js.nullable(element) = "document.getElementById";
+  external getElementById : string => Js.nullable(element) =
+    "document.getElementById";
   [@bs.send]
   external getContext : (element, string) => 'context = "getContext";
   [@bs.get] external getWidth : element => int = "width";
@@ -16,7 +17,8 @@ module Document = {
   [@bs.val]
   external requestAnimationFrame : (unit => unit) => int =
     "window.requestAnimationFrame";
-  [@bs.val] external cancelAnimationFrame : int => unit = "window.cancelAnimationFrame";
+  [@bs.val]
+  external cancelAnimationFrame : int => unit = "window.cancelAnimationFrame";
   [@bs.val] external now : unit => float = "Date.now";
   [@bs.send]
   external addEventListener : ('window, string, 'eventT => unit) => unit =
@@ -34,6 +36,15 @@ type canvasT;
 
 [@bs.get] external getClientY : 'eventT => int = "clientY";
 
+[@bs.get]
+external getChangedTouches : 'eventT => 'touchListT = "changedTouches";
+
+[@bs.val] external convertToArray : 'notarray => array('thing) = "Array.prototype.slice.call";
+
+[@bs.get] external getTouchIdentifier : 'touchT => int = "identifier";
+
+[@bs.send] external preventDefault : 'eventT => unit = "preventDefault";
+
 [@bs.get] external getWhich : 'eventT => int = "which";
 
 [@bs.send]
@@ -43,6 +54,18 @@ external getBoundingClientRect : canvasT => 'leftAndTop =
 [@bs.get] external getTop : 'a => int = "top";
 
 [@bs.get] external getLeft : 'a => int = "left";
+
+let getTouch0 = (e, canvas) => {
+  let touches = convertToArray(getChangedTouches(e));
+  switch (Js.Array.filter(t => getTouchIdentifier(t) == 0, touches)) {
+  | [|t|] =>
+    let rect = getBoundingClientRect(canvas);
+    let x = getClientX(t) - getLeft(rect);
+    let y = getClientY(t) - getTop(rect);
+    Some((x, y));
+  | _ => None
+  };
+};
 
 [@bs.get] external getCanvasWidth : canvasT => int = "width";
 
@@ -80,8 +103,7 @@ external makeXMLHttpRequest : unit => httpRequestT = "XMLHttpRequest";
 
 [@bs.send]
 external openFile :
-  (httpRequestT, ~kind: string, ~filename: string, ~whatIsThis: bool) =>
-  unit =
+  (httpRequestT, ~kind: string, ~filename: string, ~whatIsThis: bool) => unit =
   "open";
 
 [@bs.set]
@@ -140,10 +162,10 @@ external audioSourceConnect : (audioLocT, audioLocT) => unit = "connect";
 
 [@bs.send] external audioSourceStart : (audioLocT, float) => unit = "start";
 
-[@bs.set]
-external setAudioSourceLoop : (audioLocT, bool) => unit = "loop";
+[@bs.set] external setAudioSourceLoop : (audioLocT, bool) => unit = "loop";
 
-[@bs.send] external sendRequest : (httpRequestT, Js.null('a)) => unit = "send";
+[@bs.send]
+external sendRequest : (httpRequestT, Js.null('a)) => unit = "send";
 
 module Gl: RGLInterface.t = {
   let target = "web";
@@ -193,31 +215,30 @@ module Gl: RGLInterface.t = {
       int_of_float @@ float_of_int @@ getCanvasHeight(window);
     let getPixelScale = (_: t) => Document.devicePixelRatio;
     let init = (~screen=?, ~argv as _) => {
-      let node = switch screen {
-      | None => None
-      | Some(id) => {
-        Js.Nullable.to_opt(Document.getElementById(id))
-      }
-      };
-      let canvas = switch node {
-      | Some(node) => Obj.magic(node)
-      | None =>
-        let canvas = createCanvas();
-        addToBody(canvas);
-        canvas;
-      };
-
+      let node =
+        switch (screen) {
+        | None => None
+        | Some(id) => Js.Nullable.to_opt(Document.getElementById(id))
+        };
+      let canvas =
+        switch (node) {
+        | Some(node) => Obj.magic(node)
+        | None =>
+          let canvas = createCanvas();
+          addToBody(canvas);
+          canvas;
+        };
       setBackgroundColor(getStyle(canvas), "black");
       (canvas, makeAudioContext());
     };
     let setWindowSize = (~window as (w, _), ~width, ~height) => {
       setWidth(
         w,
-        int_of_float @@ float_of_int(width) *. Document.devicePixelRatio
+        int_of_float @@ float_of_int(width) *. Document.devicePixelRatio,
       );
       setHeight(
         w,
-        int_of_float @@ float_of_int(height) *. Document.devicePixelRatio
+        int_of_float @@ float_of_int(height) *. Document.devicePixelRatio,
       );
       setWidthStyle(getStyle(w), string_of_int(width) ++ "px");
       setHeightStyle(getStyle(w), string_of_int(height) ++ "px");
@@ -226,7 +247,7 @@ module Gl: RGLInterface.t = {
       getContext(
         window,
         "webgl",
-        {"preserveDrawingBuffer": true, "antialias": true}
+        {"preserveDrawingBuffer": true, "antialias": true},
       );
   };
   module type AudioT = {
@@ -275,11 +296,19 @@ module Gl: RGLInterface.t = {
         ~keyUp: option((~keycode: Events.keycodeT) => unit)=?,
         ~windowResize: option(unit => unit)=?,
         ~displayFunc: float => unit,
-        ()
+        (),
       ) => {
-    switch mouseDown {
+    switch (mouseDown) {
     | None => ()
     | Some(cb) =>
+      Document.addEventListener(canvas, "touchstart", e =>
+        switch (getTouch0(e, canvas)) {
+        | Some((x, y)) =>
+          preventDefault(e);
+          cb(~button=Events.LeftButton, ~state=Events.MouseDown, ~x, ~y);
+        | None => ()
+        }
+      );
       Document.addEventListener(
         canvas,
         "mousedown",
@@ -296,12 +325,28 @@ module Gl: RGLInterface.t = {
           let x = getClientX(e) - getLeft(rect);
           let y = getClientY(e) - getTop(rect);
           cb(~button, ~state, ~x, ~y);
-        }
-      )
+        },
+      );
     };
-    switch mouseUp {
+    switch (mouseUp) {
     | None => ()
     | Some(cb) =>
+      Document.addEventListener(canvas, "touchend", e =>
+        switch (getTouch0(e, canvas)) {
+        | Some((x, y)) =>
+          preventDefault(e);
+          cb(~button=Events.LeftButton, ~state=Events.MouseUp, ~x, ~y);
+        | None => ()
+        }
+      );
+      Document.addEventListener(canvas, "touchcancel", e =>
+        switch (getTouch0(e, canvas)) {
+        | Some((x, y)) =>
+          preventDefault(e);
+          cb(~button=Events.LeftButton, ~state=Events.MouseUp, ~x, ~y);
+        | None => ()
+        }
+      );
       Document.addEventListener(
         canvas,
         "mouseup",
@@ -318,12 +363,20 @@ module Gl: RGLInterface.t = {
           let x = getClientX(e) - getLeft(rect);
           let y = getClientY(e) - getTop(rect);
           cb(~button, ~state, ~x, ~y);
-        }
-      )
+        },
+      );
     };
-    switch mouseMove {
+    switch (mouseMove) {
     | None => ()
     | Some(cb) =>
+      Document.addEventListener(canvas, "touchmove", e =>
+        switch (getTouch0(e, canvas)) {
+        | Some((x, y)) =>
+          preventDefault(e);
+          cb(~x, ~y);
+        | None => ()
+        }
+      );
       Document.addEventListener(
         canvas,
         "mousemove",
@@ -332,11 +385,11 @@ module Gl: RGLInterface.t = {
           let x = getClientX(e) - getLeft(rect);
           let y = getClientY(e) - getTop(rect);
           cb(~x, ~y);
-        }
-      )
+        },
+      );
     };
     let keyLastPressed = ref([]);
-    switch keyDown {
+    switch (keyDown) {
     | None => ()
     | Some(cb) =>
       Document.addEventListener(
@@ -348,16 +401,16 @@ module Gl: RGLInterface.t = {
             List.fold_left(
               (acc, k) => acc || k === keycode,
               false,
-              keyLastPressed^
+              keyLastPressed^,
             );
           if (! repeat) {
             keyLastPressed := [keycode, ...keyLastPressed^];
           };
           cb(~keycode=Events.keycodeMap(keycode), ~repeat);
-        }
+        },
       )
     };
-    switch keyUp {
+    switch (keyUp) {
     | None => ()
     | Some(cb) =>
       Document.addEventListener(
@@ -367,49 +420,45 @@ module Gl: RGLInterface.t = {
           let keycode = Int32.of_int(getWhich(e));
           keyLastPressed := List.filter(k => k !== keycode, keyLastPressed^);
           cb(~keycode=Events.keycodeMap(keycode));
-        }
+        },
       )
     };
-    switch windowResize {
+    switch (windowResize) {
     | None => ()
     | Some(cb) =>
       Document.addEventListener(Document.window, "resize", (_) => cb())
     };
-
     let frame = ref(None);
     let rec tick = (prev, ()) => {
       let now = Document.now();
       displayFunc(now -. prev);
       let id = Document.requestAnimationFrame(tick(now));
       frame := Some(id);
-      setHiddenRAFID(canvas, id)
+      setHiddenRAFID(canvas, id);
     };
     let id = Document.requestAnimationFrame(tick(Document.now()));
     frame := Some(id);
     setHiddenRAFID(canvas, id);
-    (play) => {
-      switch frame^ {
-      | None => {
+    play =>
+      switch (frame^) {
+      | None =>
         if (play) {
           let id = Document.requestAnimationFrame(tick(Document.now()));
           frame := Some(id);
           setHiddenRAFID(canvas, id);
-          true
+          true;
         } else {
-          false
+          false;
         }
-      }
-      | Some(id) => {
-        if (!play) {
+      | Some(id) =>
+        if (! play) {
           Document.cancelAnimationFrame(id);
           frame := None;
-          false
+          false;
         } else {
-          true
+          true;
         }
-      }
-      }
-    };
+      };
   };
   type programT;
   type shaderT;
@@ -430,7 +479,7 @@ module Gl: RGLInterface.t = {
     _shaderSource(
       ~context,
       ~shader,
-      ~source="#version 100 \n precision highp float; \n" ++ source
+      ~source="#version 100 \n precision highp float; \n" ++ source,
     );
   [@bs.send]
   external compileShader : (~context: contextT, shaderT) => unit =
@@ -590,7 +639,7 @@ module Gl: RGLInterface.t = {
       | Int64: kind(int64, int64_elt)
       | Int32: kind(int32, int32_elt);
     let create = (type a, type b, kind: kind(a, b), size) : t(a, b) =>
-      switch kind {
+      switch (kind) {
       | Float64 => createFloat64Array(size)
       | Float32 => createFloat32Array(size)
       | Int16 => createInt16Array(size)
@@ -602,8 +651,10 @@ module Gl: RGLInterface.t = {
       | Int32 => createInt32Array(size)
       | Int64 => assert false
       };
-    let of_array = (type a, type b, kind: kind(a, b), arr: array(a)) : t(a, b) =>
-      switch kind {
+    let of_array =
+        (type a, type b, kind: kind(a, b), arr: array(a))
+        : t(a, b) =>
+      switch (kind) {
       | Float64 => createFloat64ArrayOfArray(arr)
       | Float32 => createFloat32ArrayOfArray(arr)
       | Int16 => createInt16ArrayOfArray(arr)
@@ -670,7 +721,7 @@ module Gl: RGLInterface.t = {
       ~height,
       ~format=RGLConstants.rgba,
       ~type_=RGLConstants.unsigned_byte,
-      ~pixels=data
+      ~pixels=data,
     );
     data;
   };
@@ -707,7 +758,7 @@ module Gl: RGLInterface.t = {
   /*** TODO: We don't care about forcing load option for web images (we do allow it for native as SOIL supports
        it). We should probably not do this... */
   let loadImage = (~filename, ~loadOption=?, ~callback, ()) =>
-    switch loadOption {
+    switch (loadOption) {
     | _ =>
       let image = makeImage();
       setSrc(image, filename);
@@ -739,7 +790,7 @@ module Gl: RGLInterface.t = {
       ~internalFormat=RGLConstants.rgba,
       ~format=RGLConstants.rgba,
       ~type_=RGLConstants.unsigned_byte,
-      ~image
+      ~image,
     );
   [@bs.send]
   external _texImage2D :
@@ -769,7 +820,7 @@ module Gl: RGLInterface.t = {
       ~border,
       ~format=RGLConstants.rgba,
       ~type_=RGLConstants.unsigned_byte,
-      ~data
+      ~data,
     );
   let texImage2D_null = [%bs.raw
     {| function(gl, target, level, width, height) {
@@ -832,7 +883,7 @@ module Gl: RGLInterface.t = {
       ~type_,
       ~normalize,
       ~stride,
-      ~offset
+      ~offset,
     );
   };
   module type Mat4T = {
@@ -842,7 +893,8 @@ module Gl: RGLInterface.t = {
     let identity: (~out: t) => unit;
     let translate: (~out: t, ~matrix: t, ~vec: array(float)) => unit;
     let scale: (~out: t, ~matrix: t, ~vec: array(float)) => unit;
-    let rotate: (~out: t, ~matrix: t, ~rad: float, ~vec: array(float)) => unit;
+    let rotate:
+      (~out: t, ~matrix: t, ~rad: float, ~vec: array(float)) => unit;
     let ortho:
       (
         ~out: t,
@@ -974,13 +1026,13 @@ module Gl: RGLInterface.t = {
     'a =
     "getProgramParameter";
   let getProgramParameter = (~context, ~program, ~paramName) =>
-    switch paramName {
+    switch (paramName) {
     | Program_delete_status =>
       if (_getProgramParameter(
             ~context,
             ~program,
             ~paramName=deleteStatus(~context),
-            Program_delete_status_internal
+            Program_delete_status_internal,
           )) {
         1;
       } else {
@@ -991,7 +1043,7 @@ module Gl: RGLInterface.t = {
             ~context,
             ~program,
             ~paramName=linkStatus(~context),
-            Link_status_internal
+            Link_status_internal,
           )) {
         1;
       } else {
@@ -1002,7 +1054,7 @@ module Gl: RGLInterface.t = {
             ~context,
             ~program,
             ~paramName=validateStatus(~context),
-            Validate_status_internal
+            Validate_status_internal,
           )) {
         1;
       } else {
@@ -1020,13 +1072,13 @@ module Gl: RGLInterface.t = {
     'a =
     "getShaderParameter";
   let getShaderParameter = (~context, ~shader, ~paramName) =>
-    switch paramName {
+    switch (paramName) {
     | Shader_delete_status =>
       if (_getShaderParameter(
             ~context,
             ~shader,
             ~paramName=deleteStatus(~context),
-            Shader_delete_status_internal
+            Shader_delete_status_internal,
           )) {
         1;
       } else {
@@ -1037,7 +1089,7 @@ module Gl: RGLInterface.t = {
             ~context,
             ~shader,
             ~paramName=compileStatus(~context),
-            Compile_status_internal
+            Compile_status_internal,
           )) {
         1;
       } else {
@@ -1048,7 +1100,7 @@ module Gl: RGLInterface.t = {
         ~context,
         ~shader,
         ~paramName=shaderType(~context),
-        Shader_type_internal
+        Shader_type_internal,
       )
     };
   [@bs.send]

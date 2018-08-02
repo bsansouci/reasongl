@@ -3,3 +3,4 @@ _build
 lib
 .merlin
 *.o
+.static_libraries
