@@ -69,10 +69,10 @@ module Gl: ReasonglInterface.Gl.t = {
   module Gl = Tgls_new;
   let target = "native";
   type contextT = Sdl.glContextT;
-  module type FileT = {type t; let readFile: (~filename: string, ~cb: string => unit) => unit;};
+  module type FileT = {type t; let readFile: (~context: contextT, ~filename: string, ~cb: string => unit) => unit;};
   module File = {
     type t;
-    let readFile = (~filename, ~cb) => {
+    let readFile = (~context, ~filename, ~cb) => {
       let ic = open_in(filename);
       let try_read = () =>
         switch (input_line(ic)) {
@@ -94,15 +94,19 @@ module Gl: ReasonglInterface.Gl.t = {
     type t;
     let getWidth: t => int;
     let getHeight: t => int;
+    let getDisplayWidth: t => int;
+    let getDisplayHeight: t => int;
     let getPixelWidth: t => int;
     let getPixelHeight: t => int;
     let getPixelScale: t => float;
-    let init: (~screen: string=?, ~argv: array(string)) => t;
+    let init: (~screen: string=?, ~argv: array(string), (t) => unit) => unit;
     let setWindowSize: (~window: t, ~width: int, ~height: int) => unit;
     let getContext: t => contextT;
   };
   module Window = {
     type t = Sdl.windowT;
+    
+    
     let getWidth = (window: t) => {
       let (width, _) = Sdl.get_window_size(window);
       width
@@ -110,6 +114,14 @@ module Gl: ReasonglInterface.Gl.t = {
     let getHeight = (window: t) => {
       let (_, height) = Sdl.get_window_size(window);
       height
+    };
+    let getDisplayWidth = (window: t) => {
+      /*failwith("no implemented")*/
+      getWidth(window)
+    };
+    let getDisplayHeight = (window: t) => {
+      /*failwith("no implemented")*/
+      getHeight(window)
     };
     let getPixelWidth = (window: t) => {
       let (width, _) = Sdl.get_drawable_size(window);
@@ -129,12 +141,12 @@ module Gl: ReasonglInterface.Gl.t = {
      * We create an OpenGL context at 2.1 because... it seems to be the only one that we can request that
      * osx will give us and one that has an API comparable to OpenGL ES 2.0 which is what WebGL uses.
      */
-    let init = (~screen=?, ~argv as _) => {
+    let init = (~screen=?, ~argv as _, cb) => {
       /* Screen is ignored for now, we always just create a new window. */
       if (Sdl.Init.init(Sdl.Init.video lor Sdl.Init.audio) != 0) {
         failwith @@ Sdl.error()
       };
-      create_window(~gl=(2, 1))
+      cb(create_window(~gl=(2, 1)))
     };
     let setWindowSize = (~window: t, ~width, ~height) =>
       Sdl.set_window_size(window, ~width, ~height);
@@ -162,7 +174,8 @@ module Gl: ReasonglInterface.Gl.t = {
   type mouseButtonEventT =
     (~button: Events.buttonStateT, ~state: Events.stateT, ~x: int, ~y: int) => unit;
   [@noalloc] external usleep : int => unit = "reasongl_usleep";
-
+  
+  
   /*** See Gl.re for explanation. **/
   let render =
       (
@@ -170,6 +183,9 @@ module Gl: ReasonglInterface.Gl.t = {
         ~mouseDown: option(mouseButtonEventT)=?,
         ~mouseUp: option(mouseButtonEventT)=?,
         ~mouseMove: option(((~x: int, ~y: int) => unit))=?,
+        ~touchesBegan: option((~touches : list(Events.touchT)) => unit)=?,
+        ~touchesMoved: option((~touches : list(Events.touchT)) => unit)=?,
+        ~touchesEnded: option((~touches : list(Events.touchT)) => unit)=?,
         ~keyDown: option(((~keycode: Events.keycodeT, ~repeat: bool) => unit))=?,
         ~keyUp: option(((~keycode: Events.keycodeT) => unit))=?,
         ~windowResize: option((unit => unit))=?,
@@ -335,7 +351,7 @@ module Gl: ReasonglInterface.Gl.t = {
   let getImageWidth = (image) => image.width;
   let getImageHeight = (image) => image.height;
 
-  let loadImage = (~filename, ~loadOption=LoadAuto, ~callback: option(imageT) => unit, ()) =>
+  let loadImage = (~context as _, ~filename, ~loadOption=LoadAuto, ~callback: option(imageT) => unit, ()) =>
     switch loadOption {
     | LoadAuto => callback(Gl.soilLoadImage(~filename, ~loadOption=0))
     | LoadL => callback(Gl.soilLoadImage(~filename, ~loadOption=1))
@@ -344,7 +360,7 @@ module Gl: ReasonglInterface.Gl.t = {
     | LoadRGBA => callback(Gl.soilLoadImage(~filename, ~loadOption=4))
     };
 
-  let loadImageFromMemory = (~data, ~loadOption=LoadAuto, ~callback: option(imageT) => unit, ()) =>
+  let loadImageFromMemory = (~context as _, ~data, ~loadOption=LoadAuto, ~callback: option(imageT) => unit, ()) =>
     switch loadOption {
     | LoadAuto => callback(Gl.soilLoadImageFromMemory(~data, ~loadOption=0))
     | LoadL => callback(Gl.soilLoadImageFromMemory(~data, ~loadOption=1))

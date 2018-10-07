@@ -5,16 +5,18 @@
 module type t = {
   let target: string;
   type contextT;
-  module type FileT = {type t; let readFile: (~filename: string, ~cb: string => unit) => unit;};
+  module type FileT = {type t; let readFile: (~context: contextT, ~filename: string, ~cb: string => unit) => unit;};
   module File: FileT;
   module type WindowT = {
     type t;
     let getWidth: t => int;
     let getHeight: t => int;
+    let getDisplayWidth: t => int;
+    let getDisplayHeight: t => int;
     let getPixelWidth: t => int;
     let getPixelHeight: t => int;
     let getPixelScale: t => float;
-    let init: (~screen: string=?, ~argv: array(string)) => t;
+    let init: (~screen: string=?, ~argv: array(string), (t) => unit) => unit;
     let setWindowSize: (~window: t, ~width: int, ~height: int) => unit;
     let getContext: t => contextT;
   };
@@ -39,6 +41,9 @@ module type t = {
       ~mouseDown: (~button: Events.buttonStateT, ~state: Events.stateT, ~x: int, ~y: int) => unit=?,
       ~mouseUp: (~button: Events.buttonStateT, ~state: Events.stateT, ~x: int, ~y: int) => unit=?,
       ~mouseMove: (~x: int, ~y: int) => unit=?,
+      ~touchesBegan: (~touches : list(Events.touchT)) => unit=?,
+      ~touchesMoved: (~touches : list(Events.touchT)) => unit=?,
+      ~touchesEnded: (~touches : list(Events.touchT)) => unit=?,
       ~keyDown: (~keycode: Events.keycodeT, ~repeat: bool) => unit=?,
       ~keyUp: (~keycode: Events.keycodeT) => unit=?,
       ~windowResize: unit => unit=?,
@@ -139,10 +144,10 @@ module type t = {
     | LoadRGB
     | LoadRGBA;
   let loadImage:
-    (~filename: string, ~loadOption: loadOptionT=?, ~callback: option(imageT) => unit, unit) =>
+    (~context: contextT, ~filename: string, ~loadOption: loadOptionT=?, ~callback: option(imageT) => unit, unit) =>
     unit;
   let loadImageFromMemory:
-    (~data: string, ~loadOption: loadOptionT=?, ~callback: option(imageT) => unit, unit) =>
+    (~context: contextT, ~data: string, ~loadOption: loadOptionT=?, ~callback: option(imageT) => unit, unit) =>
     unit;
   let texImage2DWithImage: (~context: contextT, ~target: int, ~level: int, ~image: imageT) => unit;
   let uniform1i: (~context: contextT, ~location: uniformT, ~value: int) => unit;

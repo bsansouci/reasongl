@@ -141,3 +141,5 @@ let keycodeMap: Int32.t => keycodeT = (i32) =>
   | 222 => Quote
   | _ => Nothing
 };
+
+type touchT = {hash: float, x: float, y: float};

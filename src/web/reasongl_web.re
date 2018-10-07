@@ -24,6 +24,11 @@ module Document = {
   external addEventListener : ('window, string, 'eventT => unit) => unit =
     "addEventListener";
   [@bs.val] external devicePixelRatio : float = "window.devicePixelRatio";
+
+  
+  [@bs.get] external getInnerWidth : window => int = "innerWidth";
+  [@bs.get] external getInnerHeight : window => int = "innerHeight";
+
 };
 
 type canvasT;
@@ -66,6 +71,7 @@ let getTouch0 = (e, canvas) => {
   | _ => None
   };
 };
+
 
 [@bs.get] external getCanvasWidth : canvasT => int = "width";
 
@@ -172,11 +178,11 @@ module Gl: RGLInterface.t = {
   type contextT;
   module type FileT = {
     type t;
-    let readFile: (~filename: string, ~cb: string => unit) => unit;
+    let readFile: (~context : contextT, ~filename: string, ~cb: string => unit) => unit;
   };
   module File = {
     type t;
-    let readFile = (~filename, ~cb) => {
+    let readFile = (~context, ~filename, ~cb) => {
       let rawFile = makeXMLHttpRequest();
       openFile(rawFile, ~kind="GET", ~filename, ~whatIsThis=false);
       onreadystatechange(rawFile, () =>
@@ -192,10 +198,12 @@ module Gl: RGLInterface.t = {
     type t;
     let getWidth: t => int;
     let getHeight: t => int;
+    let getDisplayWidth: t => int;
+    let getDisplayHeight: t => int;
     let getPixelWidth: t => int;
     let getPixelHeight: t => int;
     let getPixelScale: t => float;
-    let init: (~screen: string=?, ~argv: array(string)) => t;
+    let init: (~screen: string=?, ~argv: array(string), (t) => unit) => unit;
     let setWindowSize: (~window: t, ~width: int, ~height: int) => unit;
     let getContext: t => contextT;
   };
@@ -209,12 +217,14 @@ module Gl: RGLInterface.t = {
       int_of_float @@
       float_of_int(getCanvasHeight(window))
       /. Document.devicePixelRatio;
+    let getDisplayWidth = (_) => Document.getInnerWidth(Document.window);
+    let getDisplayHeight = (_) => Document.getInnerHeight(Document.window);
     let getPixelWidth = ((window, _ac)) =>
       int_of_float @@ float_of_int @@ getCanvasWidth(window);
     let getPixelHeight = ((window, _ac)) =>
       int_of_float @@ float_of_int @@ getCanvasHeight(window);
     let getPixelScale = (_: t) => Document.devicePixelRatio;
-    let init = (~screen=?, ~argv as _) => {
+    let init = (~screen=?, ~argv as _, cb) => {
       let node =
         switch (screen) {
         | None => None
@@ -229,7 +239,7 @@ module Gl: RGLInterface.t = {
           canvas;
         };
       setBackgroundColor(getStyle(canvas), "black");
-      (canvas, makeAudioContext());
+      cb((canvas, makeAudioContext()));
     };
     let setWindowSize = (~window as (w, _), ~width, ~height) => {
       setWidth(
@@ -292,6 +302,9 @@ module Gl: RGLInterface.t = {
         ~mouseDown: option(mouseButtonEventT)=?,
         ~mouseUp: option(mouseButtonEventT)=?,
         ~mouseMove: option((~x: int, ~y: int) => unit)=?,
+        ~touchesBegan: option((~touches : list(Events.touchT)) => unit)=?,
+        ~touchesMoved: option((~touches : list(Events.touchT)) => unit)=?,
+        ~touchesEnded: option((~touches : list(Events.touchT)) => unit)=?,
         ~keyDown: option((~keycode: Events.keycodeT, ~repeat: bool) => unit)=?,
         ~keyUp: option((~keycode: Events.keycodeT) => unit)=?,
         ~windowResize: option(unit => unit)=?,
@@ -777,14 +790,14 @@ module Gl: RGLInterface.t = {
 
   /*** TODO: We don't care about forcing load option for web images (we do allow it for native as SOIL supports
        it). We should probably not do this... */
-  let loadImage = (~filename, ~loadOption=?, ~callback, ()) =>
+  let loadImage = (~context, ~filename, ~loadOption=?, ~callback, ()) =>
     switch (loadOption) {
     | _ =>
       let image = makeImage();
       setSrc(image, filename);
       addEventListener(image, "load", () => callback(Some(image)));
     };
-  let loadImageFromMemory = (~data, ~loadOption=?, ~callback, ()) => {
+  let loadImageFromMemory = (~context, ~data, ~loadOption=?, ~callback, ()) => {
     let image = makeImage();
     setSrc(image, "data:image/png;base64," ++ btoa(data));
     addEventListener(image, "load", () => callback(Some(image)));

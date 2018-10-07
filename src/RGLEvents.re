@@ -74,4 +74,6 @@ module type t = {
     | Backtick
     | Nothing;
   let keycodeMap: Int32.t => keycodeT;
+  
+  type touchT = {hash: float, x: float, y: float};
 };

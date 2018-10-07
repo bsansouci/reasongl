@@ -6,6 +6,9 @@
       "dir": "native",
       "backend": ["native", "bytecode"]
     },{
+      "dir": "ios",
+      "backend": ["ios"]
+    },{
       "dir": "web",
       "backend": ["js"]
     }]
@@ -13,9 +16,6 @@
     "dir": "example",
     "type": "dev"
   }],
-  "static-libraries": [
-    "lib/reasongl.o",
-  ],
   "warnings": {"number": "-44"},
   "build-script": "build_script.re",
   "bs-dependencies": ["Tsdl", "Tgls"],
