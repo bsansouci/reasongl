@@ -314,7 +314,7 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/node_modules/ocaml-cross-mobile/ios-arm64/lib/ocaml",
-					"$(PROJECT_DIR)/node_modules/reasongl-ios/ios",
+					"$(PROJECT_DIR)/node_modules/reasongl/ios",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/App/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
@@ -323,7 +323,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(PROJECT_DIR)",
 					"$(PROJECT_DIR)/node_modules/ocaml-cross-mobile/ios-arm64/lib/ocaml",
-					"$(PROJECT_DIR)/node_modules/reasongl-ios",
+					"$(PROJECT_DIR)/node_modules/reasongl",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "%%PRODUCT_BUNDLE_IDENTIFIER%%";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -345,7 +345,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "CAML_NAME_SPACE=1";
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/node_modules/ocaml-cross-mobile/ios-arm64/lib/ocaml",
-					"$(PROJECT_DIR)/node_modules/reasongl-ios/ios",
+					"$(PROJECT_DIR)/node_modules/reasongl/ios",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/App/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
@@ -354,7 +354,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(PROJECT_DIR)",
 					"$(PROJECT_DIR)/node_modules/ocaml-cross-mobile/ios-arm64/lib/ocaml",
-					"$(PROJECT_DIR)/node_modules/reasongl-ios",
+					"$(PROJECT_DIR)/node_modules/reasongl",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "%%PRODUCT_BUNDLE_IDENTIFIER%%";
 				PRODUCT_NAME = "$(TARGET_NAME)";

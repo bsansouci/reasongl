@@ -2,7 +2,7 @@
 #import <OpenGLES/ES2/glext.h>
 
 extern void reasonglMain(ReasonglViewController *this);
-extern void reasonglWindowResize();
+extern void reasonglWindowResize(void);
 extern void reasonglUpdate(ReasonglViewController *this);
 extern void reasonglTouchPress(double* touchPoints, int touchCount);
 extern void reasonglTouchRelease(double* touchPoints, int touchCount);
@@ -26,6 +26,7 @@ extern void reasonglTouchDrag(double* touchPoints, int touchCount);
 
 - (void)dealloc
 {
+	[super dealloc];
 	[self tearDownGL];
 
 	if ([EAGLContext currentContext] == self.context) {

@@ -1,5 +1,5 @@
 {
-  "name": "Reasongl",
+  "name": "reasongl",
   "version": "0.2.0",
   "description": "Reason bindings to GL",
   "dependencies": {
@@ -13,6 +13,6 @@
   },
   "author": "bsansouci & schmavery",
   "devDependencies": {
-    "bsb-native": "4.0.6"
+    "bsb-native": "bsansouci/bsb-native#io"
   }
 }
