@@ -53,14 +53,14 @@ void TglDeleteShader(value context, value shader) {
 
 void TglShaderSource(value context, value shader, value stringArray) {
   CAMLparam3(context, shader, stringArray);
-  int numOfElements = Wosize_val(stringArray);
+  int numOfElements = (int) Wosize_val(stringArray);
 
   const GLchar **arrOfElements = malloc(sizeof(GLchar *) * numOfElements);
   GLint *arrOfLengths = malloc(sizeof(GLint) * numOfElements);
   for(int i = 0; i < numOfElements; ++i) {
     value e = Field(stringArray, i);
     arrOfElements[i] = String_val(e);
-    arrOfLengths[i] = caml_string_length(e);
+    arrOfLengths[i] = (int) caml_string_length(e);
   }
   glShaderSource(Int_val(shader), numOfElements, arrOfElements, arrOfLengths);
   free(arrOfElements);
