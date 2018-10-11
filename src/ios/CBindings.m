@@ -6,6 +6,8 @@
 #include <caml/bigarray.h>
 
 #include <Foundation/Foundation.h>
+#import <AudioToolbox/AudioToolbox.h>
+#import <AVFoundation/AVFoundation.h>
 
 #import "Reasongl.h"
 #import <OpenGLES/ES2/glext.h>
@@ -24,7 +26,7 @@ static value oreturn(void *v) {
   CAMLlocal1(ret);
   ret = caml_alloc_small(1, 0);
   Field(ret, 0) = (long)v;
-  return ret;
+  CAMLreturn(ret);
 }
 
 static value unboxed(GLuint i) {
@@ -362,13 +364,11 @@ CAMLprim value loadFile(value filename) {
   CAMLreturn(Val_some(caml_copy_string([content UTF8String])));
 }
 
-CAMLprim value loadImage(value filename) {
-  CAMLparam1(filename);
+CAMLprim value loadImageIntoOcamlRecord(UIImage *image) {
+  CAMLparam0();
   CAMLlocal2(record_image_data, dataArr);
   
-  // @MemoryLeak
-  NSString* name = [NSString stringWithUTF8String:String_val(filename)];
-  CGImageRef spriteImage = [UIImage imageNamed:name].CGImage;
+  CGImageRef spriteImage = image.CGImage;
   if (!spriteImage) {
     CAMLreturn(Val_none);
   } else {
@@ -403,6 +403,63 @@ CAMLprim value loadImage(value filename) {
   }
 }
 
+CAMLprim value loadImage(value filename) {
+  CAMLparam1(filename);
+  
+  // @MemoryLeak
+  NSString* name = [NSString stringWithUTF8String:String_val(filename)];
+  CAMLreturn(loadImageIntoOcamlRecord([UIImage imageNamed:name]));
+}
+
+CAMLprim value loadImageFromMemory(value data) {
+  CAMLparam1(data);
+  UIImage *image = [UIImage imageWithData:[[NSData alloc] initWithBytes:String_val(data) length:caml_string_length(data)]];
+  CAMLreturn(loadImageIntoOcamlRecord(image));
+}
+
+NSArray<AVAudioPlayer *> *pool;
+int lastUsablePlayer;
+
+CAMLprim value bindings_loadSound(value path) {
+  CAMLparam1(path);
+  CAMLlocal1(ret);
+    
+  // @MemoryLeak
+  NSArray<NSString *> *splitByDot = [[NSString stringWithUTF8String:String_val(path)] componentsSeparatedByString:@"."];
+  NSInteger count = [splitByDot count];
+  
+  NSString *soundFilePath = [[NSBundle mainBundle] pathForResource:splitByDot[count - 2]  ofType:splitByDot[count - 1]];
+  NSURL *soundFileURL = [NSURL fileURLWithPath:soundFilePath];
+
+  // AVAudioPlayer *player = [[AVAudioPlayer alloc] initWithContentsOfURL:soundFileURL error:nil];
+  
+  ret = caml_alloc_small(1, 0);
+  Field(ret, 0) = (long)[[NSData alloc] initWithContentsOfURL:soundFileURL];
+  
+  // free(player);
+
+  CAMLreturn(ret);
+}
+
+void bindings_playSound(value sound, value volume, value loop) {
+  CAMLparam3(sound, volume, loop);
+  
+  NSData *data = (NSData *)Field(sound, 0);
+  
+  int l = Int_val(loop);
+  double v = Double_val(volume);
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    AVAudioPlayer *player = [[AVAudioPlayer alloc] initWithData:data error:nil];
+    
+    player.numberOfLoops = l == 1 ? -1 : 0;
+    player.volume = v;
+    
+    [player play];
+  });
+  
+  CAMLreturn0;
+}
+
 // CAMLprim void saveDataToTmpFile(value context, value extension, value data) {
 //   CAMLparam3(context, extension, data);
 
@@ -414,7 +471,7 @@ CAMLprim value loadImage(value filename) {
 // }
 
 
-CAMLprim void saveData(value context, value key, value data) {
+void saveData(value context, value key, value data) {
   CAMLparam3(context, key, data);
   
   // @MemoryLeak

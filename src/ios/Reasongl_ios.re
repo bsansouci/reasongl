@@ -75,9 +75,9 @@ let module Gl
   };
 
   let module Audio = {
-    type t;
-    let loadSound = (window, path, callback) => failwith("Sound not supported on ios");
-    let playSound = (window, sound, ~volume, ~loop) => failwith("Sound not supported on ios");
+    type t = Bindings.soundT;
+    let loadSound = (window, path, callback) => callback(Bindings.loadSound(path));
+    let playSound = (window, sound, ~volume, ~loop) => Bindings.playSound(sound, volume, loop);
   };
 
   let module Events: RGLEvents.t = {
@@ -253,7 +253,7 @@ let module Gl
     | LoadL
     | LoadLA
     | LoadRGB
-    | LoadRGBA => failwith("loadIMageFromMemory not implemetned")
+    | LoadRGBA => callback(Bindings.loadImageFromMemory(data))
     };
 
   let texImage2DWithImage = (~context, ~target, ~level, ~image) =>

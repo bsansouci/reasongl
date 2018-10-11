@@ -34,6 +34,7 @@ external getHeight : gameViewControllerT => int = "getHeight";
 
 
 external loadImage : (~filename: string) => option('a) = "loadImage";
+external loadImageFromMemory : (~data: string) => option('a) = "loadImageFromMemory";
 external loadFile : (~filename: string) => option(string) = "loadFile";
 /*external getTimeMs : unit => float = "getTimeMs";*/
 
@@ -41,3 +42,7 @@ external loadData : (~context: contextT, ~key: string) => option(bytes) = "loadD
 external saveData : (~context: contextT, ~key: string, ~value: bytes) => unit = "saveData";
 
 /* external startHotReloading : (~context: contextT, ~host: string, ~baseFile: string) => unit = "startHotReloading"; */
+
+type soundT;
+external loadSound : string => soundT = "bindings_loadSound";
+external playSound: (soundT, float, bool) => unit = "bindings_playSound";
