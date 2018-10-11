@@ -247,7 +247,7 @@ let module Gl
     callback(Bindings.loadImage(~filename))
   };
   
-  let loadImageFromMemory = (~data, ~loadOption=LoadAuto, ~callback: option(imageT) => unit, ()) =>
+  let loadImageFromMemory = (~context: contextT, ~data, ~loadOption=LoadAuto, ~callback: option(imageT) => unit, ()) =>
     switch loadOption {
     | LoadAuto
     | LoadL
