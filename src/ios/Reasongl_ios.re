@@ -206,7 +206,13 @@ let module Gl
   let bindDefaultFramebuffer = (~context as _, ~target) => bindDefaultFramebuffer(target);
   let framebufferTexture2D = (~context as _, ~target, ~attachment, ~texTarget, ~texture) =>
     framebufferTexture2D(~target, ~attachment, ~texTarget, ~texture, ~level=0);
-
+  let checkFramebufferStatus = (~context as _) => glCheckFramebufferStatus();
+  let genRenderbuffers = (~context as _) => glGenRenderbuffers();
+  let bindRenderbuffer = (~context as _, ~renderBuffer) => glBindRenderbuffer(renderBuffer);
+  let bindDefaultRenderbuffer = (~context as _) => glBindDefaultRenderbuffer();
+  
+  let renderbufferStorage = (~context as _, ~width, ~height) => glRenderbufferStorage(width, height);
+  let framebufferRenderbuffer = (~context as _, ~renderBuffer) => glFramebufferRenderbuffer(renderBuffer);
 
   let fillTextureWithColor = (~context: contextT, ~target: int, ~level: int,
     ~red: int,

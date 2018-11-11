@@ -423,6 +423,11 @@ int lastUsablePlayer;
 CAMLprim value bindings_loadSound(value path) {
   CAMLparam1(path);
   CAMLlocal1(ret);
+  
+  // @Hack we set the audio session's category to be ambient, which allows the iphone's music to be
+  // played normally.
+  AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+  [audioSession setCategory:AVAudioSessionCategoryAmbient error:nil];
     
   // @MemoryLeak
   NSArray<NSString *> *splitByDot = [[NSString stringWithUTF8String:String_val(path)] componentsSeparatedByString:@"."];

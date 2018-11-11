@@ -77,6 +77,13 @@ module type t = {
   let bindFramebuffer: (~context: contextT, ~target: int, ~framebuffer: framebufferT) => unit;
   let bindDefaultFramebuffer: (~context: contextT, ~target: int) => unit;
   let framebufferTexture2D : (~context: contextT, ~target:int, ~attachment:int, ~texTarget:int, ~texture:textureT) => unit;
+  let checkFramebufferStatus : (~context : contextT) => int;
+  type renderBufferT;
+  let genRenderbuffers : (~context : contextT) => renderBufferT;
+  let bindRenderbuffer : (~context : contextT, ~renderBuffer:renderBufferT) => unit;
+  let bindDefaultRenderbuffer : (~context : contextT) => unit;
+  let renderbufferStorage : (~context : contextT, ~width: int, ~height: int) => unit;
+  let framebufferRenderbuffer : (~context : contextT, ~renderBuffer:renderBufferT) => unit;
   /*let drawBuffers : (~context : contextT, ~target: int) => unit;*/
   /*type rawTextureDataT;
     let toTextureData: array int => rawTextureDataT;*/

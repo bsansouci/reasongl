@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		43249D472172989C00218B19 /* stubs.c in Sources */ = {isa = PBXBuildFile; fileRef = 43249D462172989C00218B19 /* stubs.c */; };
 		4386CFB72168709B008EAFE4 /* CBindings.m in Sources */ = {isa = PBXBuildFile; fileRef = 4386CFB52168709B008EAFE4 /* CBindings.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		4386CFB82168709B008EAFE4 /* CTgls.m in Sources */ = {isa = PBXBuildFile; fileRef = 4386CFB62168709B008EAFE4 /* CTgls.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		4386CFBB216870A9008EAFE4 /* Reasongl.m in Sources */ = {isa = PBXBuildFile; fileRef = 4386CFBA216870A9008EAFE4 /* Reasongl.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
@@ -22,6 +23,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		43249D462172989C00218B19 /* stubs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = stubs.c; path = ../node_modules/bsb-native/jscomp/belt_native/stubs.c; sourceTree = "<group>"; };
 		4386CFB52168709B008EAFE4 /* CBindings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CBindings.m; path = "../node_modules/reasongl/src/ios/CBindings.m"; sourceTree = "<group>"; };
 		4386CFB62168709B008EAFE4 /* CTgls.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CTgls.m; path = "../node_modules/reasongl/src/ios/CTgls.m"; sourceTree = "<group>"; };
 		4386CFB9216870A9008EAFE4 /* Reasongl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Reasongl.h; path = "../node_modules/reasongl/src/ios/Reasongl.h"; sourceTree = "<group>"; };
@@ -95,6 +97,7 @@
 				4386CFB62168709B008EAFE4 /* CTgls.m */,
 				4386CFB9216870A9008EAFE4 /* Reasongl.h */,
 				4386CFBA216870A9008EAFE4 /* Reasongl.m */,
+				43249D462172989C00218B19 /* stubs.c */,
 				C99F60741E34FE8F0064B563 /* Assets.xcassets */,
 				C99F60791E34FE8F0064B563 /* Info.plist */,
 				C99F60681E34FE8F0064B563 /* Supporting Files */,
@@ -184,6 +187,7 @@
 				C99F606D1E34FE8F0064B563 /* AppDelegate.m in Sources */,
 				4386CFB82168709B008EAFE4 /* CTgls.m in Sources */,
 				4386CFB72168709B008EAFE4 /* CBindings.m in Sources */,
+				43249D472172989C00218B19 /* stubs.c in Sources */,
 				C99F606A1E34FE8F0064B563 /* main.m in Sources */,
 				4386CFBB216870A9008EAFE4 /* Reasongl.m in Sources */,
 			);

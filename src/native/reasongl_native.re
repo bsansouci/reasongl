@@ -382,6 +382,14 @@ module Gl: ReasonglInterface.Gl.t = {
       ~border=0,
       ~data=image.data
     );
+  type renderBufferT = Gl.renderBufferT;
+  let checkFramebufferStatus = (~context as _) => Gl.checkFramebufferStatus();
+  let genRenderbuffers = (~context as _) => Gl.genRenderbuffers();
+  let bindRenderbuffer = (~context as _, ~renderBuffer) => Gl.bindRenderbuffer(renderBuffer);
+  let bindDefaultRenderbuffer = (~context as _) => Gl.bindDefaultRenderbuffer();
+  let renderbufferStorage = (~context as _, ~width, ~height) => Gl.renderbufferStorage(width, height);
+  let framebufferRenderbuffer = (~context as _, ~renderBuffer) => Gl.framebufferRenderbuffer(renderBuffer);
+
   let uniform1i = (~context as _, ~location, ~value) => Gl.uniform1i(~location, ~value);
   let uniform1f = (~context as _, ~location, ~value) => Gl.uniform1f(~location, ~value);
   let uniform2f = (~context as _, ~location, ~v1, ~v2) => Gl.uniform2f(~location, ~v1, ~v2);

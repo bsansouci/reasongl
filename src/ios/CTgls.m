@@ -404,10 +404,15 @@ CAMLprim value TglGenFramebuffers(value count) {
   CAMLreturn(ret);
 }
 
-value TglGenFramebuffer() {
+CAMLprim value TglGenFramebuffer() {
   unsigned int framebuffers = 0;
   glGenFramebuffers(1, &framebuffers);
-  return (Val_int(framebuffers));
+  return Val_int(framebuffers);
+}
+
+CAMLprim value TglCheckFramebufferStatus() {
+  CAMLparam0();
+  CAMLreturn(Val_int(glCheckFramebufferStatus(GL_FRAMEBUFFER)));
 }
 
 void TglBindFramebuffer(value kind, value framebuffer) {
@@ -421,3 +426,39 @@ void TglBindDefaultFramebuffer(value kind) {
 void TglFramebufferTexture2D(value kind, value color, value textureKind, value texture, value level) {
   glFramebufferTexture2D(Int_val(kind), Int_val(color), Int_val(textureKind), Int_val(texture), Int_val(level));
 }
+
+
+CAMLprim value TglGenRenderbuffers() {
+  CAMLparam0();
+  GLuint colorRenderbuffer = 0;
+  glGenRenderbuffers(1, &colorRenderbuffer);
+  CAMLreturn(Val_int(colorRenderbuffer));
+}
+
+void TglBindRenderbuffer(value colorRenderbuffer) {
+  glBindRenderbuffer(GL_RENDERBUFFER, Int_val(colorRenderbuffer));
+}
+
+void TglBindDefaultRenderbuffer() {
+  glBindRenderbuffer(GL_RENDERBUFFER, 0);
+}
+
+void TglRenderbufferStorage(value width, value height) {
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, Int_val(width), Int_val(height));
+}
+void TglFramebufferRenderbuffer(value renderbuffer) {
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, Int_val(renderbuffer));
+}
+
+// void TglDrawBuffers(value arrayOfBuffers) {
+//   int numberOfColors = Wosize_val(arrayOfBuffers) / 4;
+  
+//   GLenum *drawBuffers = malloc(numberOfColors * sizeof(GLenum));
+//   for (int i = 0; i < numberOfColors; i++) {
+//     drawBuffers[i] = Field(arrayOfBuffers, i);
+//   }
+  
+//   glDrawBuffers(numberOfColors, drawBuffers);
+  
+//   free(drawBuffers);
+// }

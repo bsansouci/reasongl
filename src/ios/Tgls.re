@@ -247,3 +247,21 @@ external texImage2D_null :
   ) =>
   unit =
   "TglTexImage2D_null";
+
+[@noalloc] external glCheckFramebufferStatus : unit => int = "TglCheckFramebufferStatus";
+
+let gl_renderbuffer = 0x8D41;
+
+let gl_depth_attachment = 0x8D00;
+
+let gl_stencil_attachment = 0x8D20;
+
+let gl_depth_component16 = 0x81A5;
+
+type renderBufferT;
+[@noalloc] external glGenRenderbuffers : unit => renderBufferT = "TglGenRenderbuffers";
+[@noalloc] external glBindRenderbuffer : renderBufferT => unit = "TglBindRenderbuffer";
+[@noalloc] external glBindDefaultRenderbuffer : unit => unit = "TglBindDefaultRenderbuffer";
+[@noalloc] external glRenderbufferStorage : int => int => unit = "TglRenderbufferStorage";
+[@noalloc] external glFramebufferRenderbuffer : renderBufferT => unit = "TglFramebufferRenderbuffer";
+/*[@noalloc] external glDrawBuffers: array(int) => unit = "TglDrawBuffers";*/

@@ -12,11 +12,9 @@ Tsdl@bsansouci/tsdl:
   dependencies:
     sdl2 bsansouci/SDL-mirror#fast
 
-bs-platform@bsansouci/bsb-native#3.2.0:
-  version "3.2.0"
-  resolved "https://codeload.github.com/bsansouci/bsb-native/tar.gz/84604c9f6a5611eed68372efdb575c00a3e72813"
-  dependencies:
-    yauzl "^2.9.1"
+bsb-native@bsansouci/bucklescript#ios:
+  version "4.0.7"
+  resolved "https://codeload.github.com/bsansouci/bucklescript/tar.gz/edc65c03ce8d81782d87eea2d8e7be369c0ba26d"
 
 buffer-crc32@~0.2.3:
   version "0.2.13"
