@@ -126,7 +126,7 @@ type audioLocT;
 type audioGainT;
 
 let makeAudioContext: unit => audioContextT = [%bs.raw
-  {| function() { return new (window.AudioContext || window.webkitAudioContext)(); } |}
+  {| function(_) { return new (window.AudioContext || window.webkitAudioContext)(); } |}
 ];
 
 [@bs.get] external getResponse : httpRequestT => arrayBufferT = "response";
