@@ -129,7 +129,7 @@
 			dependencies = (
 			);
 			name = App;
-			productName = %%PRODUCT_NAME%%;
+			productName = "%%PRODUCT_NAME%%";
 			productReference = C99F60651E34FE8F0064B563 /* App.app */;
 			productType = "com.apple.product-type.application";
 		};
@@ -140,7 +140,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 1010;
-				ORGANIZATIONNAME = %%ORGANIZATION_NAME%%;
+				ORGANIZATIONNAME = "%%ORGANIZATION_NAME%%";
 				TargetAttributes = {
 					C99F60641E34FE8E0064B563 = {
 						CreatedOnToolsVersion = 8.1;

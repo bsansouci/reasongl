@@ -36,11 +36,42 @@ if (backend == "ios") {
     let _ = Sys.command("cp -r " ++ (cwd // "templates" // "App.xcodeproj") ++ " " ++ (root_project_dir // "App.xcodeproj"));
     let _ = Sys.command("cp -r " ++ (cwd // "templates" // "App.xcworkspace") ++ " " ++ (root_project_dir // "App.xcworkspace"));
     let _ = Sys.command("cp -r " ++ (cwd // "templates" // "App") ++ " " ++ (root_project_dir // "App"));
-
-    let productName = "FruitNinja";
-    let organizationName = "bencorp";
-    let productBundleIdentifier = "com.bencorp.FruitNinja";
-
+    
+    let (productName, organizationName, productBundleIdentifier) = {
+      let grabStringFromJson = (json, word, r) => {
+        switch (parseUntil(json, "\"" ++ word ++ "\": \"")) {
+          | None => ()
+          | Some((_, after)) =>
+            switch (parseUntil(after, "\"")) {
+            | None => ()
+            | Some((value, _)) => r := value
+            }
+          };
+      };
+      
+      let packageJson = open_in(root_project_dir // "package.json");
+      let productName = ref("MyCoolProject");
+      let organizationName = ref("bestcorp");
+      let productBundleIdentifier = ref("com." ++ organizationName^ ++ "." ++ productName^);
+      
+      let running = ref(true);
+      while (running^) {
+        switch (input_line(packageJson)) {
+          | exception End_of_file => 
+            close_in(packageJson);
+            running := false;
+          | line =>
+            grabStringFromJson(line, "name", productName);
+            grabStringFromJson(line, "productName", productName);
+            grabStringFromJson(line, "organizationName", organizationName);
+            productBundleIdentifier := "com." ++ organizationName^ ++ "." ++ productName^;
+            
+            grabStringFromJson(line, "productBundleIdentifier", productBundleIdentifier);
+        }
+      };
+      (productName^, organizationName^, productBundleIdentifier^)
+    };
+    
     let ic = open_in(cwd // "templates" // "App.xcodeproj" // "project.pbxproj");
     let oc = open_out(root_project_dir // "App.xcodeproj" // "project.pbxproj");
 
@@ -64,7 +95,7 @@ if (backend == "ios") {
               output_string(oc, before);
               output_string(oc, productBundleIdentifier);
               output_string(oc, after);
-              output_char(oc, '\n');    
+              output_char(oc, '\n');
             }
           | Some((before, after)) =>
             output_string(oc, before);
@@ -98,7 +129,9 @@ if (backend == "ios") {
           output_char(oc, '\n');
         | Some((before, after)) =>
           output_string(oc, before);
+          output_char(oc, '"');
           output_string(oc, productName);
+          output_char(oc, '"');
           output_string(oc, after);
           output_char(oc, '\n');
         };
