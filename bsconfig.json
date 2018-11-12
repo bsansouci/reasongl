@@ -13,9 +13,6 @@
     "dir": "example",
     "type": "dev"
   }],
-  "static-libraries": [
-    "lib/reasongl.o",
-  ],
   "warnings": {"number": "-44"},
   "build-script": "build_script.re",
   "bs-dependencies": ["Tsdl", "Tgls"],
