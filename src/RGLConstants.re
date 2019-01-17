@@ -26,6 +26,8 @@ let dst_alpha = 772;
 
 let depth_test = 2929;
 
+let cull_face = 2884;
+
 let rgb = 6407;
 
 let rgba = 6408;

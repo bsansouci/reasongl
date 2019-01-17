@@ -206,6 +206,23 @@ module type t = {
         ~far: float
       ) =>
       unit;
+    let perspective:
+      (
+        ~out: t,
+        ~fovy: float,
+        ~aspect: float,
+        ~near: float,
+        ~far: float,
+      ) =>
+      unit;
+    let lookAt:
+      (
+        ~out: t,
+        ~eye: array(float),
+        ~center: array(float),
+        ~up: array(float),
+      ) =>
+      unit;
   };
   module Mat4: Mat4T;
   let uniformMatrix4fv: (~context: contextT, ~location: uniformT, ~value: Mat4.t) => unit;

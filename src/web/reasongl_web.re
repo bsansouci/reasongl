@@ -922,6 +922,23 @@ module Gl: RGLInterface.t = {
         ~far: float
       ) =>
       unit;
+    let perspective:
+      (
+        ~out: t,
+        ~fovy: float,
+        ~aspect: float,
+        ~near: float,
+        ~far: float,
+      ) =>
+      unit;
+    let lookAt:
+      (
+        ~out: t,
+        ~eye: array(float),
+        ~center: array(float),
+        ~up: array(float),
+      ) =>
+      unit;
   };
   module Mat4: Mat4T = {
     type t = array(float);
@@ -949,6 +966,27 @@ module Gl: RGLInterface.t = {
         ~top: float,
         ~near: float,
         ~far: float
+      ) =>
+      unit =
+      "";
+    [@bs.scope "mat4"] [@bs.module "gl-matrix"]
+    external perspective:
+      (
+        ~out: t,
+        ~fovy: float,
+        ~aspect: float,
+        ~near: float,
+        ~far: float
+      ) =>
+      unit =
+      "";
+    [@bs.scope "mat4"] [@bs.module "gl-matrix"]
+    external lookAt:
+      (
+        ~out: t,
+        ~eye: array(float),
+        ~center: array(float),
+        ~up: array(float),
       ) =>
       unit =
       "";

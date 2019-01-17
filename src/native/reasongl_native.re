@@ -533,6 +533,17 @@ module Gl: ReasonglInterface.Gl.t = {
         ~far: float
       ) =>
       unit;
+    let perspective:
+      (~out: t, ~fovy: float, ~aspect: float, ~near: float, ~far: float) =>
+      unit;
+    let lookAt:
+      (
+        ~out: t,
+        ~eye: array(float),
+        ~center: array(float),
+        ~up: array(float)
+      ) =>
+      unit;
   };
   module Mat4: Mat4T = {
     type t = array(float);
@@ -633,18 +644,18 @@ module Gl: ReasonglInterface.Gl.t = {
       out[12] = matrix[12];
       out[13] = matrix[13];
       out[14] = matrix[14];
-      out[15] = matrix[15]
+      out[15] = matrix[15];
     };
     let rotate = (~out: t, ~matrix: t, ~rad: float, ~vec: array(float)) => {
       let x = vec[0];
       let y = vec[1];
       let z = vec[2];
       let len = sqrt(x *. x +. y *. y +. z *. z);
-      if (abs_float(len) > epsilon) {
-        let len = 1. /. sqrt(x *. x +. y *. y +. z *. z);
-        let x = matrix[0] *. len;
-        let y = matrix[1] *. len;
-        let z = matrix[2] *. len;
+      if (abs_float(len) >= epsilon) {
+        let len = 1. /. len;
+        let x = x *. len;
+        let y = y *. len;
+        let z = z *. len;
         let s = sin(rad);
         let c = cos(rad);
         let t = 1. -. c;
@@ -663,31 +674,31 @@ module Gl: ReasonglInterface.Gl.t = {
         let b00 = x *. x *. t +. c;
         let b01 = y *. x *. t +. z *. s;
         let b02 = z *. x *. t -. y *. s;
-        let b10 = x *. y *. t -. y *. s;
-        let b11 = y *. y *. t -. c;
+        let b10 = x *. y *. t -. z *. s;
+        let b11 = y *. y *. t +. c;
         let b12 = z *. y *. t +. x *. s;
         let b20 = x *. z *. t +. y *. s;
         let b21 = y *. z *. t -. x *. s;
         let b22 = z *. z *. t +. c;
-        matrix[0] = a00 *. b00 +. a10 *. b01 +. a20 *. b02;
-        matrix[1] = a01 *. b00 +. a11 *. b01 +. a21 *. b02;
-        matrix[2] = a02 *. b00 +. a12 *. b01 +. a22 *. b02;
-        matrix[3] = a03 *. b00 +. a13 *. b01 +. a23 *. b02;
-        matrix[4] = a00 *. b10 +. a10 *. b11 +. a20 *. b12;
-        matrix[5] = a01 *. b10 +. a11 *. b11 +. a21 *. b12;
-        matrix[6] = a02 *. b10 +. a12 *. b11 +. a22 *. b12;
-        matrix[7] = a03 *. b10 +. a13 *. b11 +. a23 *. b12;
-        matrix[8] = a00 *. b20 +. a10 *. b21 +. a20 *. b22;
-        matrix[9] = a01 *. b20 +. a11 *. b21 +. a21 *. b22;
-        matrix[10] = a02 *. b20 +. a12 *. b21 +. a22 *. b22;
-        matrix[11] = a03 *. b20 +. a13 *. b21 +. a23 *. b22
+        out[0] = a00 *. b00 +. a10 *. b01 +. a20 *. b02;
+        out[1] = a01 *. b00 +. a11 *. b01 +. a21 *. b02;
+        out[2] = a02 *. b00 +. a12 *. b01 +. a22 *. b02;
+        out[3] = a03 *. b00 +. a13 *. b01 +. a23 *. b02;
+        out[4] = a00 *. b10 +. a10 *. b11 +. a20 *. b12;
+        out[5] = a01 *. b10 +. a11 *. b11 +. a21 *. b12;
+        out[6] = a02 *. b10 +. a12 *. b11 +. a22 *. b12;
+        out[7] = a03 *. b10 +. a13 *. b11 +. a23 *. b12;
+        out[8] = a00 *. b20 +. a10 *. b21 +. a20 *. b22;
+        out[9] = a01 *. b20 +. a11 *. b21 +. a21 *. b22;
+        out[10] = a02 *. b20 +. a12 *. b21 +. a22 *. b22;
+        out[11] = a03 *. b20 +. a13 *. b21 +. a23 *. b22;
       };
       if (matrix !== out) {
         out[12] = matrix[12];
         out[13] = matrix[13];
         out[14] = matrix[14];
-        out[15] = matrix[15]
-      }
+        out[15] = matrix[15];
+      };
     };
     let ortho =
         (
@@ -717,7 +728,95 @@ module Gl: ReasonglInterface.Gl.t = {
       out[12] = (left +. right) *. lr;
       out[13] = (top +. bottom) *. bt;
       out[14] = (far +. near) *. nf;
-      out[15] = 1.
+      out[15] = 1.;
+    };
+    let perspective =
+        (~out: t, ~fovy: float, ~aspect: float, ~near: float, ~far: float) => {
+      let f = 1.0 /. tan(fovy /. 2.);
+      out[0] = f /. aspect;
+      out[1] = 0.;
+      out[2] = 0.;
+      out[3] = 0.;
+      out[4] = 0.;
+      out[5] = f;
+      out[6] = 0.;
+      out[7] = 0.;
+      out[8] = 0.;
+      out[9] = 0.;
+      out[11] = (-1.);
+      out[12] = 0.;
+      out[13] = 0.;
+      out[15] = 0.;
+      if (far !== infinity) {
+        let nf = 1. /. (near -. far);
+        out[10] = (far +. near) *. nf;
+        out[14] = 2. *. far *. near *. nf;
+      } else {
+        out[10] = (-1.);
+        out[14] = (-2.) *. near;
+      };
+    };
+    let lookAt = (~out, ~eye, ~center, ~up) => {
+      let eyex = eye[0];
+      let eyey = eye[1];
+      let eyez = eye[2];
+      let centerx = center[0];
+      let centery = center[1];
+      let centerz = center[2];
+      let upx = up[0];
+      let upy = up[1];
+      let upz = up[2];
+      if (abs_float(eyex -. centerx) < epsilon
+          && abs_float(eyey -. centery) < epsilon
+          && abs_float(eyez -. centerz) < epsilon) {
+        identity(~out);
+      } else {
+        let z0 = eyex -. centerx;
+        let z1 = eyey -. centery;
+        let z2 = eyez -. centerz;
+        let len = 1. /. sqrt(z0 *. z0 +. z1 *. z1 +. z2 *. z2);
+        let z0 = z0 *. len;
+        let z1 = z1 *. len;
+        let z2 = z2 *. len;
+        let x0 = upy *. z2 -. upz *. z1;
+        let x1 = upz *. z0 -. upx *. z2;
+        let x2 = upx *. z1 -. upy *. z0;
+        let len = sqrt(x0 *. x0 +. x1 *. x1 +. x2 *. x2);
+        let (len, x0, x1, x2) =
+          if (len == 0.) {
+            (len, 0., 0., 0.);
+          } else {
+            let len = 1. /. len;
+            (len, x0 *. len, x1 *. len, x2 *. len);
+          };
+        let y0 = z1 *. x2 -. z2 *. x1;
+        let y1 = z2 *. x0 -. z0 *. x2;
+        let y2 = z0 *. x1 -. z1 *. x0;
+        let len = sqrt(y0 *. y0 +. y1 *. y1 +. y2 *. y2);
+        let (len, y0, y1, y2) =
+          if (len == 0.) {
+            (len, 0., 0., 0.);
+          } else {
+            let len = 1. /. len;
+            (len, y0 *. len, y1 *. len, y2 *. len);
+          };
+        out[0] = x0;
+        out[1] = y0;
+        out[2] = z0;
+        out[3] = 0.;
+        out[4] = x1;
+        out[5] = y1;
+        out[6] = z1;
+        out[7] = 0.;
+        out[8] = x2;
+        out[9] = y2;
+        out[10] = z2;
+        out[11] = 0.;
+        out[12] = -. (x0 *. eyex +. x1 *. eyey +. x2 *. eyez);
+        out[13] = -. (y0 *. eyex +. y1 *. eyey +. y2 *. eyez);
+        out[14] = -. (z0 *. eyex +. z1 *. eyey +. z2 *. eyez);
+        out[15] = 1.;
+      };
     };
   };
 
