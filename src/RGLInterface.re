@@ -12,6 +12,7 @@ module type t = {
     let getPixelScale: t => float;
     let init: (~screen: string=?, ~argv: array(string)) => t;
     let setWindowSize: (~window: t, ~width: int, ~height: int) => unit;
+    let setWindowTitle: (~window: t, ~title: string) => unit;
     let getContext: t => contextT;
   };
   module Window: WindowT;

@@ -1,7 +1,9 @@
 module Document = {
+  type t;
   type element;
   type window;
   let window: window = [%bs.raw "window"];
+  let document: t = [%bs.raw "document"];
   /* external setGlDebug : window => GlT.context => unit = "debugContext" [@@bs.set]; */
   [@bs.val]
   external getElementById : string => Js.nullable(element) =
@@ -20,6 +22,7 @@ module Document = {
   external addEventListener : ('window, string, 'eventT => unit) => unit =
     "addEventListener";
   [@bs.val] external devicePixelRatio : float = "window.devicePixelRatio";
+  [@bs.set] external setTitle : (t, string) => unit = "title";
 };
 
 type canvasT;
@@ -193,6 +196,7 @@ module Gl: RGLInterface.t = {
     let getPixelScale: t => float;
     let init: (~screen: string=?, ~argv: array(string)) => t;
     let setWindowSize: (~window: t, ~width: int, ~height: int) => unit;
+    let setWindowTitle: (~window: t, ~title: string) => unit;
     let getContext: t => contextT;
   };
   module Window = {
@@ -239,6 +243,8 @@ module Gl: RGLInterface.t = {
       setWidthStyle(getStyle(w), string_of_int(width) ++ "px");
       setHeightStyle(getStyle(w), string_of_int(height) ++ "px");
     };
+    let setWindowTitle = (~window as _, ~title) =>
+      Document.setTitle(Document.document, title);
     let getContext = ((window, _ac)) : contextT =>
       getContext(
         window,
