@@ -36,8 +36,8 @@ if (backend == "ios") {
     let _ = Sys.command("cp -r " ++ (cwd // "templates" // "App.xcodeproj") ++ " " ++ (root_project_dir // "App.xcodeproj"));
     let _ = Sys.command("cp -r " ++ (cwd // "templates" // "App.xcworkspace") ++ " " ++ (root_project_dir // "App.xcworkspace"));
     let _ = Sys.command("cp -r " ++ (cwd // "templates" // "App") ++ " " ++ (root_project_dir // "App"));
-    
-    let (productName, organizationName, productBundleIdentifier) = {
+
+    let (productName, organizationName, productBundleIdentifier, appIcon2x, appIcon3x) = {
       let grabStringFromJson = (json, word, r) => {
         switch (parseUntil(json, "\"" ++ word ++ "\": \"")) {
           | None => ()
@@ -48,47 +48,51 @@ if (backend == "ios") {
             }
           };
       };
-      
+
       let packageJson = open_in(root_project_dir // "package.json");
       let productName = ref("MyCoolProject");
       let organizationName = ref("bestcorp");
+      let appIcon2x = ref("");
+      let appIcon3x = ref("");
       let productBundleIdentifier = ref("com." ++ organizationName^ ++ "." ++ productName^);
-      
+
       let running = ref(true);
       while (running^) {
         switch (input_line(packageJson)) {
-          | exception End_of_file => 
+          | exception End_of_file =>
             close_in(packageJson);
             running := false;
           | line =>
             grabStringFromJson(line, "name", productName);
             grabStringFromJson(line, "productName", productName);
             grabStringFromJson(line, "organizationName", organizationName);
+            grabStringFromJson(line, "icon_2x", appIcon2x);
+            grabStringFromJson(line, "icon_3x", appIcon3x);
             productBundleIdentifier := "com." ++ organizationName^ ++ "." ++ productName^;
-            
+
             grabStringFromJson(line, "productBundleIdentifier", productBundleIdentifier);
         }
       };
-      (productName^, organizationName^, productBundleIdentifier^)
+      (productName^, organizationName^, productBundleIdentifier^, appIcon2x^, appIcon3x^)
     };
-    
+
     let ic = open_in(cwd // "templates" // "App.xcodeproj" // "project.pbxproj");
     let oc = open_out(root_project_dir // "App.xcodeproj" // "project.pbxproj");
 
     let running = ref(true);
     while (running^) {
       switch (input_line(ic)) {
-      | exception End_of_file => 
+      | exception End_of_file =>
         close_in(ic);
         close_out(oc);
         running := false;
-      | line => 
+      | line =>
         switch (parseUntil(line, "%%PRODUCT_NAME%%")) {
-        | None => 
+        | None =>
           switch (parseUntil(line, "%%ORGANIZATION_NAME%%")) {
-          | None => 
+          | None =>
             switch (parseUntil(line, "%%PRODUCT_BUNDLE_IDENTIFIER%%")) {
-            | None => 
+            | None =>
               output_string(oc, line);
               output_char(oc, '\n');
             | Some((before, after)) =>
@@ -101,7 +105,7 @@ if (backend == "ios") {
             output_string(oc, before);
             output_string(oc, organizationName);
             output_string(oc, after);
-            output_char(oc, '\n');  
+            output_char(oc, '\n');
           }
         | Some((before, after)) =>
           output_string(oc, before);
@@ -111,34 +115,53 @@ if (backend == "ios") {
         };
       }
     };
-    
+
     let ic = open_in(cwd // "templates" // "App" // "Info.plist");
     let oc = open_out(root_project_dir // "App" // "Info.plist");
 
     running := true;
     while (running^) {
       switch (input_line(ic)) {
-      | exception End_of_file => 
+      | exception End_of_file =>
         close_in(ic);
         close_out(oc);
         running := false;
-      | line => 
+      | line =>
         switch (parseUntil(line, "%%PRODUCT_NAME%%")) {
-        | None => 
+        | None =>
           output_string(oc, line);
           output_char(oc, '\n');
         | Some((before, after)) =>
           output_string(oc, before);
-          output_char(oc, '"');
+          /* I think the quotes are actually wrong */
+          /*output_char(oc, '"');*/
           output_string(oc, productName);
-          output_char(oc, '"');
+          /*output_char(oc, '"');*/
           output_string(oc, after);
           output_char(oc, '\n');
         };
       }
     };
+
+    let copyIcon = (icon, outputFileName) => {
+      let icon = if (Filename.is_relative(icon)) {
+        root_project_dir // icon
+      } else {
+        icon
+      };
+      let cmd = "cp " ++ icon ++ " " ++ (root_project_dir // "App" // "Assets.xcassets" // "AppIcon.appiconset" // outputFileName);
+      ignore(Sys.command(cmd));
+    };
+
+    /* Might not be enough because the file type... We should probably modify the Contents.json */
+    if (String.length(appIcon2x) > 0) {
+      copyIcon(appIcon2x, "icon_120.png")
+    };
+    if (String.length(appIcon3x) > 0) {
+      copyIcon(appIcon3x, "icon_180.png")
+    };
   }
 } else {
-  let _ = gcc("lib" // "reasongl.o", ["src" // "native" // "reasongl.c"]);
+  let _ = gcc(cwd // "lib" // "reasongl.o", [cwd // "src" // "native" // "reasongl.c"]);
 }
 
