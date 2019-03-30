@@ -15,6 +15,8 @@
 
 #import <GLKit/GLKit.h>
 
+static ReasonglViewController *globalGameViewController;
+
 void bigarray_unsafe_blit(value arr1, value arr2, value offset, value numOfBytes) {
   char *arr1Data = Caml_ba_data_val(arr1);
   char *arr2Data = Caml_ba_data_val(arr2);
@@ -27,10 +29,6 @@ static value oreturn(void *v) {
   ret = caml_alloc_small(1, 0);
   Field(ret, 0) = (long)v;
   CAMLreturn(ret);
-}
-
-static value unboxed(GLuint i) {
-  return Val_int(i);
 }
 
 // CAMLprim value isNil(value s) {
@@ -142,6 +140,9 @@ void reasonglWindowResize() {
 void reasonglMain(ReasonglViewController *viewController) {
   CAMLparam0();
   CAMLlocal1(ocamlViewController);
+
+  globalGameViewController = viewController;
+
   value *reasongl_main = caml_named_value("reasonglMain");
   ocamlViewController = caml_alloc_small(1, 0);
   Field(ocamlViewController, 0) = (long)viewController;
@@ -303,7 +304,7 @@ void Mat4_ortho_byte(value * argv, int argn) {
 CAMLprim value Mat4_create() {
   CAMLparam0();
   CAMLlocal1(ret);
-  
+
   // @MemoryLeak
   GLKMatrix4 *m = malloc(sizeof(GLKMatrix4));
   m->m[0] = 1.0;
@@ -367,7 +368,7 @@ CAMLprim value loadFile(value filename) {
 CAMLprim value loadImageIntoOcamlRecord(UIImage *image) {
   CAMLparam0();
   CAMLlocal2(record_image_data, dataArr);
-  
+
   CGImageRef spriteImage = image.CGImage;
   if (!spriteImage) {
     CAMLreturn(Val_none);
@@ -391,7 +392,7 @@ CAMLprim value loadImageIntoOcamlRecord(UIImage *image) {
     Field(record_image_data, 0) = Val_int(width);
     Field(record_image_data, 1) = Val_int(height);
     Field(record_image_data, 2) = Val_int(channels);
-    
+
     // @MemoryLeak
     // put the data in a bigarray
     intnat *size = malloc(sizeof(intnat));
@@ -405,7 +406,7 @@ CAMLprim value loadImageIntoOcamlRecord(UIImage *image) {
 
 CAMLprim value loadImage(value filename) {
   CAMLparam1(filename);
-  
+
   // @MemoryLeak
   NSString* name = [NSString stringWithUTF8String:String_val(filename)];
   CAMLreturn(loadImageIntoOcamlRecord([UIImage imageNamed:name]));
@@ -423,24 +424,24 @@ int lastUsablePlayer;
 CAMLprim value bindings_loadSound(value path) {
   CAMLparam1(path);
   CAMLlocal1(ret);
-  
+
   // @Hack we set the audio session's category to be ambient, which allows the iphone's music to be
   // played normally.
   AVAudioSession *audioSession = [AVAudioSession sharedInstance];
   [audioSession setCategory:AVAudioSessionCategoryAmbient error:nil];
-    
+
   // @MemoryLeak
   NSArray<NSString *> *splitByDot = [[NSString stringWithUTF8String:String_val(path)] componentsSeparatedByString:@"."];
   NSInteger count = [splitByDot count];
-  
+
   NSString *soundFilePath = [[NSBundle mainBundle] pathForResource:splitByDot[count - 2]  ofType:splitByDot[count - 1]];
   NSURL *soundFileURL = [NSURL fileURLWithPath:soundFilePath];
 
   // AVAudioPlayer *player = [[AVAudioPlayer alloc] initWithContentsOfURL:soundFileURL error:nil];
-  
+
   ret = caml_alloc_small(1, 0);
   Field(ret, 0) = (long)[[NSData alloc] initWithContentsOfURL:soundFileURL];
-  
+
   // free(player);
 
   CAMLreturn(ret);
@@ -448,20 +449,20 @@ CAMLprim value bindings_loadSound(value path) {
 
 void bindings_playSound(value sound, value volume, value loop) {
   CAMLparam3(sound, volume, loop);
-  
+
   NSData *data = (NSData *)Field(sound, 0);
-  
+
   int l = Int_val(loop);
   double v = Double_val(volume);
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     AVAudioPlayer *player = [[AVAudioPlayer alloc] initWithData:data error:nil];
-    
+
     player.numberOfLoops = l == 1 ? -1 : 0;
     player.volume = v;
-    
+
     [player play];
   });
-  
+
   CAMLreturn0;
 }
 
@@ -478,7 +479,7 @@ void bindings_playSound(value sound, value volume, value loop) {
 
 void saveData(value context, value key, value data) {
   CAMLparam3(context, key, data);
-  
+
   // @MemoryLeak
   NSData* nsData = [NSData dataWithBytes:String_val(data) length:caml_string_length(data)];
   NSString* keyString = [NSString stringWithUTF8String:String_val(key)];
@@ -490,10 +491,10 @@ void saveData(value context, value key, value data) {
 CAMLprim value loadData(value ocamlWindow, value key) {
   CAMLparam2(ocamlWindow, key);
   CAMLlocal1(ml_data);
-  
+
   // @MemoryLeak
   NSString* keyString = [NSString stringWithUTF8String:String_val(key)];
-  
+
   // @MemoryLeak
   NSData* nsData = [[NSUserDefaults standardUserDefaults] dataForKey:keyString];
 
@@ -520,3 +521,32 @@ CAMLprim value loadData(value ocamlWindow, value key) {
 
 //   CAMLreturn0;
 // }
+
+void reasongl_presentLeaderboardViewController(value leaderboardId) {
+  CAMLparam1(leaderboardId);
+  [globalGameViewController presentLeaderboardViewController:[NSString stringWithUTF8String:String_val(leaderboardId)]];
+  CAMLreturn0;
+}
+
+void reasongl_uploadScore(value score, value leaderboardId) {
+  CAMLparam2(score, leaderboardId);
+    [globalGameViewController uploadScore:Int_val(score) withLeaderboardId:[NSString stringWithUTF8String:String_val(leaderboardId)]];
+  CAMLreturn0;
+}
+
+void reasongl_getPlayerHighScore(value callback, value leaderboardId) {
+  CAMLparam2(callback, leaderboardId);
+    [globalGameViewController getPlayerHighScore:^(int64_t scoreValue) {
+       caml_callback(callback, Val_int((int)scoreValue));
+    } withLeaderboardId:[NSString stringWithUTF8String:String_val(leaderboardId)]];
+    CAMLreturn0;
+}
+
+CAMLprim value reasongl_getSafeAreaTopInset() {
+    CAMLparam0();
+    if (@available(iOS 11.0, *)) {
+        UIWindow *mainWindow = [[[UIApplication sharedApplication] delegate] window];
+        CAMLreturn(caml_copy_double((double)mainWindow.safeAreaInsets.top));
+    }
+    CAMLreturn(caml_copy_double((double)0.0f));
+}

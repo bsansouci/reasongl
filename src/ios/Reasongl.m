@@ -1,4 +1,5 @@
 #import "Reasongl.h"
+#import "GameKit/GameKit.h"
 #import <OpenGLES/ES2/glext.h>
 
 extern void reasonglMain(ReasonglViewController *this);
@@ -8,20 +9,41 @@ extern void reasonglTouchPress(double* touchPoints, int touchCount);
 extern void reasonglTouchRelease(double* touchPoints, int touchCount);
 extern void reasonglTouchDrag(double* touchPoints, int touchCount);
 
-@interface ReasonglViewController ()
+@interface ReasonglViewController () <GKGameCenterControllerDelegate>
+
+@property (nonatomic, copy) NSString *leaderboardId;
+@property (nonatomic, copy) void(^shouldGetPlayerHighScoreWhenAuthenticated)(int64_t scoreValue);
 
 - (void)tearDownGL;
 
 @end
 
-@implementation ReasonglViewController
+@implementation ReasonglViewController {
+    GKGameCenterViewController *_gameCenterController;
+}
 
 - (void)viewDidLoad
 {
 	[super viewDidLoad];
+
 	self.view.multipleTouchEnabled = YES;
 	self.viewSize = self.view.bounds.size;
-	reasonglMain(self);
+
+    GKLocalPlayer *player = [GKLocalPlayer localPlayer];
+    player.authenticateHandler = ^(UIViewController *viewController, NSError *error) {
+        if (viewController) {
+            [self presentViewController:viewController animated:YES completion:nil];
+        } else if (error || !player.authenticated) {
+            NSLog(@"Error authenticating: %@", error);
+        } else {
+            if (self.shouldGetPlayerHighScoreWhenAuthenticated) {
+                [self getPlayerHighScore:self.shouldGetPlayerHighScoreWhenAuthenticated withLeaderboardId:self.leaderboardId];
+                self.shouldGetPlayerHighScoreWhenAuthenticated = nil;
+                self.leaderboardId = nil;
+            }
+        }
+    };
+    reasonglMain(self);
 }
 
 - (void)dealloc
@@ -57,6 +79,57 @@ extern void reasonglTouchDrag(double* touchPoints, int touchCount);
 
 - (void)tearDownGL {
 	[EAGLContext setCurrentContext:self.context];
+}
+
+#pragma mark - Helpers
+
+- (void)presentLeaderboardViewController:(NSString *)leaderboardId {
+    _gameCenterController = [[GKGameCenterViewController alloc] init];
+    if (!_gameCenterController) {
+        NSLog(@"Couldn't create game center viewcontroller");
+        return;
+    }
+
+    _gameCenterController.gameCenterDelegate = self;
+    _gameCenterController.viewState = GKGameCenterViewControllerStateLeaderboards;
+    _gameCenterController.leaderboardTimeScope = GKLeaderboardTimeScopeToday;
+    _gameCenterController.leaderboardIdentifier = leaderboardId;
+    [self presentViewController:_gameCenterController animated: YES completion:nil];
+}
+
+- (void)uploadScore:(int)scoreValue withLeaderboardId:(NSString *)leaderboardId {
+    GKScore *score = [[GKScore alloc] initWithLeaderboardIdentifier:leaderboardId];
+    score.value = scoreValue;
+    [GKScore reportScores:@[score] withCompletionHandler:^(NSError *error) {
+        if (error) {
+            NSLog(@"Error uploading score: %@", error);
+            return;
+        }
+
+        NSLog(@"Score %d successfully uploaded", scoreValue);
+    }];
+}
+
+- (void)getPlayerHighScore:(void(^)(int64_t scoreValue))callback withLeaderboardId:(NSString *)leaderboardId {
+    GKLocalPlayer *player = [GKLocalPlayer localPlayer];
+    if (!player.authenticated) {
+        self.shouldGetPlayerHighScoreWhenAuthenticated = callback;
+        self.leaderboardId = leaderboardId;
+        return;
+    }
+
+    GKLeaderboard *leaderboardRequest = [[GKLeaderboard alloc] initWithPlayers:@[player]];
+    leaderboardRequest.identifier = leaderboardId;
+    if (leaderboardRequest != nil) {
+        [leaderboardRequest loadScoresWithCompletionHandler:^(NSArray *scores, NSError *error){
+            if (error != nil) {
+                NSLog(@"Couldn't retrieve scores for player %@", player);
+                return;
+            }
+
+            callback(leaderboardRequest.localPlayerScore.value);
+        }];
+    }
 }
 
 #pragma mark - GLKView and GLKViewController delegate methods
@@ -137,7 +210,14 @@ extern void reasonglTouchDrag(double* touchPoints, int touchCount);
 }
 
 - (void)update {
-	reasonglUpdate(self);
+    reasonglUpdate(self);
+}
+
+#pragma mark - GKGameCenterControllerDelegate
+
+- (void)gameCenterViewControllerDidFinish:(GKGameCenterViewController *)gameCenterViewController {
+    [_gameCenterController dismissViewControllerAnimated:YES completion:nil];
+    _gameCenterController = nil;
 }
 
 @end
