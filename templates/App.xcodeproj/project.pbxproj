@@ -23,12 +23,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		43249D462172989C00218B19 /* stubs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = stubs.c; path = ../node_modules/bsb-native/jscomp/belt_native/stubs.c; sourceTree = "<group>"; };
-		4386CFB52168709B008EAFE4 /* CBindings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CBindings.m; path = "../node_modules/reasongl/src/ios/CBindings.m"; sourceTree = "<group>"; };
-		4386CFB62168709B008EAFE4 /* CTgls.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CTgls.m; path = "../node_modules/reasongl/src/ios/CTgls.m"; sourceTree = "<group>"; };
-		4386CFB9216870A9008EAFE4 /* Reasongl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Reasongl.h; path = "../node_modules/reasongl/src/ios/Reasongl.h"; sourceTree = "<group>"; };
-		4386CFBA216870A9008EAFE4 /* Reasongl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Reasongl.m; path = "../node_modules/reasongl/src/ios/Reasongl.m"; sourceTree = "<group>"; };
-		4386D0312168710C008EAFE4 /* MainIosEntrypoint.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; name = MainIosEntrypoint.o; path = "lib/bs/ios/MainIosEntrypoint.o"; sourceTree = "<group>"; };
+		43249D462172989C00218B19 /* stubs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = stubs.c; path = "../node_modules/bsb-native/jscomp/belt_native/stubs.c"; sourceTree = "<group>"; };
+		4386CFB52168709B008EAFE4 /* CBindings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CBindings.m; path = ../node_modules/reasongl/src/ios/CBindings.m; sourceTree = "<group>"; };
+		4386CFB62168709B008EAFE4 /* CTgls.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CTgls.m; path = ../node_modules/reasongl/src/ios/CTgls.m; sourceTree = "<group>"; };
+		4386CFB9216870A9008EAFE4 /* Reasongl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Reasongl.h; path = ../node_modules/reasongl/src/ios/Reasongl.h; sourceTree = "<group>"; };
+		4386CFBA216870A9008EAFE4 /* Reasongl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Reasongl.m; path = ../node_modules/reasongl/src/ios/Reasongl.m; sourceTree = "<group>"; };
+		4386D0312168710C008EAFE4 /* MainIosEntrypoint.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; name = MainIosEntrypoint.o; path = lib/bs/ios/MainIosEntrypoint.o; sourceTree = "<group>"; };
 		4386D03321687166008EAFE4 /* libthreads.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libthreads.a; path = "../node_modules/ocaml-cross-mobile/ios-arm64/lib/ocaml/libthreads.a"; sourceTree = "<group>"; };
 		4386D03421687166008EAFE4 /* libasmrun.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libasmrun.a; path = "../node_modules/ocaml-cross-mobile/ios-arm64/lib/ocaml/libasmrun.a"; sourceTree = "<group>"; };
 		4386D03521687166008EAFE4 /* libbigarray.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libbigarray.a; path = "../node_modules/ocaml-cross-mobile/ios-arm64/lib/ocaml/libbigarray.a"; sourceTree = "<group>"; };
@@ -334,6 +334,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SYMROOT = _build;
+				VALID_ARCHS = "arm64 arm64e";
 			};
 			name = Debug;
 		};
@@ -365,6 +366,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SYMROOT = _build;
+				VALID_ARCHS = "arm64 arm64e";
 			};
 			name = Release;
 		};
