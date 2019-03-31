@@ -68,7 +68,7 @@ if (backend == "ios") {
             grabStringFromJson(line, "organizationName", organizationName);
             grabStringFromJson(line, "icon_2x", appIcon2x);
             grabStringFromJson(line, "icon_3x", appIcon3x);
-            productBundleIdentifier := "com." ++ organizationName^ ++ "." ++ productName^;
+            productBundleIdentifier := "com." ++ organizationName^ ++ "." ++ Bytes.lowercase(productName^);
 
             grabStringFromJson(line, "productBundleIdentifier", productBundleIdentifier);
         }
