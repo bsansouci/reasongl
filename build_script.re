@@ -155,10 +155,10 @@ if (backend == "ios") {
 
     /* Might not be enough because the file type... We should probably modify the Contents.json */
     if (String.length(appIcon2x) > 0) {
-      copyIcon(appIcon2x, "icon_120.png")
+      copyIcon(appIcon2x, "icon_120.jpg")
     };
     if (String.length(appIcon3x) > 0) {
-      copyIcon(appIcon3x, "icon_180.png")
+      copyIcon(appIcon3x, "icon_180.jpg")
     };
   }
 } else {
