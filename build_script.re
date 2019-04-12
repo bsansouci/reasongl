@@ -1,6 +1,6 @@
 open Bsb_internals;
 
-let ( // ) = Filename.concat;
+let ( /+ ) = Filename.concat;
 
 let parseUntil = (s, until) => {
   let l1 = String.length(s);
@@ -32,10 +32,13 @@ let parseUntil = (s, until) => {
 };
 
 if (backend == "ios") {
-  if (!Sys.file_exists(root_project_dir // "App.xcodeproj")) {
-    let _ = Sys.command("cp -r " ++ (cwd // "templates" // "App.xcodeproj") ++ " " ++ (root_project_dir // "App.xcodeproj"));
-    let _ = Sys.command("cp -r " ++ (cwd // "templates" // "App.xcworkspace") ++ " " ++ (root_project_dir // "App.xcworkspace"));
-    let _ = Sys.command("cp -r " ++ (cwd // "templates" // "App") ++ " " ++ (root_project_dir // "App"));
+  if (!Sys.file_exists(root_project_dir /+ "assets")) {
+    let _ = Sys.command("mkdir -p " ++ (root_project_dir /+ "assets"));
+  };
+  if (!Sys.file_exists(root_project_dir /+ "App.xcodeproj")) {
+    let _ = Sys.command("cp -r " ++ (cwd /+ "templates" /+ "App.xcodeproj") ++ " " ++ (root_project_dir /+ "App.xcodeproj"));
+    let _ = Sys.command("cp -r " ++ (cwd /+ "templates" /+ "App.xcworkspace") ++ " " ++ (root_project_dir /+ "App.xcworkspace"));
+    let _ = Sys.command("cp -r " ++ (cwd /+ "templates" /+ "App") ++ " " ++ (root_project_dir /+ "App"));
 
     let (productName, organizationName, productBundleIdentifier, appIcon2x, appIcon3x) = {
       let grabStringFromJson = (json, word, r) => {
@@ -49,7 +52,7 @@ if (backend == "ios") {
           };
       };
 
-      let packageJson = open_in(root_project_dir // "package.json");
+      let packageJson = open_in(root_project_dir /+ "package.json");
       let productName = ref("MyCoolProject");
       let organizationName = ref("bestcorp");
       let appIcon2x = ref("");
@@ -76,8 +79,8 @@ if (backend == "ios") {
       (productName^, organizationName^, productBundleIdentifier^, appIcon2x^, appIcon3x^)
     };
 
-    let ic = open_in(cwd // "templates" // "App.xcodeproj" // "project.pbxproj");
-    let oc = open_out(root_project_dir // "App.xcodeproj" // "project.pbxproj");
+    let ic = open_in(cwd /+ "templates" /+ "App.xcodeproj" /+ "project.pbxproj");
+    let oc = open_out(root_project_dir /+ "App.xcodeproj" /+ "project.pbxproj");
 
     let running = ref(true);
     while (running^) {
@@ -116,8 +119,8 @@ if (backend == "ios") {
       }
     };
 
-    let ic = open_in(cwd // "templates" // "App" // "Info.plist");
-    let oc = open_out(root_project_dir // "App" // "Info.plist");
+    let ic = open_in(cwd /+ "templates" /+ "App" /+ "Info.plist");
+    let oc = open_out(root_project_dir /+ "App" /+ "Info.plist");
 
     running := true;
     while (running^) {
@@ -145,11 +148,11 @@ if (backend == "ios") {
 
     let copyIcon = (icon, outputFileName) => {
       let icon = if (Filename.is_relative(icon)) {
-        root_project_dir // icon
+        root_project_dir /+ icon
       } else {
         icon
       };
-      let cmd = "cp " ++ icon ++ " " ++ (root_project_dir // "App" // "Assets.xcassets" // "AppIcon.appiconset" // outputFileName);
+      let cmd = "cp " ++ icon ++ " " ++ (root_project_dir /+ "App" /+ "Assets.xcassets" /+ "AppIcon.appiconset" /+ outputFileName);
       ignore(Sys.command(cmd));
     };
 
@@ -162,6 +165,6 @@ if (backend == "ios") {
     };
   }
 } else {
-  let _ = gcc(cwd // "lib" // "reasongl.o", [cwd // "src" // "native" // "reasongl.c"]);
+  let _ = gcc(cwd /+ "lib" /+ "reasongl.o", [cwd /+ "src" /+ "native" /+ "reasongl.c"]);
 }
 
