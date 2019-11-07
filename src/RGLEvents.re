@@ -8,6 +8,7 @@ module type t = {
     | MouseUp;
   type keycodeT =
     | Backspace
+    | Delete
     | Tab
     | Enter
     | Escape

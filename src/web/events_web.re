@@ -9,6 +9,7 @@ type stateT =
 
 type keycodeT =
   | Backspace
+  | Delete
   | Tab
   | Enter
   | Escape
@@ -90,6 +91,7 @@ let keycodeMap: Int32.t => keycodeT = (i32) =>
   | 38 => Up
   | 39 => Right
   | 40 => Down
+  | 46 => Delete
   | 48 => Num_0
   | 49 => Num_1
   | 50 => Num_2

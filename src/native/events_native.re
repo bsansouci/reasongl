@@ -9,6 +9,7 @@ type stateT =
 
 type keycodeT =
   | Backspace
+  | Delete
   | Tab
   | Enter
   | Escape
@@ -133,6 +134,7 @@ let keycodeMap: Int32.t => keycodeT =
       | 120 => X
       | 121 => Y
       | 122 => Z
+      | 127 => Delete
       | _ => Nothing
       }
     } else {
