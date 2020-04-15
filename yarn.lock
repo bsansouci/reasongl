@@ -2,19 +2,22 @@
 # yarn lockfile v1
 
 
-Tgls@bsansouci/tgls:
+"@bsansouci/tgls@^0.8.4":
   version "0.8.4"
-  resolved "https://codeload.github.com/bsansouci/tgls/tar.gz/45c490d8d34425f639b508290c297c5a76277bcf"
+  resolved "https://registry.yarnpkg.com/@bsansouci/tgls/-/tgls-0.8.4.tgz#55af985dd08077216dd7b60f5ba71e1f4d18c5a5"
+  integrity sha512-BELFkZS1H8z8z1kTYiVJJc5WXY1KsY8oqfQZ2auwzonTLqIDq9cHIGx0IK5obxseCuiJdpxTx4lhlX3ju2IG+g==
 
-Tsdl@bsansouci/tsdl:
+"@bsansouci/tsdl@^0.9.1":
   version "0.9.1"
-  resolved "https://codeload.github.com/bsansouci/tsdl/tar.gz/197cb1337397035d7a24190c52f3b4549a4a17da"
+  resolved "https://registry.yarnpkg.com/@bsansouci/tsdl/-/tsdl-0.9.1.tgz#5d19bdf76b1f6ceea9d6aa3c407a6592f3f8f1f2"
+  integrity sha512-AAIdaYdJuTTO6IZ+YZJJJ8elspUcf2QJsBZ3KNwFDk9e7/HpPTyFtsOVHBPdu0mn+luI0OigUPwopI97esmL0g==
   dependencies:
     sdl2 bsansouci/SDL-mirror#fast
 
-bs-platform@bsansouci/bsb-native#3.2.0:
-  version "3.2.0"
-  resolved "https://codeload.github.com/bsansouci/bsb-native/tar.gz/84604c9f6a5611eed68372efdb575c00a3e72813"
+bsb-native@4.0.6:
+  version "4.0.6"
+  resolved "https://registry.yarnpkg.com/bsb-native/-/bsb-native-4.0.6.tgz#5c0289e24e0a3375ebf8f69a17510b884cace1ca"
+  integrity sha512-T1MkndnmA4StiKK2UvEftrqANN+h9StlLghBbwmKa833d97D86np+2wmIOw5Rqy6rNW3D076A2G51mooWTUwfQ==
   dependencies:
     yauzl "^2.9.1"
 
@@ -36,7 +39,7 @@ pend@~1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/pend/-/pend-1.2.0.tgz#7a57eb550a6783f9115331fcf4663d5c8e007a50"
 
-sdl2@bsansouci/SDL-mirror#fast:
+"sdl2@github:bsansouci/SDL-mirror#fast":
   version "2.0.5"
   resolved "https://codeload.github.com/bsansouci/SDL-mirror/tar.gz/db0756eec3c5979b8291d739ebac9e8747ccbac2"
   dependencies:

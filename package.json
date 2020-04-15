@@ -1,10 +1,10 @@
 {
-  "name": "reasongl",
-  "version": "0.2.1",
+  "name": "@bsansouci/reasongl",
+  "version": "0.2.2",
   "description": "Reason bindings to GL",
   "dependencies": {
-    "tgls": "^0.8.4",
-    "tsdl": "^0.9.1",
+    "@bsansouci/tgls": "^0.8.4",
+    "@bsansouci/tsdl": "^0.9.1",
     "gl-matrix": "*"
   },
   "repository": {
