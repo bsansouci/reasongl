@@ -1,6 +1,6 @@
 {
   "name": "@bsansouci/reasongl",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Reason bindings to GL",
   "dependencies": {
     "@bsansouci/tgls": "^0.8.4",

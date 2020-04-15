@@ -15,7 +15,7 @@
   }],
   "warnings": {"number": "-44"},
   "build-script": "build_script.re",
-  "bs-dependencies": ["Tsdl", "Tgls"],
+  "bs-dependencies": ["@bsansouci/tsdl", "@bsansouci/tgls", "unix", "bigarray"],
   "entries": [ {
     "backend": "native",
     "main-module": "Example"
