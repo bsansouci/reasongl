@@ -1,11 +1,13 @@
 {
   "name": "@bsansouci/reasongl",
-  "version": "0.2.4",
+  "version": "1.0.0",
   "description": "Reason bindings to GL",
   "dependencies": {
-    "@bsansouci/tgls": "^0.8.4",
-    "@bsansouci/tsdl": "^0.9.1",
-    "gl-matrix": "*"
+    "@bsansouci/tgls": "^1.0.0",
+    "@bsansouci/tsdl": "^1.0.0",
+    "gl-matrix": "*",
+    "unix": "bsansouci/otherlibs",
+    "bigarray": "bsansouci/otherlibs"
   },
   "repository": {
     "type": "git",
