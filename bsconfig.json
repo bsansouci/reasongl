@@ -1,5 +1,5 @@
 {
-  "name": "Reasongl",
+  "name": "@bsansouci/reasongl",
   "sources": [{
     "dir": "src",
     "subdirs": [{
