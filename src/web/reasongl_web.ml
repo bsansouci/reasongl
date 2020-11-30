@@ -163,7 +163,7 @@ module Gl : RGLInterface.t =
             match screen with
             | None -> None
             | ((Some (id))[@explicit_arity ]) ->
-                Js.Nullable.to_opt (Document.getElementById id) in
+                Js.Nullable.toOption(Document.getElementById id) in
           let canvas =
             match node with
             | ((Some (node))[@explicit_arity ]) -> Obj.magic node
